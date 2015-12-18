@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QDockWidget" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>271</width>
+    <height>439</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>DockWidget</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="layout_assembly_data">
+      <item>
+       <widget class="QGroupBox" name="groupbox_assembly_data">
+        <property name="title">
+         <string>Assembly data replacement</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_insert_assembly_path_source">
+           <property name="text">
+            <string>Insert Asset Cube Name</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="textedit_insert_cube_name">
+           <property name="plainText">
+            <string>&quot;cube001&quot;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_replace_assemblies_datas">
+           <property name="text">
+            <string>Replace Selected Assemblies Datas</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="layout_object_to_assembly">
+      <item>
+       <widget class="QGroupBox" name="groupBox_object_to_assembly_replacement">
+        <property name="title">
+         <string>Objects to assembly replacement</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QLabel" name="label_inser_assembly_source_name">
+           <property name="text">
+            <string>Insert Assembly Source Name</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="textedit_insert_assembly_source_name">
+           <property name="plainText">
+            <string>&quot;PR_cube001_MODEL_001&quot;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_replace_selected_object_to_assembly">
+           <property name="text">
+            <string>Replace Selected Object To Assemblies</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="layout_assemblies_converter">
+      <item>
+       <widget class="QGroupBox" name="groupBox_assemblies_converter">
+        <property name="title">
+         <string>Assemblies Converter</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_select_assemblies_to_convert">
+           <property name="text">
+            <string>Select Assemblies to convert</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="layout_convert_to">
+           <item>
+            <widget class="QPushButton" name="button_convert_to_gpucache">
+             <property name="text">
+              <string>Convert To GPUcache</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="button_convert_to_geometry">
+             <property name="text">
+              <string>Convert To Geometry</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
