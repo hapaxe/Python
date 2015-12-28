@@ -84,14 +84,28 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         self.blendshapes_datas = self.list_blend_shape_datas()  # Dictionary storing the current scene blendShape datas
         self.controllers_datas = self.list_controllers_datas()
         self.connections = dict()
-        # ----------------- BUTTONS ----------------- #
-        self.bs_node_menu.addItems(self.testList)
-        self.bs_node_menu.currentIndexChanged.connect(self.update_bs_targets_textscrolllist)
+        # ------------------ MENUS ------------------ #
+        # ------------------------------------------- #
+        bs_nodes_list = [node for node in self.blendshapes_datas]
+        self.update_combobox(self.bs_node_menu, bs_nodes_list)
+        # --- Connect
+        self.bs_node_menu.currentIndexChanged.connect(self.update_bs_targets_qlistwidget)
+        # ------------------------------------------- #
+        self.update_bs_targets_qlistwidget([])
+        # ------------------------------------------- #
+        controllers_list = [controller for controller in self.controllers_datas]
+        controllers_list.sort()
+        self.controllers_menu.addItems(controllers_list)
+        # --- Connect
+        self.controllers_menu.currentIndexChanged.connect(self.update_attributes_menu)
+        # ------------------------------------------- #
+        self.update_attributes_menu()
 
+        # ----------------- BUTTONS ----------------- #
         self.refresh_button.clicked.connect(self.refresh_ui)
         self.create_bs_button.clicked.connect(self.create_blendshape_node)
         self.add_targets_button.clicked.connect(self.add_blendshape_target)
-        self.extract_targets_button.clicked.connect(self.extract_blendshape_target)
+        self.extract_targets_button.clicked.connect(self.extract_multi_blendshape_target)
         self.delete_bs_button.clicked.connect(self.delete_blendshape_node)
         self.remove_targets_button.clicked.connect(self.remove_blendshape_target)
         self.add_inbetween_button.clicked.connect(self.create_in_between)
@@ -101,15 +115,13 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         self.create_attr_button.clicked.connect(self.connect_new_attr_button_func)
         self.delete_attr_button.clicked.connect(self.delete_attr_button_func)
         self.export_connections_button.clicked.connect(self.write_setup_to_dict)
-        self.import_connections_button.clicked.connecet(self.create_setup_from_dict)
-
-        self.refresh_ui()
+        self.import_connections_button.clicked.connect(self.create_setup_from_dict)
 
     # -------------------------------------------------DATAS FOR UI-----------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     # --- Define what to do when print button is hit
     def print_list(self, given_list):
-        def callable_print_list(*args):
+        def callable_print_list():
             pprint(given_list)
         return callable_print_list
 
@@ -322,6 +334,151 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         return controllers_dict
 
     # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------UPDATE UI FUNCTIONS--------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+    def reorder_weights(self):
+        """
+        Reorder the weights to get no empty slot
+        """
+
+        # --- Get datas from ui
+        datas = self.get_ui_datas()
+        # --- List the weights
+        weights = mel.eval('DPK_bcs -query -getWeight "%s"' % datas[0])
+        weights_name = mel.eval('DPK_bcs -query -getWeight -name "%s"' % datas[0])
+        for i, name in enumerate(weights_name):
+            if name == '':
+                weights.pop(i)
+
+        weights_string = str(weights)
+        weights_string = weights_string.replace('[', '{')
+        weights_string = weights_string.replace(']', '}')
+
+        # --- Reorder the weights using the new list of indices
+        mel.eval('DPK_bcs -edit -reorderWeights %s "%s"' % (weights_string, datas[0]))
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def create_weights_list(self):
+        """
+        Create targets list from
+        :return: weights (list)
+        """
+
+        # --- Get datas from ui
+        datas = self.get_ui_datas()
+
+        # --- Create the list of target
+        if datas[0] == 'None':
+            blend_shape_targets_list = ['None']
+        else:
+            blend_shape_targets_list = list()
+            # --- For every target in the blendshapes_datas of the selected blendShape node
+            for target in self.blendshapes_datas[datas[0]]['targets']:
+                # --- Add the weight_list of the target
+                blend_shape_targets_list += self.blendshapes_datas[datas[0]]['targets'][target]['weights']
+
+        return blend_shape_targets_list
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def get_target_from_weight(self, weight):
+        """
+        Get the target from a given weight
+        :param: weight: the given weight (string)
+        :return: target (string)
+        """
+
+        # --- Get datas from ui
+        datas = self.get_ui_datas()
+
+        returned_target = 'None'
+
+        for target in self.blendshapes_datas[datas[0]]['targets']:
+            if weight in self.blendshapes_datas[datas[0]]['targets'][target]['weights']:
+                returned_target = target
+
+        return returned_target
+
+# ------------------------------------------------------------------------------------------------------------------
+    def update_combobox(self, combobox, items):
+        """
+        Update the given combobox
+        :param combobox: combobox to update,  ie: self.bs_node_menu
+        :param items: list of items to add to the given combobox
+        """
+
+        # --- Blocking signals from ui
+        combobox.blockSignals(True)
+
+        # --- Init items if empty
+        if items is []:
+            items = ['None']
+
+        # --- Get currently selected text
+        selected_text = combobox.currentText()
+        # --- Clear combobox
+        combobox.clear()
+        # --- Add items
+        combobox.addItems(items)
+        # --- If current selected item in new item list, select it
+        if selected_text in items:
+            text_index = combobox.findText(selected_text)
+            combobox.setCurrentIndex(text_index)
+        else:
+            combobox.setCurrentIndex(0)
+
+        # --- Unblocking signals from ui
+        combobox.blockSignals(False)
+        
+    # ------------------------------------------------------------------------------------------------------------------
+    def update_attributes_menu(self):
+        """
+        Update the attributes menu
+        """
+        # --- Get the controller which is selected in the UI
+        controller = self.get_ui_datas()[2]
+
+        if controller == '':
+            controller = "None"
+
+        self.update_combobox(self.attributes_menu, self.controllers_datas[controller])
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def get_selected_targets(self):
+        """
+        Get currently selected bs_targets
+        :return:
+        """
+        selected_bs_targets_items = self.bs_targets_list.selectedItems()
+        selected_bs_targets = list()
+        for item in selected_bs_targets_items:
+            selected_bs_targets.append(item.text())
+
+        return selected_bs_targets
+    
+    # ------------------------------------------------------------------------------------------------------------------
+    def update_bs_targets_qlistwidget(self, selected_bs_targets):
+        """
+        Update the targets qlistwidget
+        """
+        # --- If called by bs_node_menu combobox, type is int, then create selection list
+        if type(selected_bs_targets) is not list:
+            selected_bs_targets = self.get_selected_targets()
+
+        # --- Create the list of target
+        bs_targets = self.create_weights_list()
+
+        self.bs_targets_list.clear()
+        self.bs_targets_list.addItems(bs_targets)
+        # --- If currently selected text in new item list, select it
+        for text in selected_bs_targets:
+            if text in bs_targets:
+                items = self.bs_targets_list.findItems(text, Qt.MatchExactly)
+                for item in items:
+                    idx = self.bs_targets_list.indexFromItem(item)
+                    #index = self.bs_targets_list.row(item)
+                    self.bs_targets_list.item(idx.row()).setSelected(True)
+    
+    # ------------------------------------------------------------------------------------------------------------------
     # --------------------------------------------GET DATAS FOR FUNCTIONS-----------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     def get_ui_datas(self):
@@ -331,7 +488,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         """
 
         blendshape_node = self.bs_node_menu.currentText()
-        blendshape_target = self.bs_targets_list.currentItem()
+        blendshape_target = self.get_selected_targets()
         controller = self.controllers_menu.currentText()
         attribute = self.attributes_menu.currentText()
         attribute_min = self.min_value.value()
@@ -372,107 +529,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         base = mc.listRelatives(shape, fullPath=True, parent=True, type='transform')[0]
 
         return base
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------UPDATE UI FUNCTIONS--------------------------------------------------
-    # ------------------------------------------------------------------------------------------------------------------
-    def reorder_weights(self):
-        """
-        Reorder the weights to get no empty slot
-        """
-
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
-        # --- List the weights
-        weights = mel.eval('DPK_bcs -query -getWeight "%s"' % datas[0])
-        weights_name = mel.eval('DPK_bcs -query -getWeight -name "%s"' % datas[0])
-        for i, name in enumerate(weights_name):
-            if name == '':
-                weights.pop(i)
-
-        weights_string = str(weights)
-        weights_string = weights_string.replace('[', '{')
-        weights_string = weights_string.replace(']', '}')
-
-        # --- Reorder the weights using the new list of indices
-        mel.eval('DPK_bcs -edit -reorderWeights %s "%s"' % (weights_string, datas[0]))
-
-    # ------------------------------------------------------------------------------------------------------------------
-    def create_weights_list(self):
-        """
-        Create targets list from
-        :return: weights (list)
-        """
-
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
-        print datas
-
-        # --- Create the list of target
-        if datas[0] == "None":
-            blend_shape_targets_list = ['None']
-        else:
-            blend_shape_targets_list = list()
-            # --- For every target in the blendshapes_datas of the selected blendShape node
-            for target in self.blendshapes_datas[datas[0]]['targets']:
-                # --- Add the weight_list of the target
-                blend_shape_targets_list += self.blendshapes_datas[datas[0]]['targets'][target]['weights']
-
-        return blend_shape_targets_list
-
-    # ------------------------------------------------------------------------------------------------------------------
-    def get_target_from_weight(self, weight):
-        """
-        Get the target from a given weight
-        :param: weight: the given weight (string)
-        :return: target (string)
-        """
-
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
-
-        returned_target = 'None'
-
-        for target in self.blendshapes_datas[datas[0]]['targets']:
-            if weight in self.blendshapes_datas[datas[0]]['targets'][target]['weights']:
-                returned_target = target
-
-        return returned_target
-    # ------------------------------------------------------------------------------------------------------------------
-    def update_bs_targets_textscrolllist(self):
-        """
-        Update the targets textScrollList
-        """
-
-        # --- Create the list of target
-        bs_targets = self.create_weights_list()
-        selected_bs_target = self.bs_targets_list.currentItem()
-
-        self.bs_targets_list.clear()
-        self.bs_targets_list.addItems(bs_targets)
-        if selected_bs_target in bs_targets:
-            self.bs_targets_list.setCurrentItem(selected_bs_target)
-
-    # ------------------------------------------------------------------------------------------------------------------
-    def update_attributes_menu(self):
-        """
-        Update the attributes menu
-        """
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
-
-        # --- Get the controller which is selected in the UI
-        controller = datas[2]
-
-        if controller is None:
-            controller = "None"
-
-        selected_attribute = self.attributes_menu.currentText()
-        self.attributes_menu.clear()
-        self.attributes_menu.addItems(self.controllers_datas[controller])
-        if selected_attribute in self.controllers_datas[controller]:
-            self.bs_node_menu.setEditText(selected_attribute)
-
+    
     # ------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------BUTTONS FUNCTIONS----------------------------------------------------
     # -------------------------------------------RIGHT BUTTONS FUNCTIONS------------------------------------------------
@@ -481,34 +538,27 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         """
         Update the UI
         """
-        print 1
+        # --- Is BCS loaded, in order to update scene datas
         self.bcs_loaded = self.is_bcs_loaded()
-        print 2
-        # Dictionary storing the current scene blendShape datas
+
+        # --- Update dictionaries storing the current scene blendShape datas
         self.blendshapes_datas = self.list_blend_shape_datas()
         self.controllers_datas = self.list_controllers_datas()
 
+        # --- Get currently selected targets
+        selected_bs_targets = self.get_selected_targets()
+
         # --- Refresh BlendShape nodes comboBox
         bs_nodes_list = [node for node in self.blendshapes_datas]
-        if len(bs_nodes_list) == 0:
-            bs_nodes_list = ['None']
-        selected_bs_node = self.bs_node_menu.currentText()
-        self.bs_node_menu.clear()
-        self.bs_node_menu.addItems(bs_nodes_list)
-        if selected_bs_node in bs_nodes_list:
-            self.bs_node_menu.setEditText(selected_bs_node)
+        self.update_combobox(self.bs_node_menu, bs_nodes_list)
 
-        # --- Refresh blendShape targets textscrolllist
-        self.update_bs_targets_textscrolllist()
+        # --- Refresh blendShape targets qlistwidget
+        self.update_bs_targets_qlistwidget(selected_bs_targets)
 
-        # --- Refresh controllers textscrolllist
+        # --- Refresh controllers comboBox
         controllers_list = [controller for controller in self.controllers_datas]
         controllers_list.sort()
-        selected_controller = self.controllers_menu.currentText()
-        self.controllers_menu.clear()
-        self.controllers_menu.addItems(controllers_list)
-        if selected_controller in controllers_list:
-            self.bs_node_menu.setEditText(selected_controller)
+        self.update_combobox(self.controllers_menu, controllers_list)
 
         # --- Refresh attribute optionMenu
         self.update_attributes_menu()
@@ -556,7 +606,8 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
             for target in selection:
                 weight_index = mel.eval('DPK_bcs -e -createWeight -name "%s" "%s"' % (target, datas[0]))
                 index = mel.eval('DPK_bcs -e -createWPos -weight %s "%s"' % (weight_index, datas[0]))
-                mel.eval('DPK_bcs -e -createDataPoint -name "%s" -dataPointPosition %s -go "%s" "%s"' % (target, index, target, datas[0]))
+                mel.eval('DPK_bcs -e -createDataPoint -name "%s" -dataPointPosition %s -go "%s" "%s"'
+                         % (target, index, target, datas[0]))
         else:
             # --- Define new index ------------------------------
             # --- Get the weight and their indices
@@ -592,7 +643,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         """
         Recreate the specified target and reconnect it to the blendShape node, delete it, and then reconnect it properly
         if delete flag is True
-        :param target : string (the target to extract or delete)
+        :param given_weight : string (the target to extract or delete)
         :param delete : boolean (whether target must be extracted (False) or deleted (True)
         """
 
@@ -654,8 +705,10 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
                 if mc.objExists(target):
                     # --- If target is bilateral, set both weights to 1
                     if self.blendshapes_datas[datas[0]]['targets'][target]['bilateral']:
-                        mc.setAttr('%s.%s' % (datas[0], self.blendshapes_datas[datas[0]]['targets'][target]['weights'][0]), 1)
-                        mc.setAttr('%s.%s' % (datas[0], self.blendshapes_datas[datas[0]]['targets'][target]['weights'][1]), 1)
+                        mc.setAttr('%s.%s'
+                                   % (datas[0], self.blendshapes_datas[datas[0]]['targets'][target]['weights'][0]), 1)
+                        mc.setAttr('%s.%s'
+                                   % (datas[0], self.blendshapes_datas[datas[0]]['targets'][target]['weights'][1]), 1)
                     # --- If not, set only the target to 1 (since there is only target weight)
                     else:
                         mc.setAttr('%s.%s' % (datas[0], target), 1)
@@ -663,9 +716,11 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
                     extract = mc.duplicate(base, name=target+'_extract')[0]
                 else:
                     # --- Get the index of the dataPoint
-                    get_datapoint_index = mel.eval('DPK_bcs -query -getDataPoint -called "%s" "%s"' % (target, datas[0]))
+                    get_datapoint_index = mel.eval('DPK_bcs -query -getDataPoint -called "%s" "%s"'
+                                                   % (target, datas[0]))
                     # --- Extract the dataPoint
-                    extract = mel.eval('DPK_bcs -edit -dataPoint %s -geometryType "edit" -geometryMode true "%s"' % (get_datapoint_index, datas[0]))
+                    extract = mel.eval('DPK_bcs -edit -dataPoint %s -geometryType "edit" -geometryMode true "%s"'
+                                       % (get_datapoint_index, datas[0]))
                 # --- Reconnect all the connections
                     self.create_setup_from_dict(datas[0], connection_dict)
                 # --- If delete flag is True
@@ -697,45 +752,50 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         Recreate the specified target(s), reconnect them to the blendShape node, and move them
         """
 
-        # --- Get the datas from the ui
-        datas = self.get_ui_datas()
-        base = self.get_blendshape_base()
-        # --- List existing extracts
-        extracts = [mesh for mesh in mc.ls(transforms=True) if '_extract' in mesh]
+        # --- Open history chunk
+        mc.undoInfo(openChunk=True)
+        try:
+            # --- Get the datas from the ui
+            datas = self.get_ui_datas()
+            base = self.get_blendshape_base()
+            # --- List existing extracts
+            extracts = [mesh for mesh in mc.ls(transforms=True) if '_extract' in mesh]
 
-        # --- Get the bounding box
-        bbox = mc.exactWorldBoundingBox(base, ignoreInvisible=True)
-        # --- Calculate extract move
-        bbox_size = [0, 0]
-        bbox_size[0] = bbox[3] - bbox[0]
-        bbox_size[1] = bbox[5] - bbox[2]
-        # --- Calculate height
-        bbox_height = bbox[4] - bbox[1]
-        # --- Sort the length and height to get the higher one at index [1]
-        bbox_size.sort()
+            # --- Get the bounding box
+            bbox = mc.exactWorldBoundingBox(base, ignoreInvisible=True)
+            # --- Calculate extract move
+            bbox_size = [0, 0]
+            bbox_size[0] = bbox[3] - bbox[0]
+            bbox_size[1] = bbox[5] - bbox[2]
+            # --- Calculate height
+            bbox_height = bbox[4] - bbox[1]
+            # --- Sort the length and height to get the higher one at index [1]
+            bbox_size.sort()
 
-        # --- Increment i for every existing extract
-        x = bbox_size[1]*2
-        for existing_extract in extracts:
-            x += (bbox_size[1]*2)
+            # --- Increment i for every existing extract
+            x = bbox_size[1]*2
+            for existing_extract in extracts:
+                x += (bbox_size[1]*1.5)
 
-        # --- Extract target for every selected target
-        for target in datas[1]:
-            extract = self.extract_blendshape_target(target, delete=False)
-            # --- Set the translateY value
-            if 'None' in extract:
-                pass
-            elif not 'extract' in extract:
-                y = 0
-                # --- Move the extracted geometry
-                mc.xform(extract, translation=[x, y, 0])
-            else:
-                y = bbox_height
-                # --- Move the extracted geometry
-                mc.xform(extract, translation=[x, y, 0])
+            # --- Extract target for every selected target
+            for target in datas[1]:
+                extract = self.extract_blendshape_target(target, delete=False)
+                # --- Set the translateY value
+                if 'None' in extract:
+                    pass
+                elif not 'extract' in extract:
+                    y = 0
+                    # --- Move the extracted geometry
+                    mc.xform(extract, translation=[x, y, 0])
+                else:
+                    y = bbox_height*1.2
+                    # --- Move the extracted geometry
+                    mc.xform(extract, translation=[x, y, 0])
 
-            # --- Increment i
-            x += bbox_size[1]*2
+                # --- Increment i
+                x += bbox_size[1]*1.5
+        finally:
+            mc.undoInfo(closeChunk=True)
 
     # ------------------------------------------------------------------------------------------------------------------
     def delete_blendshape_node(self):
@@ -755,21 +815,26 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         Add blendShape target(s) to the specified blendShape node (see ui).
         """
 
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
+        # --- Open history chunk
+        mc.undoInfo(openChunk=True)
+        try:
+            # --- Get datas from ui
+            datas = self.get_ui_datas()
 
-        for target in datas[1]:
-            if mc.objExists(target) is False or self.blendshapes_datas[datas[0]]['type'] == 'DPK_bcs':
-                self.extract_blendshape_target(target, delete=True)
-            else:
-                # --- Get index
-                index = self.get_target_index(target)
-                # --- Get base
-                base = self.get_blendshape_base()
-                # --- Remove it
-                mc.blendShape(datas[0], edit=True, remove=True, target=(base, index, target, 1.0))
+            for target in datas[1]:
+                if mc.objExists(target) is False or self.blendshapes_datas[datas[0]]['type'] == 'DPK_bcs':
+                    self.extract_blendshape_target(target, delete=True)
+                else:
+                    # --- Get index
+                    index = self.get_target_index(target)
+                    # --- Get base
+                    base = self.get_blendshape_base()
+                    # --- Remove it
+                    mc.blendShape(datas[0], edit=True, remove=True, target=(base, index, target, 1.0))
 
-            self.refresh_ui()
+                self.refresh_ui()
+        finally:
+            mc.undoInfo(closeChunk=True)
 
     # ------------------------------------------------------------------------------------------------------------------
     def create_in_between(self):
@@ -777,27 +842,34 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         Create a new in between
         """
 
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
-        # --- Get in between value, base, index, and new_target
-        in_between_value = mc.floatField(self.widgets['in_between_floatfield'], q=True, value=True)
-        base = self.get_blendshape_base()
-        index = self.get_target_index(datas[1][0])
-        new_target = mc.ls(sl=True, transforms=True)[0]
-        weight = self.get_target_from_weight(datas[1][0])
+        # --- Open history chunk
+        mc.undoInfo(openChunk=True)
+        try:
+            # --- Get datas from ui
+            datas = self.get_ui_datas()
+            # --- Get in between value, base, index, and new_target
+            in_between_value = mc.floatField(self.widgets['in_between_floatfield'], q=True, value=True)
+            base = self.get_blendshape_base()
+            index = self.get_target_index(datas[1][0])
+            new_target = mc.ls(sl=True, transforms=True)[0]
+            weight = self.get_target_from_weight(datas[1][0])
 
-        # --- Create the new in between
-        if self.blendshapes_datas[datas[0]]['type'] == 'DPK_bcs':
-            # --- Get the index of the selected weight
-            get_weight_index = mel.eval('DPK_bcs -query -gw -called "%s" "%s" ' % (weight, datas[0]))
-            # --- Get the index of the weight pos
-            get_wp_index = mel.eval('DPK_bcs -query -gwp -w %s "%s" ' % (get_weight_index, datas[0]))
-            # --- Create the new weightPos
-            index = mel.eval('DPK_bcs -e -wPosGrp %s -createWPos -wPosPosition %s "%s"' % (get_wp_index[0], in_between_value, datas[0]))
-            # --- Create a new dataPoint at the created weight using new_target
-            mel.eval('DPK_bcs -e -createDataPoint -name "%s" -dataPointPosition %s -go "%s" "%s"' % (new_target, index, new_target, datas[0]))
-        else:
-            mc.blendShape(datas[0], e=True, inBetween=True, target=(base, index, new_target, in_between_value))
+            # --- Create the new in between
+            if self.blendshapes_datas[datas[0]]['type'] == 'DPK_bcs':
+                # --- Get the index of the selected weight
+                get_weight_index = mel.eval('DPK_bcs -query -gw -called "%s" "%s" ' % (weight, datas[0]))
+                # --- Get the index of the weight pos
+                get_wp_index = mel.eval('DPK_bcs -query -gwp -w %s "%s" ' % (get_weight_index, datas[0]))
+                # --- Create the new weightPos
+                index = mel.eval('DPK_bcs -e -wPosGrp %s -createWPos -wPosPosition %s "%s"'
+                                 % (get_wp_index[0], in_between_value, datas[0]))
+                # --- Create a new dataPoint at the created weight using new_target
+                mel.eval('DPK_bcs -e -createDataPoint -name "%s" -dataPointPosition %s -go "%s" "%s"'
+                         % (new_target, index, new_target, datas[0]))
+            else:
+                mc.blendShape(datas[0], e=True, inBetween=True, target=(base, index, new_target, in_between_value))
+        finally:
+            mc.undoInfo(closeChunk=True)
 
     # ------------------------------------------------------------------------------------------------------------------
     # --------------------------------------------LEFT BUTTONS FUNCTIONS------------------------------------------------
@@ -818,48 +890,53 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
     # ------------------------------------------------------------------------------------------------------------------
     def connect_func(self, new_attr=False):
         """
-        Connect selected attribute to selected blendShape target. If new_attr is true   , then create the attribute before
+        Connect selected attribute to selected blendShape target. If new_attr is true, then create the attribute before
         connecting it.
         :param new_attr: boolean
         """
 
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
-        check = 'continue'
+        # --- Open history chunk
+        mc.undoInfo(openChunk=True)
+        try:
+            # --- Get datas from ui
+            datas = self.get_ui_datas()
+            check = 'continue'
 
-        # --- Get checkbox state
-        negative = self.negative.isChecked()
-        # --- Define what to do if negative
-        if negative:
-            extrem_x = 'minX'
-        else:
-            extrem_x = 'maxX'
-
-        # --- Create new attribute if needed
-        if new_attr:
-            # --- Check if an attribute with the same name already exists on the controller
-            if mc.objExists('%s.%s' % (datas[2], datas[6])):
-                check = 'stop'
-                print ('An attribute with the same name already exists on that controller. Operation interrupted')
-            # --- If not, create a new attribute
+            # --- Get checkbox state
+            negative = self.negative.isChecked()
+            # --- Define what to do if negative
+            if negative:
+                extrem_x = 'minX'
             else:
-                mc.addAttr(datas[2], longName=datas[6], attributeType='float',
-                           hidden=False, keyable=True, maxValue=datas[5])
-                # --- Changing attribute with new attribute
-                datas[3] = datas[6]
-                self.refresh_ui()
-                check = 'continue'
+                extrem_x = 'maxX'
 
-        # --- If the attribute fills the requirements
-        if check == 'continue':
-            # --- Then connect all the selected targets to the attribute
-            for target in datas[1]:
-                s_range = mc.createNode('setRange', n='SR_%s_%s_to_%s_%s' % (datas[2], datas[3], datas[0], target))
-                mc.connectAttr('%s.%s' % (datas[2], datas[3]), '%s.%s' % (s_range, 'valueX'), force=True)
-                mc.setAttr('%s.%s' % (s_range, 'oldMinX'), datas[4])
-                mc.setAttr('%s.%s' % (s_range, 'oldMaxX'), datas[5])
-                mc.setAttr('%s.%s' % (s_range, extrem_x), 1)
-                mc.connectAttr('%s.%s' % (s_range, 'outValueX'), '%s.%s' % (datas[0], target), force=True)
+            # --- Create new attribute if needed
+            if new_attr:
+                # --- Check if an attribute with the same name already exists on the controller
+                if mc.objExists('%s.%s' % (datas[2], datas[6])):
+                    check = 'stop'
+                    print ('An attribute with the same name already exists on that controller. Operation interrupted')
+                # --- If not, create a new attribute
+                else:
+                    mc.addAttr(datas[2], longName=datas[6], attributeType='float',
+                               hidden=False, keyable=True, maxValue=datas[5])
+                    # --- Changing attribute with new attribute
+                    datas[3] = datas[6]
+                    self.refresh_ui()
+                    check = 'continue'
+
+            # --- If the attribute fills the requirements
+            if check == 'continue':
+                # --- Then connect all the selected targets to the attribute
+                for target in datas[1]:
+                    s_range = mc.createNode('setRange', n='SR_%s_%s_to_%s_%s' % (datas[2], datas[3], datas[0], target))
+                    mc.connectAttr('%s.%s' % (datas[2], datas[3]), '%s.%s' % (s_range, 'valueX'), force=True)
+                    mc.setAttr('%s.%s' % (s_range, 'oldMinX'), datas[4])
+                    mc.setAttr('%s.%s' % (s_range, 'oldMaxX'), datas[5])
+                    mc.setAttr('%s.%s' % (s_range, extrem_x), 1)
+                    mc.connectAttr('%s.%s' % (s_range, 'outValueX'), '%s.%s' % (datas[0], target), force=True)
+        finally:
+            mc.undoInfo(closeChunk=True)
 
     # ------------------------------------------------------------------------------------------------------------------
     def disconnect_button_func(self):
@@ -874,43 +951,52 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         """
         Disconnect everything from selected blendShape target and delete the setRange if it exists.
         """
-        # --- Get datas from ui
-        datas = self.get_ui_datas()
-        self.disconnect()
-        mc.deleteAttr('%s.%s' % (datas[2], datas[3]))
+
+        # --- Open history chunk
+        mc.undoInfo(openChunk=True)
+        try:
+            # --- Get datas from ui
+            datas = self.get_ui_datas()
+            self.disconnect()
+            mc.deleteAttr('%s.%s' % (datas[2], datas[3]))
+        finally:
+            mc.undoInfo(closeChunk=True)
 
     # ------------------------------------------------------------------------------------------------------------------
     def disconnect_func(self):
         """
         Disconnect everything from selected blendShape target, delete the setRange if it exists, and if delete_attr is
         True, then delete the named attribute.
-        :param delete_attr: boolean
         """
 
-        datas = self.get_ui_datas()
-        # --- List all setRange in the scene
-        all_set_range_nodes = mc.ls(exactType='setRange')
+        # --- Open history chunk
+        mc.undoInfo(openChunk=True)
+        try:
+            datas = self.get_ui_datas()
+            # --- List all setRange in the scene
+            all_set_range_nodes = mc.ls(exactType='setRange')
 
-        for target in datas[1]:
-            # --- Get defined set range if it exists, and delete it
-            set_range = [node for node in all_set_range_nodes
-                         if node.split('_to_')[-1] == '%s_%s' % (datas[0], target)]
-            for obj in set_range:
-                mc.delete(obj)
+            for target in datas[1]:
+                # --- Get defined set range if it exists, and delete it
+                set_range = [node for node in all_set_range_nodes
+                             if node.split('_to_')[-1] == '%s_%s' % (datas[0], target)]
+                for obj in set_range:
+                    mc.delete(obj)
 
-            # --- List the connections
-            connections = mc.listConnections('%s.%s' % (datas[0], target), plugs=True)
+                # --- List the connections
+                connections = mc.listConnections('%s.%s' % (datas[0], target), plugs=True)
 
-            # --- Try to disconnect them
-            try:
-                if len(connections) > 0:
-                    for connection in connections:
-                        mc.disconnectAttr(connection, '%s.%s' % (datas[0], target))
-            except:
-                pass
+                # --- Try to disconnect them
+                try:
+                    if len(connections) > 0:
+                        for connection in connections:
+                            mc.disconnectAttr(connection, '%s.%s' % (datas[0], target))
+                except:
+                    pass
 
-        self.refresh_ui()
-
+            self.refresh_ui()
+        finally:
+            mc.undoInfo(closeChunk=True)
 
     # ------------------------------------------------------------------------------------------------------------------
     def write_setup_to_dict(self):
@@ -943,12 +1029,16 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         Create a setup from connections stored into the given dictionary. TO CORRECT !!!
         :param connection_dict: dictionary of all connections to do to the given blendshape node
         """
+
         # --- Get datas from ui
         datas = self.get_ui_datas()
+        if type(blendshape_node) is not str:
+            blendshape_node = datas[0]
+            connection_dict = self.connections
 
         # --- Reconnect all the connections
-        for weight in self.connection:
-            mc.connectAttr(connection_dict[weight], '%s.%s' % (datas[0], weight))
+        for weight in connection_dict:
+            mc.connectAttr(connection_dict[weight], '%s.%s' % (blendshape_node, weight))
 
     # ------------------------------------------------------------------------------------------------------------------
     def reset_ctrl(self):
@@ -957,9 +1047,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         """
 
         for controller in self.controllers_datas:
-            print controller
             for attribute in self.controllers_datas[controller]:
-                print attribute
                 if 'scale' in attribute or 'visibility' in attribute:
                     mc.setAttr('%s.%s' % (controller, attribute), 1)
                 else:

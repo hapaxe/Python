@@ -77,6 +77,7 @@ class Ui_Dialog(object):
         self.bs_targets_list = QtGui.QListWidget(self.groupBox_2)
         self.bs_targets_list.setMinimumSize(QtCore.QSize(150, 0))
         self.bs_targets_list.setMaximumSize(QtCore.QSize(3000, 16777215))
+        self.bs_targets_list.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.bs_targets_list.setObjectName("bs_targets_list")
         self.gridLayout.addWidget(self.bs_targets_list, 0, 0, 1, 1)
         self.gridLayout_4.addWidget(self.groupBox_2, 0, 1, 1, 1)
