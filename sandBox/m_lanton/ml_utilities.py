@@ -23,26 +23,26 @@ def color(input_list, chosen_color):
 
 
 # ----------------------------------------------------------------
-def zero_out(node='empty'):
+def orig(node='empty'):
     """
-    Cree un group offset zeroOut
+    Cree un group offset orig
     :param node: string : name of the node to offset
-    :return: string : name of the zeroOut
+    :return: string : name of the orig
     """
 
     if node == 'empty':
         node = mc.ls(sl=True)[0]
-    zeroout = mc.group(em=True, name=node + '_zeroOut')
-    constraint = mc.parentConstraint(node, zeroout, mo=False)
+    orig = mc.group(em=True, name=node + '_orig')
+    constraint = mc.parentConstraint(node, orig, mo=False)
     mc.delete(constraint)
-    mc.parent(node, zeroout)
-    return zeroout
+    mc.parent(node, orig)
+    return orig
 
 
 # ----------------------------------------------------------------
-def manual_zero_out(input_list=['empty']):
+def manual_orig(input_list=['empty']):
     """
-    Cree un group offset zeroOut
+    Cree un group offset orig
     :param input_list: list of the nodes to offset
     :return:
     """
@@ -50,10 +50,10 @@ def manual_zero_out(input_list=['empty']):
     if input_list == ['empty']:
         input_list = mc.ls(sl=True)
     for i in input_list:
-        zeroout = mc.group(em=True, name=i + '_zeroOut')
-        constraint = mc.parentConstraint(i, zeroout)
+        orig = mc.group(em=True, name=i + '_orig')
+        constraint = mc.parentConstraint(i, orig)
         mc.delete(constraint)
-        mc.parent(i, zeroout)
+        mc.parent(i, orig)
 
 
 # ----------------------------------------------------------------
@@ -158,9 +158,9 @@ def create_ctrl(ctrl_type='circle',
         ct = mc.parentConstraint(node, ctrl, mo=False)
         mc.delete(ct)
 
-    ctrl_zero_out = zero_out(ctrl)
+    ctrl_orig = orig(ctrl)
 
-    return [ctrl, ctrl_zero_out]
+    return [ctrl, ctrl_orig]
 
 
 # ----------------------CONTROLLERS SHAPES------------------------

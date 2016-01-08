@@ -38,17 +38,17 @@ def ctrl_for_all(size='default', normal=(0, 1, 0)):
         mc.xform(new_name, t=pos)
         mc.xform(new_name, ro=rot)
 
-        node_zero_out = mlutilities.zero_out(node=new_name)
+        node_orig = mlutilities.orig(node=new_name)
 
-        mc.parentConstraint('|'+node_zero_out+'|'+new_name, node)
-        mc.scaleConstraint('|'+node_zero_out+'|'+new_name, node, mo=True)
+        mc.parentConstraint('|'+node_orig+'|'+new_name, node)
+        mc.scaleConstraint('|'+node_orig+'|'+new_name, node, mo=True)
         mc.delete(new_name, ch=True)
 
         # parent to existing hierarchy
         if mc.objExists('helper_ctrl'):
-            mc.parent(node_zero_out, 'helper_ctrl')
+            mc.parent(node_orig, 'helper_ctrl')
         elif mc.objExists('walk_ctrl'):
-            mc.parent(node_zero_out, 'walk_ctrl')
+            mc.parent(node_orig, 'walk_ctrl')
         else:
             pass
 

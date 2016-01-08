@@ -146,7 +146,7 @@ def curve_placement():
         # rotate
         mc.xform(ctrl, rotation=rotation)
 
-        ml_utilities.zero_out(ctrl)
+        ml_utilities.orig(ctrl)
 
 
 # ----------------------------------------------------------------

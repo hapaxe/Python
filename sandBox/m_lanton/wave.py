@@ -89,7 +89,7 @@ def wave_for_each():
 
         # create ctrl and place it
         mc.circle(name=wave_control, normal=(0, 1, 0), sections=8, radius=ctrl_size)
-        zero_out_wave_ctrl = mlutilities.zero_out(wave_control)
+        orig_wave_ctrl = mlutilities.orig(wave_control)
 
         mlutilities.create_orb(sca=orb_size/2, name=orb_name)
         mc.spaceLocator(name=mover_name + 'loc', a=True, p=[0, 0, 0])
@@ -110,13 +110,13 @@ def wave_for_each():
         #mc.connectAttr(wave_control + '.worldInverseMatrix', wave_name + '.bindPreMatrix')
 
         # ctrl placement
-        mc.xform(zero_out_wave_ctrl, t=[pos[0], pos[1] + (bbox_height / 2), pos[2]])
-        #mc.xform(zero_out_wave_ctrl, ro=rot)
+        mc.xform(orig_wave_ctrl, t=[pos[0], pos[1] + (bbox_height / 2), pos[2]])
+        #mc.xform(orig_wave_ctrl, ro=rot)
 
         # parent to existing hierarchy        
         if mc.objExists(ctrl_name):
-            mc.parent(zero_out_wave_ctrl, ctrl_name)
+            mc.parent(orig_wave_ctrl, ctrl_name)
         elif mc.objExists('helper_ctrl'):
-            mc.parent(zero_out_wave_ctrl, 'helper_ctrl')
+            mc.parent(orig_wave_ctrl, 'helper_ctrl')
         else:
-            mc.parent(zero_out_wave_ctrl, 'walk_ctrl')
+            mc.parent(orig_wave_ctrl, 'walk_ctrl')

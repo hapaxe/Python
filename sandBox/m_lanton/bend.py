@@ -117,21 +117,21 @@ def create_bend_squash(bounds=False, center='low'):
         # creates the first bend
         bend_x = create_deform('bend', 'X', node)
         mc.xform(bend_x[1], t=center_position, ro=[0, 0, 0])
-        zero_out_bend_x = mlutilities.zero_out(bend_x[1])
+        orig_bend_x = mlutilities.orig(bend_x[1])
         mc.setAttr(bend_x[0] + '.lowBound', bound[0])
         mc.setAttr(bend_x[0] + '.highBound', bound[1])
 
         # creates the second bend
         bend_z = create_deform('bend', 'Z', node)
         mc.xform(bend_z[1], t=center_position, ro=[0, 90, 0])
-        zero_out_bend_z = mlutilities.zero_out(bend_z[1])
+        orig_bend_z = mlutilities.orig(bend_z[1])
         mc.setAttr(bend_z[0] + '.lowBound', bound[0])
         mc.setAttr(bend_z[0] + '.highBound', bound[1])
 
         # creates the squash
         squash = create_deform('squash', 'Y', node)
         mc.xform(squash[1], t=center_position)
-        zero_out_squash = mlutilities.zero_out(squash[1])
+        orig_squash = mlutilities.orig(squash[1])
         mc.setAttr(squash[0] + '.lowBound', bound[0])
         mc.setAttr(squash[0] + '.highBound', bound[1])
 
@@ -143,9 +143,9 @@ def create_bend_squash(bounds=False, center='low'):
         bendSquash_bounds_SR_name = node+'_bendSquash_bounds_SR'
         
             # creation and zeroOut
-        zero_out_ctrl = mlutilities.create_ctrl(ctrl_type='quad_arrow', name=bendsquash_ctrl_name, sca=[ctrl_size, ctrl_size*0.5, ctrl_size])[1]
+        orig_ctrl = mlutilities.create_ctrl(ctrl_type='quad_arrow', name=bendsquash_ctrl_name, sca=[ctrl_size, ctrl_size*0.5, ctrl_size])[1]
             # place the zeroOut
-        mc.xform(zero_out_ctrl, t=[high_pos[0], high_pos[1]/10*12, high_pos[2]])
+        mc.xform(orig_ctrl, t=[high_pos[0], high_pos[1]/10*12, high_pos[2]])
 
             # creates and set setRange node
         mc.createNode('setRange', n=bendsquash_SR_name)
@@ -161,15 +161,15 @@ def create_bend_squash(bounds=False, center='low'):
         mc.connectAttr(bendsquash_ctrl_name+'.translateZ', bendsquash_SR_name+'.valueZ')
         mc.connectAttr(bendsquash_SR_name+'.outValueZ', bend_z[0]+'.curvature')
 
-        mc.hide(zero_out_bend_x, zero_out_bend_z, zero_out_squash)
+        mc.hide(orig_bend_x, orig_bend_z, orig_squash)
 
         # parent to existing hierarchy
         if mc.objExists(ctrl_name):
-            mc.parent(zero_out_bend_x, zero_out_bend_z, zero_out_squash, zero_out_ctrl, ctrl_name)
+            mc.parent(orig_bend_x, orig_bend_z, orig_squash, orig_ctrl, ctrl_name)
         elif mc.objExists('helper_ctrl'):
-            mc.parent(zero_out_bend_x, zero_out_bend_z, zero_out_squash, zero_out_ctrl, 'helper_ctrl')
+            mc.parent(orig_bend_x, orig_bend_z, orig_squash, orig_ctrl, 'helper_ctrl')
         else:
-            mc.parent(zero_out_bend_x, zero_out_bend_z, zero_out_squash, zero_out_ctrl, 'walk_ctrl')
+            mc.parent(orig_bend_x, orig_bend_z, orig_squash, orig_ctrl, 'walk_ctrl')
 
         if bounds:
             hb_limit_up = float(mid_pos[1]+9*fabs(high_bound_pos[1]))
@@ -179,10 +179,10 @@ def create_bend_squash(bounds=False, center='low'):
             # creates bounds pointers
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=high_bound_ctrl, rotation=[180, 0, 0])
             mc.xform(high_bound_ctrl, t=high_bound_pos)
-            zero_out_highbound = mlutilities.zero_out(high_bound_ctrl)
+            orig_highbound = mlutilities.orig(high_bound_ctrl)
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=low_bound_ctrl)
             mc.xform(low_bound_ctrl, t=low_bound_pos)
-            zero_out_lowbound = mlutilities.zero_out(low_bound_ctrl)
+            orig_lowbound = mlutilities.orig(low_bound_ctrl)
 
             # creates bounds SR and set it
             mc.createNode('setRange', n='bendSquash_bounds_SR')
@@ -200,11 +200,11 @@ def create_bend_squash(bounds=False, center='low'):
 
                 # parent to existing hierarchy
             if mc.objExists(bendsquash_ctrl_name):
-                mc.parent(zero_out_highbound, zero_out_lowbound, ctrl_name)
+                mc.parent(orig_highbound, orig_lowbound, ctrl_name)
             elif mc.objExists('helper_ctrl'):
-                mc.parent(zero_out_highbound, zero_out_lowbound, 'helper_ctrl')
+                mc.parent(orig_highbound, orig_lowbound, 'helper_ctrl')
             else:
-                mc.parent(zero_out_highbound, zero_out_lowbound, 'walk_ctrl')
+                mc.parent(orig_highbound, orig_lowbound, 'walk_ctrl')
 
         i += 1
     mlutilities.rigset()
@@ -259,7 +259,7 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
         mc.xform(bend[1], t=center_position)
         if direction.lower() == 'z':
             mc.xform(bend[1], ro=[0, -90, 0])
-        zero_out_bend = mlutilities.zero_out(bend[1])
+        orig_bend = mlutilities.orig(bend[1])
         mc.setAttr(bend[0]+'.lowBound', bound[0])
         mc.setAttr(bend[0]+'.highBound', bound[1])
         mc.setAttr(bend[1]+'.visibility', 0)
@@ -274,9 +274,9 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
             # creation and zeroOut
         mc.circle(nr=[0, 1, 0], r=0.1, ch=False, n=bend_ctrl_name)
         mlutilities.color([bend_ctrl_name], 'yellow')
-        zero_out_ctrl = mlutilities.zero_out(bend_ctrl_name)
+        orig_ctrl = mlutilities.orig(bend_ctrl_name)
             # place the zeroOut
-        mc.xform(zero_out_ctrl, t=[high_pos[0], high_pos[1]/10*12, high_pos[2]])
+        mc.xform(orig_ctrl, t=[high_pos[0], high_pos[1]/10*12, high_pos[2]])
             # creates and set setRange node
         mc.createNode('setRange', n=bend_sr)
         mc.setAttr(bend_sr+'.min', -180, -10, 180, type="double3")
@@ -287,16 +287,16 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
         translate_attribute = '.translate'+direction
         mc.connectAttr(bend_ctrl_name+translate_attribute, bend_sr+'.valueX')
         mc.connectAttr(bend_sr+'.outValueX', bend[0]+'.curvature')
-        mc.hide(zero_out_bend)
+        mc.hide(orig_bend)
 
 
         # parent to existing hierarchy
         if mc.objExists(ctrl_name):
-            mc.parent(zero_out_bend, zero_out_ctrl, ctrl_name)
+            mc.parent(orig_bend, orig_ctrl, ctrl_name)
         elif mc.objExists('helper_ctrl'):
-            mc.parent(zero_out_bend, zero_out_ctrl, 'helper_ctrl')
+            mc.parent(orig_bend, orig_ctrl, 'helper_ctrl')
         else:
-            mc.parent(zero_out_bend, zero_out_ctrl, 'walk_ctrl')
+            mc.parent(orig_bend, orig_ctrl, 'walk_ctrl')
 
         if bounds:
             hb_limit_up = float(mid_pos[1]+9*fabs(high_bound_pos[1]))
@@ -306,10 +306,10 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
             # creates bounds pointers
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=high_bound_ctrl, rotation=[180, 0, 0])
             mc.xform(high_bound_ctrl, t=high_bound_pos)
-            zero_out_highbound = mlutilities.zero_out(high_bound_ctrl)
+            orig_highbound = mlutilities.orig(high_bound_ctrl)
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=low_bound_ctrl)
             mc.xform(low_bound_ctrl, t=low_bound_pos)
-            zero_out_lowbound = mlutilities.zero_out(low_bound_ctrl)
+            orig_lowbound = mlutilities.orig(low_bound_ctrl)
             # creates bounds SR and set it
             mc.createNode('setRange', n='bend_bounds_SR')
             mc.setAttr(bend_bounds_sr+'.min', -10, -10, 0, type="double3")
@@ -324,11 +324,11 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
 
                 # parent to existing hierarchy
             if mc.objExists(bend_ctrl_name):
-                mc.parent(zero_out_highbound, zero_out_lowbound, ctrl_name)
+                mc.parent(orig_highbound, orig_lowbound, ctrl_name)
             elif mc.objExists('helper_ctrl'):
-                mc.parent(zero_out_highbound, zero_out_lowbound, 'helper_ctrl')
+                mc.parent(orig_highbound, orig_lowbound, 'helper_ctrl')
             else:
-                mc.parent(zero_out_highbound, zero_out_lowbound, 'walk_ctrl')
+                mc.parent(orig_highbound, orig_lowbound, 'walk_ctrl')
 
         i += 1
     mlutilities.rigset()

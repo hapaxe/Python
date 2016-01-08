@@ -54,7 +54,7 @@ def softmod_for_each(size=1):
         mc.circle(name=soft_control, normal=(0, 1, 0), sections=8, radius=ctrl_size)
         #delete history
         mc.delete(soft_control, ch=True)
-        zero_out_soft_ctrl = mlutilities.zero_out(soft_control)
+        orig_soft_ctrl = mlutilities.orig(soft_control)
 
         mover = mlutilities.create_ctrl(ctrl_type='simple_orb', name=mover_name, size=mover_size)
 
@@ -93,16 +93,16 @@ def softmod_for_each(size=1):
         mc.connectAttr(node + '.worldMatrix[0]', soft_name + '.geomMatrix[0]', f=True)
 
         # ctrl placement
-        mc.xform(zero_out_soft_ctrl, t=[pos[0], pos[1] + (bbox_height / 2), pos[2]])
-        #mc.xform(zero_out_soft_ctrl, ro=rot)
+        mc.xform(orig_soft_ctrl, t=[pos[0], pos[1] + (bbox_height / 2), pos[2]])
+        #mc.xform(orig_soft_ctrl, ro=rot)
 
         # parent to existing hierarchy        
         if mc.objExists(ctrl_name):
-            mc.parent(zero_out_soft_ctrl, ctrl_name)
+            mc.parent(orig_soft_ctrl, ctrl_name)
         elif mc.objExists('helper_ctrl'):
-            mc.parent(zero_out_soft_ctrl, 'helper_ctrl')
+            mc.parent(orig_soft_ctrl, 'helper_ctrl')
         elif mc.objExists('walk_ctrl'):
-            mc.parent(zero_out_soft_ctrl, 'walk_ctrl')
+            mc.parent(orig_soft_ctrl, 'walk_ctrl')
         else:
             pass
 
