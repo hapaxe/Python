@@ -1,6 +1,5 @@
 __author__ = 'Martin'
 import maya.cmds as mc
-import sandBox.m_lanton.ml_utilities as ml_utilities
 # import sys
 # import os
 import ml_json_utilities as json
@@ -104,13 +103,13 @@ def get_curve():
 
     curve_dict = {'degree': curve_degree, 'points': points, 'knots': knots}
 
-    json.save_to_json(curve_dict, PROJECT_PATH+ROOT_PATH+'mlCurveManager_dictionaries'+curve_type+'.json')
+    json.save_to_json(curve_dict, PROJECT_PATH+ROOT_PATH+'curve_dictionaries'+curve_type+'.json')
 
 
 
 # ----------------------------------------------------------------
 def create_curve(curve_type='circle', name='ctrl'):
-    curve_dict = json.load_from_json(PROJECT_PATH+ROOT_PATH+'mlCurveManager_dictionaries'+curve_type+'.json')
+    curve_dict = json.load_from_json(PROJECT_PATH+ROOT_PATH+'curve_dictionaries'+curve_type+'.json')
     degree = curve_dict['degree']
     points = curve_dict['points']
     knots = curve_dict['knots']
@@ -146,7 +145,7 @@ def curve_placement():
         # rotate
         mc.xform(ctrl, rotation=rotation)
 
-        ml_utilities.orig(ctrl)
+        orig(ctrl)
 
 
 # ----------------------------------------------------------------
@@ -190,3 +189,20 @@ def get_curve_name():
     widgets['curve_name'] = mc.textFieldGrp(widgets['nameField'], q=True, text=True)
 
     return widgets['curve_name']
+
+
+# ----------------------------------------------------------------
+def orig(node='empty'):
+    """
+    Cree un group offset orig
+    :param node: string : name of the node to offset
+    :return: string : name of the orig
+    """
+
+    if node == 'empty':
+        node = mc.ls(sl=True)[0]
+    orig = mc.group(em=True, name=node + '_orig')
+    constraint = mc.parentConstraint(node, orig, mo=False)
+    mc.delete(constraint)
+    mc.parent(node, orig)
+    return orig
