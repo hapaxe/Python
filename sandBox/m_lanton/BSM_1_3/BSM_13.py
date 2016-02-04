@@ -64,7 +64,7 @@ ie : BSM = BlendShapeManager()
 
 from PySide.QtGui import *
 from PySide.QtCore import *
-import sandBox.m_lanton.BSM_1_2.BSM_ui as bsm_ui
+import sandBox.m_lanton.BSM_1_3.BSM_ui as bsm_ui
 import maya.cmds as mc
 import maya.mel as mel
 from pprint import pprint
