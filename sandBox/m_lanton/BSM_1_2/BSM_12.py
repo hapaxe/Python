@@ -115,6 +115,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         self.delete_attr_button.clicked.connect(self.delete_attr_button_func)
         self.export_connections_button.clicked.connect(self.write_setup_to_dict)
         self.import_connections_button.clicked.connect(self.create_setup_from_dict)
+        self.reset_all_ctrl.clicked.connect(self.reset_ctrl)
 
     # -------------------------------------------------DATAS FOR UI-----------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
@@ -327,7 +328,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
 
         for controller in controllers:
             if controller != 'None':
-                controllers_dict[controller] = mc.listAttr(controller, s=True, k=True)
+                controllers_dict[controller] = mc.listAttr(controller, s=True, k=True, u=True)
             else:
                 controllers_dict[controller] = ['None']
 
@@ -1061,7 +1062,10 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
 
         for controller in self.controllers_datas:
             for attribute in self.controllers_datas[controller]:
-                if 'scale' in attribute or 'visibility' in attribute:
-                    mc.setAttr('%s.%s' % (controller, attribute), 1)
-                else:
-                    mc.setAttr('%s.%s' % (controller, attribute), 0)
+                try :
+                    if 'scale' in attribute or 'visibility' in attribute:
+                        mc.setAttr('%s.%s' % (controller, attribute), 1)
+                    else:
+                        mc.setAttr('%s.%s' % (controller, attribute), 0)
+                except:
+                    pass

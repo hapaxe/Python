@@ -1,14 +1,14 @@
-import maya.cmds as cmds
+import maya.cmds as mc
 
-maSelection = cmds.ls(sl=True, fl=True)
+selection = mc.ls(sl=True, fl=True)
 
-longueur = len(maSelection)
+selection_length = len(selection)
 
 i=0
-while i < longueur:
-    nameMult = "MULT_" + maSelection[i]
-    myShader = cmds.shadingNode('multiplyDivide', n=nameMult, au=True)
-    cmds.connectAttr(maSelection[i] + ".translate", nameMult + ".input1")
-    cmds.setAttr(nameMult + ".input2", -1, -1, -1)
-    cmds.connectAttr(nameMult + ".output", maSelection[i] + "_offset.translate")
+for object in selection:
+    nameMult = "MULT_" + object
+    myShader = mc.shadingNode('multiplyDivide', n=nameMult, au=True)
+    mc.connectAttr(object + ".translate", nameMult + ".input1")
+    mc.setAttr(nameMult + ".input2", -1, -1, -1)
+    mc.connectAttr(nameMult + ".output", object + "_orig.translate")
     i+=1

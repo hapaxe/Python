@@ -48,7 +48,6 @@ def build_difference_table(tolerance=4):
 
     # --- Get selected meshes
     sel_mesh = get_sel_mesh()
-    print len(sel_mesh)
 
     # --- Create empty lists for position number
     old_vtx_pos = list()

@@ -327,7 +327,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
 
         for controller in controllers:
             if controller != 'None':
-                controllers_dict[controller] = mc.listAttr(controller, s=True, k=True)
+                controllers_dict[controller] = mc.listAttr(controller, s=True, k=True, u=True)
             else:
                 controllers_dict[controller] = ['None']
 
@@ -1061,7 +1061,10 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
 
         for controller in self.controllers_datas:
             for attribute in self.controllers_datas[controller]:
-                if 'scale' in attribute or 'visibility' in attribute:
-                    mc.setAttr('%s.%s' % (controller, attribute), 1)
-                else:
-                    mc.setAttr('%s.%s' % (controller, attribute), 0)
+                try:
+                    if 'scale' in attribute or 'visibility' in attribute:
+                        mc.setAttr('%s.%s' % (controller, attribute), 1)
+                    else:
+                        mc.setAttr('%s.%s' % (controller, attribute), 0)
+                except:
+                    pass
