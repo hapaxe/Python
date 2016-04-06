@@ -1,8 +1,9 @@
 __author__ = 'm.lanton'
+from PySide.QtGui import *
 from maya import OpenMayaUI
 from shiboken import wrapInstance
-from PySide.QtGui import *
-import sandBox.m_lanton.BSM.BSM_10 as bsm
+
+import BSM_1_2.BSM_12 as bsm
 
 reload(bsm)
 

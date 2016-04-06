@@ -1,7 +1,9 @@
 __author__ = 'm.lanton'
-import maya.cmds as mc
-import sandBox.m_lanton.ml_utilities as mlutilities
 from math import fabs
+
+import maya.cmds as mc
+
+import ml_utilities as mlutilities
 
 
 # ----------------------------------------------------------------

@@ -1,7 +1,9 @@
 __author__ = 'm.lanton'
 import maya.cmds as mc
 import sandBox.m_lanton.ml_utilities as mlutilities
-import sandBox.m_lanton.bend as bend
+
+import bend as bend
+
 reload(bend)
 reload(mlutilities)
 

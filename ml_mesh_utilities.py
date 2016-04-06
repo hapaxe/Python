@@ -1,7 +1,10 @@
 __author__ = 'm.lanton'
-import maya.cmds as mc
-import sandBox.m_lanton.ml_3D_vector_utilities as vector
 import math as math
+
+import maya.cmds as mc
+
+import ml_3D_vector_utilities as vector
+
 reload(vector)
 
 

@@ -62,16 +62,16 @@ ie : BSM = BlendShapeManager()
      BSM.create_setup_from_dict(newBlendshapeNode, setup)
 """
 
-from PySide.QtGui import *
-from PySide.QtCore import *
-import sandBox.m_lanton.BSM_1_3.BSM_ui as bsm_ui
-import maya.cmds as mc
-import maya.mel as mel
 from pprint import pprint
 
-reload(bsm_ui)
+import maya.cmds as mc
+import maya.mel as mel
+from PySide.QtCore import *
+from PySide.QtGui import *
 
-class Proc (QDialog, bsm_ui.Ui_Dialog):
+reload(BSM_ui)
+
+class Proc (QDialog, BSM_ui.Ui_Dialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -115,6 +115,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         self.delete_attr_button.clicked.connect(self.delete_attr_button_func)
         self.export_connections_button.clicked.connect(self.write_setup_to_dict)
         self.import_connections_button.clicked.connect(self.create_setup_from_dict)
+        self.reset_all_ctrl.clicked.connect(self.reset_ctrl)
 
     # -------------------------------------------------DATAS FOR UI-----------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
@@ -535,7 +536,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
     
     # ------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------BUTTONS FUNCTIONS----------------------------------------------------
-    # -------------------------------------------RIGHT BUTTONS FUNCTIONS------------------------------------------------
+    # -------------------------------------------BLENDSHAPES BUTTONS FUNCTIONS------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     def refresh_ui(self):
         """
@@ -685,6 +686,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
                 mc.setAttr('%s.%s' % (datas[0], target), 1)
                 # --- Extract the target by duplicating the base
                 extract = mc.duplicate(base, name=target+'_extract')[0]
+                self.unlock_attributes(extract)
 
                 # --- Reconnect target if it doesn't exist
                 if mc.objExists(target) is False:
@@ -718,6 +720,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
                         mc.setAttr('%s.%s' % (datas[0], target), 1)
                     # --- Extract the target by duplicating the base
                     extract = mc.duplicate(base, name=target+'_extract')[0]
+                    self.unlock_attributes(extract)
                 else:
                     # --- Get the index of the dataPoint
                     get_datapoint_index = mel.eval('DPK_bcs -query -getDataPoint -called "%s" "%s"'
@@ -854,7 +857,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
             # --- Get datas from ui
             datas = self.get_ui_datas()
             # --- Get in between value, base, index, and new_target
-            in_between_value = mc.floatField(self.widgets['in_between_floatfield'], q=True, value=True)
+            in_between_value = self.inbetween_value.value()
             base = self.get_blendshape_base()
             index = self.get_target_index(datas[1][0])
             new_target = mc.ls(sl=True, transforms=True)[0]
@@ -878,7 +881,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
             mc.undoInfo(closeChunk=True)
 
     # ------------------------------------------------------------------------------------------------------------------
-    # --------------------------------------------LEFT BUTTONS FUNCTIONS------------------------------------------------
+    # --------------------------------------------CONTROLLERS BUTTONS FUNCTIONS------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     def connect_button_func(self):
         """
@@ -1061,10 +1064,24 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
 
         for controller in self.controllers_datas:
             for attribute in self.controllers_datas[controller]:
-                try:
+                try :
                     if 'scale' in attribute or 'visibility' in attribute:
                         mc.setAttr('%s.%s' % (controller, attribute), 1)
                     else:
                         mc.setAttr('%s.%s' % (controller, attribute), 0)
                 except:
                     pass
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # --------------------------------------------OTHER FUNCTIONS-------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+    def unlock_attributes(self, object):
+        mc.setAttr(object + ".tx", lock = False)
+        mc.setAttr(object + ".ty", lock = False)
+        mc.setAttr(object + ".tz", lock = False)
+        mc.setAttr(object + ".rx", lock = False)
+        mc.setAttr(object + ".ry", lock = False)
+        mc.setAttr(object + ".rz", lock = False)
+        mc.setAttr(object + ".sx", lock = False)
+        mc.setAttr(object + ".sy", lock = False)
+        mc.setAttr(object + ".sz", lock = False)

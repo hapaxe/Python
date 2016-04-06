@@ -62,17 +62,16 @@ ie : BSM = BlendShapeManager()
      BSM.create_setup_from_dict(newBlendshapeNode, setup)
 """
 
-from PySide.QtGui import *
-from PySide.QtCore import *
-
-import sandBox.m_lanton.BSM.BSM_ui as bsm_ui
-import maya.cmds as mc
-import maya.mel as mel
 from pprint import pprint
 
-reload(bsm_ui)
+import maya.cmds as mc
+import maya.mel as mel
+from PySide.QtCore import *
+from PySide.QtGui import *
 
-class Proc (QDialog, bsm_ui.Ui_Dialog):
+reload(BSM_ui)
+
+class Proc (QDialog, BSM_ui.Ui_Dialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)

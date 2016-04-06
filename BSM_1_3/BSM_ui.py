@@ -384,7 +384,7 @@ class Ui_Dialog(object):
         self.create_bs_button.setText(QtGui.QApplication.translate("Dialog", "Create blendshape", None, QtGui.QApplication.UnicodeUTF8))
         self.add_targets_button.setText(QtGui.QApplication.translate("Dialog", "Add target(s)", None, QtGui.QApplication.UnicodeUTF8))
         self.extract_targets_button.setText(QtGui.QApplication.translate("Dialog", "Extract target(s)", None, QtGui.QApplication.UnicodeUTF8))
-        self.delete_bs_button.setText(QtGui.QApplication.translate("Dialog", "Delete blendshape node(s)", None, QtGui.QApplication.UnicodeUTF8))
+        self.delete_bs_button.setText(QtGui.QApplication.translate("Dialog", "Delete blendshape node", None, QtGui.QApplication.UnicodeUTF8))
         self.remove_targets_button.setText(QtGui.QApplication.translate("Dialog", "Remove target(s)", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "In-between value", None, QtGui.QApplication.UnicodeUTF8))
         self.add_inbetween_button.setText(QtGui.QApplication.translate("Dialog", "Add in-between", None, QtGui.QApplication.UnicodeUTF8))

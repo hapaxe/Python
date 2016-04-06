@@ -1,6 +1,8 @@
 __author__ = 'm.lanton'
 import maya.cmds as mc
-import sandBox.m_lanton.ml_utilities as mlutilities
+
+import ml_utilities as mlutilities
+
 reload(mlutilities)
 
 

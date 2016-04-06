@@ -1,6 +1,7 @@
 __author__ = 'm.lanton'
 import maya.cmds as mc
-import sandBox.m_lanton.ml_utilities as mlutilities
+
+import ml_utilities as mlutilities
 
 
 def ctrl_for_all(size='default', normal=(0, 1, 0)):

@@ -11,7 +11,9 @@ __author__ = 'm.lanton'
 #and run the scripts, then you just have to specify the number of bones you want.
 #-----------------------------------
 import maya.cmds as mc
-import sandBox.m_lanton.ml_utilities as mlutilities
+
+import ml_utilities as mlutilities
+
 
 def ik_joint_chain():
     selection = mc.ls(sl=True, fl=True)

@@ -62,16 +62,16 @@ ie : BSM = BlendShapeManager()
      BSM.create_setup_from_dict(newBlendshapeNode, setup)
 """
 
-from PySide.QtGui import *
-from PySide.QtCore import *
-import sandBox.m_lanton.BSM_1_2.BSM_ui as bsm_ui
-import maya.cmds as mc
-import maya.mel as mel
 from pprint import pprint
 
-reload(bsm_ui)
+import maya.cmds as mc
+import maya.mel as mel
+from PySide.QtCore import *
+from PySide.QtGui import *
 
-class Proc (QDialog, bsm_ui.Ui_Dialog):
+reload(BSM_ui)
+
+class Proc (QDialog, BSM_ui.Ui_Dialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -115,7 +115,6 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
         self.delete_attr_button.clicked.connect(self.delete_attr_button_func)
         self.export_connections_button.clicked.connect(self.write_setup_to_dict)
         self.import_connections_button.clicked.connect(self.create_setup_from_dict)
-        self.reset_all_ctrl.clicked.connect(self.reset_ctrl)
 
     # -------------------------------------------------DATAS FOR UI-----------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
@@ -855,7 +854,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
             # --- Get datas from ui
             datas = self.get_ui_datas()
             # --- Get in between value, base, index, and new_target
-            in_between_value = mc.floatField(self.widgets['in_between_floatfield'], q=True, value=True)
+            in_between_value = self.inbetween_value.value()
             base = self.get_blendshape_base()
             index = self.get_target_index(datas[1][0])
             new_target = mc.ls(sl=True, transforms=True)[0]
@@ -1062,7 +1061,7 @@ class Proc (QDialog, bsm_ui.Ui_Dialog):
 
         for controller in self.controllers_datas:
             for attribute in self.controllers_datas[controller]:
-                try :
+                try:
                     if 'scale' in attribute or 'visibility' in attribute:
                         mc.setAttr('%s.%s' % (controller, attribute), 1)
                     else:
