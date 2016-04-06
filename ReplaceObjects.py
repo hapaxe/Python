@@ -1,35 +1,32 @@
-#selectionnez vos objets à remplacer, puis lancer le script, entrez le nom de l'objet qui remplace avec des  apostrophes :''
+#select the objects you want to be replaced, the object you want to place after them, and run the script
 
-import maya.cmds as cmds
-import random as ran
+import maya.cmds as mc
 
-selection = cmds.ls(sl=True, fl=True)
-objetADup = input()
-cmds.select(objetADup)
+selection = mc.ls(sl=True, fl=True)
+object_to_dup = selection[-1]
+targets = selection[:-1]
 
-i=0
-while i<len(selection):
-	nbr = str(i)
-	dup = 'dup_' + objetADup + '_' + nbr
-	cmds.duplicate(objetADup, n = dup, ilf = True)
-	attr1 = cmds.getAttr(selection[i] + '.translateX')
-	attr2 = cmds.getAttr(selection[i] + '.translateY')
-	attr3 = cmds.getAttr(selection[i] + '.translateZ')
-	attr4 = cmds.getAttr(selection[i] + '.rotateX')
-	attr5 = cmds.getAttr(selection[i] + '.rotateY')
-	attr6 = cmds.getAttr(selection[i] + '.rotateZ')
-	attr7 = cmds.getAttr(selection[i] + '.scaleX')
-	attr8 = cmds.getAttr(selection[i] + '.scaleY')
-	attr9 = cmds.getAttr(selection[i] + '.scaleZ')
-	cmds.setAttr(dup + '.translateX', attr1)
-	cmds.setAttr(dup + '.translateX', attr1)
-	cmds.setAttr(dup + '.translateY', attr2)
-	cmds.setAttr(dup + '.translateZ', attr3)
-	cmds.setAttr(dup + '.rotateX', attr4)
-	cmds.setAttr(dup + '.rotateY', attr5)
-	cmds.setAttr(dup + '.rotateZ', attr6)
-	cmds.setAttr(dup + '.scaleX', attr7)
-	cmds.setAttr(dup + '.scaleY', attr8)
-	cmds.setAttr(dup + '.scaleZ', attr9)
-	#cmds.delete(selection[i])
-	i+=1
+
+for i, obj in enumerate(targets):
+    nbr = str(i)
+    dup = 'dup_' + object_to_dup + '_' + nbr
+    mc.duplicate(object_to_dup, n=dup, ilf=True)
+    attr1 = mc.getAttr(selection[i] + '.translateX')
+    attr2 = mc.getAttr(selection[i] + '.translateY')
+    attr3 = mc.getAttr(selection[i] + '.translateZ')
+    attr4 = mc.getAttr(selection[i] + '.rotateX')
+    attr5 = mc.getAttr(selection[i] + '.rotateY')
+    attr6 = mc.getAttr(selection[i] + '.rotateZ')
+    attr7 = mc.getAttr(selection[i] + '.scaleX')
+    attr8 = mc.getAttr(selection[i] + '.scaleY')
+    attr9 = mc.getAttr(selection[i] + '.scaleZ')
+    mc.setAttr(dup + '.translateX', attr1)
+    mc.setAttr(dup + '.translateX', attr1)
+    mc.setAttr(dup + '.translateY', attr2)
+    mc.setAttr(dup + '.translateZ', attr3)
+    mc.setAttr(dup + '.rotateX', attr4)
+    mc.setAttr(dup + '.rotateY', attr5)
+    mc.setAttr(dup + '.rotateZ', attr6)
+    mc.setAttr(dup + '.scaleX', attr7)
+    mc.setAttr(dup + '.scaleY', attr8)
+    mc.setAttr(dup + '.scaleZ', attr9)

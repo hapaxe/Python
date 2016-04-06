@@ -1,6 +1,6 @@
 #----------------------Par Christelle GIBOIN ----------------------
 # automatic place 
-#_Place_le pivot au début des curve
+#_Place_le pivot au dï¿½but des curve
 #_mettre les Cluster et les controlers sur la curve
 
 
@@ -29,11 +29,10 @@ if result == 'OK':
 else :
             Anulation = cmds.confirmDialog(
             title='Confirm', 
-            message='Vous devez créer un controleur qui gérera les clusters', 
+            message='Vous devez crï¿½er un controleur qui gï¿½rera les clusters', 
             button=['Yes'], 
             defaultButton='Yes')
-   
-print(FormeCtrl)
+
             
 #---------------------------------------------------------
 #--------------------------------------------------------- 
@@ -52,8 +51,8 @@ for i in range( 0 , NombreCurve ) :
     print(NomCurve)
     print(NomCurveShape)
     
-    # Placement du Pivot au début de la curve 
-    CurveInf = cmds.createNode( 'curveInfo' ) # Cré un node curveInfo -> Utile !!
+    # Placement du Pivot au debut de la curve
+    CurveInf = cmds.createNode( 'curveInfo' ) # Cree un node curveInfo -> Utile !!
     CurveInf = cmds.rename( CurveInf , NomCurve + 'Curve_Info' )
     cmds.connectAttr( NomCurveShape + '.worldSpace', CurveInf + '.inputCurve' )
     
@@ -65,7 +64,7 @@ for i in range( 0 , NombreCurve ) :
     
     
     #----------------------------
-    #_Création des cluster su chaque CV
+    #_Creation des cluster su chaque CV
     
     DegreeCurve = cmds.getAttr( NomCurveShape + '.degree' )
     SpanCurve = cmds.getAttr( NomCurveShape + '.spans' )
@@ -114,7 +113,7 @@ for i in range( 0 , NombreCurve ) :
         # ---------------------------------------------------------------
         
         
-        #_Parenté des Cluster sur les controleurs
+        #_Parente des Cluster sur les controleurs
         
         cmds.parent( Cluster , CtrlCLuster )
         

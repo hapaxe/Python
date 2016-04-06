@@ -15,13 +15,13 @@ cmds.shadingNode('reverse', asUtility=True, name = nameReverse)
 cmds.connectAttr(selection[0] + '.SWITCH', nameReverse + '.inputX')
 
 while i < longueur :
-	j = str(i)
-	skChaine = chaine1 + j
-	skChaineDyn = chaineDyn + j
-	skChaineCTRL = chaineCTRL + j
-	ctName = "chainConstrain" + j
+   j = str(i)
+   skChaine = chaine1 + j
+   skChaineDyn = chaineDyn + j
+   skChaineCTRL = chaineCTRL + j
+   ctName = "chainConstrain" + j
 
-	cmds.parentConstraint( skChaineDyn, skChaineCTRL, skChaine, name = ctName)
-	cmds.connectAttr(selection[0] + '.SWITCH', ctName + '.' + skChaineDyn + 'W0')
-	cmds.connectAttr(nameReverse + '.outputX', ctName + '.' + skChaineCTRL + 'W1')
-	i+=1
+   cmds.parentConstraint( skChaineDyn, skChaineCTRL, skChaine, name = ctName)
+   cmds.connectAttr(selection[0] + '.SWITCH', ctName + '.' + skChaineDyn + 'W0')
+   cmds.connectAttr(nameReverse + '.outputX', ctName + '.' + skChaineCTRL + 'W1')
+   i+=1

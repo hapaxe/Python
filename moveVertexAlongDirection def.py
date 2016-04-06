@@ -1,17 +1,15 @@
-import maya.cmds as cmds
+import maya.cmds as mc
 
-maSelection = cmds.ls(sl=True, fl=True)
 
-distance = input()
-distance = str(distance)
-longueur = len(maSelection)
-maListe = []
+def move():
 
-i=0
-while i < longueur:
-    maListe.append(distance)
-    i+=1
-    
-print(maListe)
+    selection = mc.ls(sl=True, fl=True)
 
-cmds.moveVertexAlongDirection(maSelection, n = maListe)
+    distance = input()
+    distance = str(distance)
+    dist_list = []
+
+    for i in selection:
+        dist_list.append(distance)
+
+    mc.moveVertexAlongDirection(selection, n=dist_list)

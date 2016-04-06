@@ -1,25 +1,25 @@
-import maya.cmds as cmds
+import maya.cmds as mc
 
 def objectSelect(nbr):
     if nbr == 1 :
         global selObj1
-        selObj1 = cmds.ls(sl=True)
+        selObj1 = mc.ls(sl=True)
         print(selObj1)
     else :
         global selObj2
-        selObj2 = cmds.ls(sl=True)
+        selObj2 = mc.ls(sl=True)
         print(selObj2)
 
 #define first frame
 def BouttonFrA(*args):
     global firstFrame
-    firstFrame = cmds.currentTime( q=True )
+    firstFrame = mc.currentTime( q=True )
     print(firstFrame)
 
 #define last frame
 def BouttonFrB(*args):
     global endFrame
-    endFrame = cmds.currentTime( q=True )
+    endFrame = mc.currentTime( q=True )
     print(endFrame)
 
 #define how to copy animation
@@ -29,40 +29,40 @@ def copyFrames(*args):
     print(first)
     print(end)
 
-    cmds.select(selObj2)
+    mc.select(selObj2)
 
     for i in range (first,end) :
-        cmds.currentTime(i)
-        trans = cmds.xform(selObj1, q=True, t=True)
-        rot = cmds.xform(selObj1, q=True, ro=True)
-        scale = cmds.xform(selObj1, q=True, s=True)
+        mc.currentTime(i)
+        trans = mc.xform(selObj1, q=True, t=True)
+        rot = mc.xform(selObj1, q=True, ro=True)
+        scale = mc.xform(selObj1, q=True, s=True)
 
-        cmds.xform(selObj2, t = trans)
-        cmds.xform(selObj2, ro = rot)
-        cmds.xform(selObj2, s = scale)
-        cmds.select(selObj2)
-        cmds.setKeyframe(selObj2)
+        mc.xform(selObj2, t = trans)
+        mc.xform(selObj2, ro = rot)
+        mc.xform(selObj2, s = scale)
+        mc.select(selObj2)
+        mc.setKeyframe(selObj2)
 
 
 #UI creation
 def UI():
         
     
-        window = cmds.window( title="copyFrames", iconName='Short Name', widthHeight=(250, 150) )
-        cmds.rowColumnLayout( numberOfColumns=1, columnAlign=(1, 'right'), columnAttach=(2, 'both', 0), columnWidth=(2, 200) )
+        window = mc.window( title="copyFrames", iconName='Short Name', widthHeight=(250, 150) )
+        mc.rowColumnLayout( numberOfColumns=1, columnAlign=(1, 'right'), columnAttach=(2, 'both', 0), columnWidth=(2, 200) )
         
-        obj1 = cmds.button( 'obj 1' , label='To copy object' , command=('objectSelect(1)') )
-        obj2 = cmds.button( 'obj 2' , label='New object' , command=('objectSelect(2)') )
+        obj1 = mc.button( 'obj 1' , label='To copy object' , command=('objectSelect(1)') )
+        obj2 = mc.button( 'obj 2' , label='New object' , command=('objectSelect(2)') )
         
-        cmds.button( 'KeyA' , label='Key Frame 1' , command=('BouttonFrA()') )
-        cmds.button( 'KeyB' , label='Key Frame 2' , command=('BouttonFrB()') )
+        mc.button( 'KeyA' , label='Key Frame 1' , command=('BouttonFrA()') )
+        mc.button( 'KeyB' , label='Key Frame 2' , command=('BouttonFrB()') )
         
-        cmds.rowColumnLayout( numberOfColumns=1 )
+        mc.rowColumnLayout( numberOfColumns=1 )
         
-        copyKey = cmds.button( 'copy' , label='Copy Animation' , command=('copyFrames()') )
-        cmds.button( label='Close', command=('cmds.deleteUI(\"' + window + '\", window=True)') )
+        copyKey = mc.button( 'copy' , label='Copy Animation' , command=('copyFrames()') )
+        mc.button( label='Close', command=('mc.deleteUI(\"' + window + '\", window=True)') )
 
-        cmds.showWindow( window )
+        mc.showWindow( window )
      
 firstFrame = 0
 endFrame = 0

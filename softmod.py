@@ -2,6 +2,7 @@ __author__ = 'm.lanton'
 import maya.cmds as mc
 
 import ml_utilities as mlutilities
+import orig as orig
 
 reload(mlutilities)
 
@@ -56,7 +57,7 @@ def softmod_for_each(size=1):
         mc.circle(name=soft_control, normal=(0, 1, 0), sections=8, radius=ctrl_size)
         #delete history
         mc.delete(soft_control, ch=True)
-        orig_soft_ctrl = mlutilities.orig(soft_control)
+        orig_soft_ctrl = orig.orig([soft_control])
 
         mover = mlutilities.create_ctrl(ctrl_type='simple_orb', name=mover_name, size=mover_size)
 

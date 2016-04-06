@@ -2,6 +2,7 @@ __author__ = 'm.lanton'
 import maya.cmds as mc
 
 import ml_utilities as mlutilities
+import orig as orig
 
 
 def ctrl_for_all(size='default', normal=(0, 1, 0)):
@@ -39,7 +40,7 @@ def ctrl_for_all(size='default', normal=(0, 1, 0)):
         mc.xform(new_name, t=pos)
         mc.xform(new_name, ro=rot)
 
-        node_orig = mlutilities.orig(node=new_name)
+        node_orig = orig.orig(node=[new_name])
 
         mc.parentConstraint('|'+node_orig+'|'+new_name, node)
         mc.scaleConstraint('|'+node_orig+'|'+new_name, node, mo=True)

@@ -2,6 +2,7 @@ __author__ = 'm.lanton'
 import maya.cmds as mc
 
 import ml_utilities as mlutilities
+import orig as orig
 
 datas = {'count_b':0, 'count_s':0, 'count_w':0}
 
@@ -90,7 +91,7 @@ def wave_for_each():
 
         # create ctrl and place it
         mc.circle(name=wave_control, normal=(0, 1, 0), sections=8, radius=ctrl_size)
-        orig_wave_ctrl = mlutilities.orig(wave_control)
+        orig_wave_ctrl = orig.orig([wave_control])
 
         mlutilities.create_orb(sca=orb_size/2, name=orb_name)
         mc.spaceLocator(name=mover_name + 'loc', a=True, p=[0, 0, 0])

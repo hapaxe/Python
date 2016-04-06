@@ -6,52 +6,52 @@
 #-----------------------------------
 #select all the curves you need to be dynamic, then the curve you want to use as controler for your clusters, and run the scripts, then you just have to specify the number of bones you want.
 #-----------------------------------
-import maya.cmds as cmds
+import maya.cmds as mc
 
 #define how to offset
 def offset(var):
-    offset = cmds.group( em = True, name = var + '_offset')
-    constraint = cmds.parentConstraint( var, offset )
-    cmds.delete( constraint )
-    cmds.parent( var, offset)
+    offset = mc.group( em = True, name = var + '_offset')
+    constraint = mc.parentConstraint( var, offset )
+    mc.delete( constraint )
+    mc.parent( var, offset)
     return offset
 
 #define how to get the name of the shape
 def nameShape(var1):
-    cmds.select( var1 )
-    selectionShape = cmds.pickWalk( direction = 'down' )
+    mc.select( var1 )
+    selectionShape = mc.pickWalk( direction = 'down' )
     return selectionShape[0]
 
 # define how to create a stretch network
 def stretch(obj1, obj2):
-    curveInf = cmds.createNode( 'curveInfo' , n = obj1 + '_curveInfo' ) # Crée un node curveInfo
-    cmds.connectAttr( obj2 + '.worldSpace' , curveInf + '.inputCurve' )
-    mult = cmds.shadingNode( 'multiplyDivide' , asUtility = True , name = 'MULT_STRETCH_' + obj1 )
-    cmds.connectAttr( curveInf + '.arcLength' , mult + '.input1X' )
-    curveArcLength = cmds.getAttr( curveInf + '.arcLength' )
-    cmds.setAttr( mult + '.input2X' , curveArcLength )
-    cmds.setAttr( mult + '.operation' , 2 )
+    curveInf = mc.createNode( 'curveInfo' , n = obj1 + '_curveInfo' ) # Crée un node curveInfo
+    mc.connectAttr( obj2 + '.worldSpace' , curveInf + '.inputCurve' )
+    mult = mc.shadingNode( 'multiplyDivide' , asUtility = True , name = 'MULT_STRETCH_' + obj1 )
+    mc.connectAttr( curveInf + '.arcLength' , mult + '.input1X' )
+    curveArcLength = mc.getAttr( curveInf + '.arcLength' )
+    mc.setAttr( mult + '.input2X' , curveArcLength )
+    mc.setAttr( mult + '.operation' , 2 )
     return mult
 
 # creation de la chaine de bones
 def jointChain(pos1, obj1) :
-    firstChainJoint = cmds.joint( p= pos1, name = 'SK_' + obj1 + '_0')
+    firstChainJoint = mc.joint( p= pos1, name = 'SK_' + obj1 + '_0')
     mult = 'MULT_STRETCH_' + obj1
-    cmds.connectAttr( mult + '.outputX', firstChainJoint + '.scaleX') # branchement du stretch
+    mc.connectAttr( mult + '.outputX', firstChainJoint + '.scaleX') # branchement du stretch
 
     for j in range ( 1 , jointsNumber ):
         j = str( j )
-        currentJoint = cmds.joint( p = ( jointsTX , 0 , 0 ) , r = True , name = 'SK_' + obj1 + '_' + j )
-        cmds.connectAttr( mult + '.outputX', currentJoint + '.scaleX') # branchement du stretch
+        currentJoint = mc.joint( p = ( jointsTX , 0 , 0 ) , r = True , name = 'SK_' + obj1 + '_' + j )
+        mc.connectAttr( mult + '.outputX', currentJoint + '.scaleX') # branchement du stretch
 
     return firstChainJoint
 
 
-selection = cmds.ls(sl = True, fl = True)
+selection = mc.ls(sl = True, fl = True)
 numberOfCurves = len(selection)-1
 
 # dialog box
-result = cmds.promptDialog(
+result = mc.promptDialog(
         title='Numbre of bones',
         message='Type the number of bones that you want on your curve(s)',    
         button=['OK', 'Cancel'],
@@ -60,10 +60,10 @@ result = cmds.promptDialog(
         dismissString='Cancel')
 
 if result == 'OK':
-            bonesNumber = cmds.promptDialog(query=True, text=True)
+            bonesNumber = mc.promptDialog(query=True, text=True)
     
 else :
-            Anulation = cmds.confirmDialog(
+            Anulation = mc.confirmDialog(
             title='Confirm', 
             message='You have to type a number of bone(s)', 
             button=['Yes'], 
@@ -79,26 +79,26 @@ for i in range(0, numberOfCurves):
     dynCurveNameShape = nameShape(dynCurveName)    
 
     # calcul du nombre de CV
-    curveDegree = cmds.getAttr( dynCurveNameShape + '.degree' )
-    curveSpan = cmds.getAttr( dynCurveNameShape + '.spans' )
+    curveDegree = mc.getAttr( dynCurveNameShape + '.degree' )
+    curveSpan = mc.getAttr( dynCurveNameShape + '.spans' )
 
     CVNumber = curveDegree + curveSpan
     
     # creation du stretch
     multCtrl = stretch(dynCurveName, dynCurveNameShape)
     curveInf = dynCurveName + '_curveInfo'
-    curveArcLength = cmds.getAttr( dynCurveName + '_curveInfo.arcLength' )
+    curveArcLength = mc.getAttr( dynCurveName + '_curveInfo.arcLength' )
     jointsTX = curveArcLength / bonesNumber
     
-    posCvX = cmds.getAttr( curveInf + '.controlPoints[0].xValue' )
-    posCvY = cmds.getAttr( curveInf + '.controlPoints[0].yValue' )
-    posCvZ = cmds.getAttr( curveInf + '.controlPoints[0].zValue' )
+    posCvX = mc.getAttr( curveInf + '.controlPoints[0].xValue' )
+    posCvY = mc.getAttr( curveInf + '.controlPoints[0].yValue' )
+    posCvZ = mc.getAttr( curveInf + '.controlPoints[0].zValue' )
     posPiv = (posCvX, posCvY, posCvZ)
-    cmds.xform( dynCurveName, piv = ( posCvX , posCvY , posCvZ ) , ws = True )
+    mc.xform( dynCurveName, piv = ( posCvX , posCvY , posCvZ ) , ws = True )
 
     # ctrl curve creation
-    ctrlCurveName = cmds.duplicate(dynCurveName)
-    ctrlCurveName = cmds.rename(ctrlCurveName, 'CTRL_' + dynCurveName)   
+    ctrlCurveName = mc.duplicate(dynCurveName)
+    ctrlCurveName = mc.rename(ctrlCurveName, 'CTRL_' + dynCurveName)   
     ctrlCurveNameShape = nameShape(ctrlCurveName)
     print(ctrlCurveName)
 
@@ -112,9 +112,9 @@ for i in range(0, numberOfCurves):
 
     # creation de l'ikSpline
     endEffectorNumber = str(bonesNumber)
-    ikName = cmds.ikHandle( curve = dynCurveName, ee = 'SK_' + dynCurveName + '_' + endEffectorNumber, sol = 'ikSplineSolver', sj = firstJoint, name = 'IKSPLINE_' + dynCurveName, ccv = 0 )
+    ikName = mc.ikHandle( curve = dynCurveName, ee = 'SK_' + dynCurveName + '_' + endEffectorNumber, sol = 'ikSplineSolver', sj = firstJoint, name = 'IKSPLINE_' + dynCurveName, ccv = 0 )
     ikName = ikName[0]
-    jointRotation = cmds.xform( firstJoint, q=True, ro=True)
+    jointRotation = mc.xform( firstJoint, q=True, ro=True)
 
     # joints' offset
     offset(firstJoint)
@@ -132,7 +132,7 @@ for i in range(0, numberOfCurves):
     firstDynJoint = jointChain(posPiv, ctrlCurveName)
 
     # creation de l'ikSpline
-    ikName = cmds.ikHandle( curve = ctrlCurveName, ee = 'SK_' + ctrlCurveName + '_' + endEffectorNumber, sol = 'ikSplineSolver', sj = firstDynJoint, name = 'IKSPLINE_' + ctrlCurveName, ccv = 0 )
+    ikName = mc.ikHandle( curve = ctrlCurveName, ee = 'SK_' + ctrlCurveName + '_' + endEffectorNumber, sol = 'ikSplineSolver', sj = firstDynJoint, name = 'IKSPLINE_' + ctrlCurveName, ccv = 0 )
     ikName = ikName[0]
 
     # creation des offsets des joints
@@ -147,11 +147,11 @@ for i in range(0, numberOfCurves):
     chaineDyn = 'SK_' + ctrlCurveName + '_'
 
 # creation of driven bones chain
-    firstDrivenJoint = cmds.joint( p= posPiv, name = 'SK_DRIVEN_' + dynCurveName + '_0')
+    firstDrivenJoint = mc.joint( p= posPiv, name = 'SK_DRIVEN_' + dynCurveName + '_0')
 
     for j in range ( 1 , jointsNumber ):
         j = str( j )
-        currentJoint = cmds.joint( p = ( jointsTX , 0 , 0 ) , r = True , name = 'SK_DRIVEN_' + dynCurveName + '_' + j )
+        currentJoint = mc.joint( p = ( jointsTX , 0 , 0 ) , r = True , name = 'SK_DRIVEN_' + dynCurveName + '_' + j )
 
     # offset of the driven bones chain
     offset(firstDrivenJoint)
@@ -166,22 +166,22 @@ for i in range(0, numberOfCurves):
         clusterNumber = str(k)
         CVName = ( ctrlCurveName + '.cv[' + clusterNumber + ']' )
         
-        cmds.select( CVName )
-        cluster = cmds.cluster()
+        mc.select( CVName )
+        cluster = mc.cluster()
         
-        cmds.select( deselect = True )
+        mc.select( deselect = True )
         
         # Recuperation de la position des clusters
-        positionClusterX = cmds.getAttr( curveInf + '.controlPoints[' + clusterNumber + '].xValue' )
-        positionClusterY = cmds.getAttr( curveInf + '.controlPoints[' + clusterNumber + '].yValue' )
-        positionClusterZ = cmds.getAttr( curveInf + '.controlPoints[' + clusterNumber + '].zValue' )
+        positionClusterX = mc.getAttr( curveInf + '.controlPoints[' + clusterNumber + '].xValue' )
+        positionClusterY = mc.getAttr( curveInf + '.controlPoints[' + clusterNumber + '].yValue' )
+        positionClusterZ = mc.getAttr( curveInf + '.controlPoints[' + clusterNumber + '].zValue' )
         
         #------------------------------------------------------
         # Creation des Controleurs
-        ctrlCluster = cmds.duplicate(selection[-1], name = 'CTRL_' + ctrlCurveName + '_' + clusterNumber)
-        ctrlCluster = cmds.rename( ctrlCluster , 'CTRL_' + ctrlCurveName + '_' + clusterNumber )
-        cmds.move( positionClusterX , positionClusterY , positionClusterZ , ctrlCluster , absolute = True )
-        cmds.xform(ctrlCluster, ro = jointRotation)
+        ctrlCluster = mc.duplicate(selection[-1], name = 'CTRL_' + ctrlCurveName + '_' + clusterNumber)
+        ctrlCluster = mc.rename( ctrlCluster , 'CTRL_' + ctrlCurveName + '_' + clusterNumber )
+        mc.move( positionClusterX , positionClusterY , positionClusterZ , ctrlCluster , absolute = True )
+        mc.xform(ctrlCluster, ro = jointRotation)
         
         # Ofset des controleur ------------------
         offset(ctrlCluster)
@@ -191,14 +191,14 @@ for i in range(0, numberOfCurves):
         
         # Parente des clusters sur les controleurs
         
-        cmds.parent( cluster , ctrlCluster )
+        mc.parent( cluster , ctrlCluster )
 
         if k==0:
-            cmds.select(ctrlCluster)
-            cmds.addAttr( ln='SWITCH', at='double', dv=0, minValue=0, maxValue=1 , h = False, k = True)
+            mc.select(ctrlCluster)
+            mc.addAttr( ln='SWITCH', at='double', dv=0, minValue=0, maxValue=1 , h = False, k = True)
             nameReverse = ctrlCluster + '_REVERSE'
-            cmds.shadingNode('reverse', asUtility=True, name = nameReverse)
-            cmds.connectAttr(ctrlCluster + '.SWITCH', nameReverse + '.inputX')
+            mc.shadingNode('reverse', asUtility=True, name = nameReverse)
+            mc.connectAttr(ctrlCluster + '.SWITCH', nameReverse + '.inputX')
 
             for l in range(0, jointsNumber):
                 m = str(l)
@@ -207,10 +207,10 @@ for i in range(0, numberOfCurves):
                 skChaineCTRL = chaineCTRL + m
                 ctName = "chainConstrain" + m
 
-                cmds.parentConstraint( skChaineDyn, skChaineCTRL, skChaine, name = ctName)
-                cmds.connectAttr(ctrlCluster + '.SWITCH', ctName + '.' + skChaineDyn + 'W0')
-                cmds.connectAttr(nameReverse + '.outputX', ctName + '.' + skChaineCTRL + 'W1')
+                mc.parentConstraint( skChaineDyn, skChaineCTRL, skChaine, name = ctName)
+                mc.connectAttr(ctrlCluster + '.SWITCH', ctName + '.' + skChaineDyn + 'W0')
+                mc.connectAttr(nameReverse + '.outputX', ctName + '.' + skChaineCTRL + 'W1')
 
-    cmds.select( 'CTRL_' + ctrlCurveName + '_*_offset' )
-    cmds.group( name= 'Group_CTRL_' + ctrlCurveName )
-    cmds.select( deselect = True )
+    mc.select( 'CTRL_' + ctrlCurveName + '_*_offset' )
+    mc.group( name= 'Group_CTRL_' + ctrlCurveName )
+    mc.select( deselect = True )

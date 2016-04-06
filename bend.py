@@ -1,9 +1,8 @@
 __author__ = 'm.lanton'
 from math import fabs
-
 import maya.cmds as mc
-
 import ml_utilities as mlutilities
+import orig as orig
 
 
 # ----------------------------------------------------------------
@@ -119,21 +118,21 @@ def create_bend_squash(bounds=False, center='low'):
         # creates the first bend
         bend_x = create_deform('bend', 'X', node)
         mc.xform(bend_x[1], t=center_position, ro=[0, 0, 0])
-        orig_bend_x = mlutilities.orig(bend_x[1])
+        orig_bend_x = orig.orig([bend_x[1]])
         mc.setAttr(bend_x[0] + '.lowBound', bound[0])
         mc.setAttr(bend_x[0] + '.highBound', bound[1])
 
         # creates the second bend
         bend_z = create_deform('bend', 'Z', node)
         mc.xform(bend_z[1], t=center_position, ro=[0, 90, 0])
-        orig_bend_z = mlutilities.orig(bend_z[1])
+        orig_bend_z = orig.orig([bend_z[1]])
         mc.setAttr(bend_z[0] + '.lowBound', bound[0])
         mc.setAttr(bend_z[0] + '.highBound', bound[1])
 
         # creates the squash
         squash = create_deform('squash', 'Y', node)
         mc.xform(squash[1], t=center_position)
-        orig_squash = mlutilities.orig(squash[1])
+        orig_squash = orig.orig([squash[1]])
         mc.setAttr(squash[0] + '.lowBound', bound[0])
         mc.setAttr(squash[0] + '.highBound', bound[1])
 
@@ -181,10 +180,10 @@ def create_bend_squash(bounds=False, center='low'):
             # creates bounds pointers
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=high_bound_ctrl, rotation=[180, 0, 0])
             mc.xform(high_bound_ctrl, t=high_bound_pos)
-            orig_highbound = mlutilities.orig(high_bound_ctrl)
+            orig_highbound = orig.orig([high_bound_ctrl])
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=low_bound_ctrl)
             mc.xform(low_bound_ctrl, t=low_bound_pos)
-            orig_lowbound = mlutilities.orig(low_bound_ctrl)
+            orig_lowbound = orig.orig([low_bound_ctrl])
 
             # creates bounds SR and set it
             mc.createNode('setRange', n='bendSquash_bounds_SR')
@@ -261,7 +260,7 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
         mc.xform(bend[1], t=center_position)
         if direction.lower() == 'z':
             mc.xform(bend[1], ro=[0, -90, 0])
-        orig_bend = mlutilities.orig(bend[1])
+        orig_bend = orig.orig([bend[1]])
         mc.setAttr(bend[0]+'.lowBound', bound[0])
         mc.setAttr(bend[0]+'.highBound', bound[1])
         mc.setAttr(bend[1]+'.visibility', 0)
@@ -276,7 +275,7 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
             # creation and zeroOut
         mc.circle(nr=[0, 1, 0], r=0.1, ch=False, n=bend_ctrl_name)
         mlutilities.color([bend_ctrl_name], 'yellow')
-        orig_ctrl = mlutilities.orig(bend_ctrl_name)
+        orig_ctrl = orig.orig([bend_ctrl_name])
             # place the zeroOut
         mc.xform(orig_ctrl, t=[high_pos[0], high_pos[1]/10*12, high_pos[2]])
             # creates and set setRange node
@@ -308,10 +307,10 @@ def create_simple_bend(bounds=False, center='low', direction='Z'):
             # creates bounds pointers
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=high_bound_ctrl, rotation=[180, 0, 0])
             mc.xform(high_bound_ctrl, t=high_bound_pos)
-            orig_highbound = mlutilities.orig(high_bound_ctrl)
+            orig_highbound = orig.orig([high_bound_ctrl])
             mlutilities.create_ctrl(ctrl_type='pointer', size=pointer_size, name=low_bound_ctrl)
             mc.xform(low_bound_ctrl, t=low_bound_pos)
-            orig_lowbound = mlutilities.orig(low_bound_ctrl)
+            orig_lowbound = orig.orig([low_bound_ctrl])
             # creates bounds SR and set it
             mc.createNode('setRange', n='bend_bounds_SR')
             mc.setAttr(bend_bounds_sr+'.min', -10, -10, 0, type="double3")
