@@ -11,7 +11,6 @@ def main():
     # Close all windows
 
     global WIDGET_HOLDER
-    #WIDGET_HOLDER = []
 
     try:
         WIDGET_HOLDER.close()
