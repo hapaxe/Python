@@ -7,11 +7,10 @@ import BSM_1_3.BSM_13 as bsm
 
 reload(bsm)
 
+
 def main():
     # Close all windows
-
     global WIDGET_HOLDER
-    #WIDGET_HOLDER = []
 
     try:
         WIDGET_HOLDER.close()

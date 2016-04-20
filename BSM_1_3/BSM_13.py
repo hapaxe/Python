@@ -68,8 +68,10 @@ import maya.cmds as mc
 import maya.mel as mel
 from PySide.QtCore import *
 from PySide.QtGui import *
+import BSM_ui as BSM_ui
 
 reload(BSM_ui)
+
 
 class Proc (QDialog, BSM_ui.Ui_Dialog):
     def __init__(self, parent=None):
@@ -93,8 +95,7 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
         self.update_bs_targets_qlistwidget([])
         # ------------------------------------------- #
         controllers_list = [controller for controller in self.controllers_datas]
-        controllers_list.sort()
-        self.controllers_menu.addItems(controllers_list)
+        self.update_combobox(self.controllers_menu, controllers_list, False)
         # --- Connect
         self.controllers_menu.currentIndexChanged.connect(self.update_attributes_menu)
         # ------------------------------------------- #
@@ -385,7 +386,7 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
     def get_target_from_weight(self, weight):
         """
         Get the target from a given weight
-        :param: weight: the given weight (string)
+        :param weight: the given weight (string)
         :return: target (string)
         """
 
@@ -401,7 +402,7 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
         return returned_target
 
 # ------------------------------------------------------------------------------------------------------------------
-    def update_combobox(self, combobox, items):
+    def update_combobox(self, combobox, items, block='True'):
         """
         Update the given combobox
         :param combobox: combobox to update,  ie: self.bs_node_menu
@@ -409,11 +410,16 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
         """
 
         # --- Blocking signals from ui
-        combobox.blockSignals(True)
+        if block:
+            combobox.blockSignals(True)
+        else:
+            pass
 
         # --- Init items if empty
         if items == []:
             items = ['None']
+
+        items.sort()
 
         # --- Get currently selected text
         selected_text = combobox.currentText()
@@ -427,6 +433,9 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
             combobox.setCurrentIndex(text_index)
         else:
             combobox.setCurrentIndex(0)
+
+        for i, item in enumerate(items):
+            combobox.setItemData(i, item, Qt.ToolTipRole)
 
         # --- Unblocking signals from ui
         combobox.blockSignals(False)
@@ -461,6 +470,7 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
     def update_bs_targets_qlistwidget(self, selected_bs_targets):
         """
         Update the targets qlistwidget
+        :param selected_bs_targets : currently selected target in bs_node_menu combobox
         """
         # --- If called by bs_node_menu combobox, type is int, then create selection list
         if type(selected_bs_targets) is not list:
@@ -468,6 +478,8 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
 
         # --- Create the list of target
         bs_targets = self.create_weights_list()
+
+        bs_targets.sort()
 
         self.bs_targets_list.clear()
         self.bs_targets_list.addItems(bs_targets)
@@ -477,7 +489,7 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
                 items = self.bs_targets_list.findItems(text, Qt.MatchExactly)
                 for item in items:
                     idx = self.bs_targets_list.indexFromItem(item)
-                    #index = self.bs_targets_list.row(item)
+                    # index = self.bs_targets_list.row(item)
                     self.bs_targets_list.item(idx.row()).setSelected(True)
     
     # ------------------------------------------------------------------------------------------------------------------
