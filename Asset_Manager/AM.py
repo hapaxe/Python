@@ -127,12 +127,11 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
             selected_files_list.append(item.text())
 
         # list the files in the folder
+        os.chdir(path)
         files = filter(os.path.isfile, os.listdir(path))
-        print files
         maya_files = [file for file in files
                       if '.ma' in file
                       or '.mb' in file
-                      or '.obj' in file
                       or '.fbx' in file]
 
         # sort them
