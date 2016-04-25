@@ -18,8 +18,11 @@ def main():
         WIDGET_HOLDER.close()
     except (AttributeError, NameError):
         pass
+    # Get Pyside instance of Maya MainWindow
+    ptr = OpenMayaUI.MQtUtil.mainWindow()
+    main_window = wrapInstance(long(ptr), QWidget)
     # New Window
-    WIDGET_HOLDER = am.AM_Class()
+    WIDGET_HOLDER = am.AMClass(parent=main_window)
     # Store to prevent garbage collection
     # Show
     WIDGET_HOLDER.show()

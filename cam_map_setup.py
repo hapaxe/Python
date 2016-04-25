@@ -2,7 +2,7 @@ __author__ = 'm.lanton'
 import maya.cmds as mc
 import glob
 
-path = 'T:\Users\m.lanton\_EXPORT_PERSO'
+path = input()
 
 
 def create_full_scene_setup():
