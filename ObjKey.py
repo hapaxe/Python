@@ -1,7 +1,9 @@
-import maya.cmds as mc
-
 # ----------------------------------------------------------------------------------------------------------------------
-# Not that complicated, you create the new object, and you do what the buttons says :)
+# Small tool to copy an animation from one object to another
+# Not that complicated, you create a new object, and you do what the buttons says :)
+# ----------------------------------------------------------------------------------------------------------------------
+
+import maya.cmds as mc
 
 # define the selected objects
 def object_select(nbr):
@@ -62,12 +64,12 @@ def ui():
         mc.button('KeyA', label='Key Frame start', command=('button_frame_a()'))
         mc.button('KeyB', label='Key Frame end', command=('button_frame_b()'))
 
-        mc.rowColumnLayout( numberOfColumns=1 )
+        mc.rowColumnLayout(numberOfColumns=1)
         
         copyKey = mc.button('copy', label='Copy Animation', command=('copy_frames()'))
         mc.button(label='Close', command=('mc.deleteUI(\"' + window + '\", window=True)'))
 
-        mc.showWindow( window )
+        mc.showWindow(window)
         return True
      
 firstFrame = 0
