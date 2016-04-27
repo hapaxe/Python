@@ -59,8 +59,8 @@ def ui():
         obj1 = mc.button('obj 1', label='Object to copy', command=('object_select(1)'))
         obj2 = mc.button('obj 2', label='New object', command=('object_select(2)'))
         
-        mc.button('KeyA', label='Key Frame 1', command=('button_frame_a()'))
-        mc.button('KeyB', label='Key Frame 2', command=('button_frame_b()'))
+        mc.button('KeyA', label='Key Frame start', command=('button_frame_a()'))
+        mc.button('KeyB', label='Key Frame end', command=('button_frame_b()'))
 
         mc.rowColumnLayout( numberOfColumns=1 )
         
