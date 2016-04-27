@@ -26,10 +26,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         self.update_combobox(self.project_comboBox, project_list)
         self.update_combobox(self.asset_animation_comboBox, self.asset_anim_list)
         self.update_scene_comboBox()
-        self.update_task_comboBox()
-        self.update_files_list()
 
         # connecting buttons
+        self.open_pushButton.clicked.connect(self.open_file)
         self.project_comboBox.currentIndexChanged.connect(self.update_scene_comboBox)
         self.asset_animation_comboBox.currentIndexChanged.connect(self.update_scene_comboBox)
         self.scene_comboBox.currentIndexChanged.connect(self.update_task_comboBox)
@@ -121,10 +120,11 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
                                           self.scene_comboBox.currentText(),
                                           self.task_comboBox.currentText())
         # Get the previous selection
-        selected_files = self.files_listWidget.selectedItems()
-        selected_files_list = list()
-        for item in selected_files:
-            selected_files_list.append(item.text())
+        selected_file = self.files_listWidget.selectedItems()
+        if len(selected_file) != 0 :
+            print selected_file[0].text()
+        else:
+            print "no previous selected file"
 
         # list the files in the folder
         os.chdir(path)
@@ -143,10 +143,54 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         self.files_listWidget.addItems(maya_files)
 
         # --- If currently selected text in new item list, select it
-        for text in selected_files_list:
-            if text in maya_files:
-                items = self.files_listWidget.findItems(text, Qt.MatchExactly)
-                for item in items:
-                    idx = self.files_listWidget.indexFromItem(item)
-                    # index = self.bs_targets_list.row(item)
-                    self.files_listWidget.item(idx.row()).setSelected(True)
+        if len(selected_file) != 0 and selected_file[0].text() in maya_files:
+            item_to_select = self.files_listWidget.findItems(selected_file[0].text(), Qt.MatchExactly)[0]
+            idx = self.files_listWidget.indexFromItem(item_to_select)
+            # index = self.bs_targets_list.row(item)
+            self.files_listWidget.item(idx.row()).setSelected(True)
+        else:
+            self.files_listWidget.item(0).setSelected(True)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def open_file(self):
+        # Get currently selected file in file list
+        file_name = self.files_listWidget.selectedItems()
+
+        # Build file path if something is selected and then open the file, else, verbose
+        if file_name != []:
+            file_name = file_name[0].text()
+            file_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
+                                                      self.project_comboBox.currentText(),
+                                                      self.asset_animation_comboBox.currentText(),
+                                                      self.scene_comboBox.currentText(),
+                                                      self.task_comboBox.currentText(),
+                                                      file_name)
+            mc.file(file_path, o=True, f=True)
+            print file_name, ' has been open'
+        else:
+            print "no file is selected"
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def save_file(self):
+        # Get current open file
+        open_file = mc.file(q=True, exn=True)
+
+        # Get currently selected file in file list
+        file_name = self.files_listWidget.selectedItems()
+
+        # Build file path if something is selected and then open the file, else, verbose
+        if file_name != []:
+            file_name = file_name[0].text()
+            file_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
+                                                      self.project_comboBox.currentText(),
+                                                      self.asset_animation_comboBox.currentText(),
+                                                      self.scene_comboBox.currentText(),
+                                                      self.task_comboBox.currentText(),
+                                                      file_name)
+            if open_file == file_path:
+                mc.file(file_path, s=True, f=True)
+                print file_name, ' has been saved'
+            else:
+                pass
+        else:
+            print "no file is selected"

@@ -1,6 +1,9 @@
 import maya.cmds as mc
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Not that complicated, you create the new object, and you do what the buttons says :)
 
+# define the selected objects
 def object_select(nbr):
     if nbr == 1:
         global selObj1
@@ -53,7 +56,7 @@ def ui():
         window = mc.window(title="copyFrames", iconName='Short Name', widthHeight=(250, 150))
         mc.rowColumnLayout(numberOfColumns=1, columnAlign=(1, 'right'), ca=(2, 'both', 0), cw=(2, 200))
         
-        obj1 = mc.button('obj 1', label='To copy object', command=('object_select(1)'))
+        obj1 = mc.button('obj 1', label='Object to copy', command=('object_select(1)'))
         obj2 = mc.button('obj 2', label='New object', command=('object_select(2)'))
         
         mc.button('KeyA', label='Key Frame 1', command=('button_frame_a()'))
