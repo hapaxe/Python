@@ -1,6 +1,5 @@
 __author__ = 'm.lanton'
 import maya.cmds as mc
-
 import ml_utilities as mlutilities
 import orig as orig
 
@@ -27,7 +26,6 @@ def ctrl_for_all(size='default', normal=(0, 1, 0)):
         ctrl_size = size
         if size == 'default':
             ctrl_size = bbox_size[1]*0.6/sca[0]
-
 
         # create circle and place it
         mc.circle(name=new_name, normal=normal, sections=8, radius=ctrl_size)

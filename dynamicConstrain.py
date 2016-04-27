@@ -1,27 +1,27 @@
 #Selectionnez votre controleur, entrez votre obj a contraindre, votre ct 1 (dyn), puis votre ct 2 (CTRL)(sans le nombre et entre apostrophes), puis le nombre d'iterations
 
-import maya.cmds as cmds
+import maya.cmds as mc
 
-selection = cmds.ls(sl=True, fl=True)
+selection = mc.ls(sl=True, fl=True)
 
-chaine1 = input()
-chaineDyn = input()
-chaineCTRL = input()
+chain1 = input()
+chainDyn = input()
+chainCTRL = input()
 longueur = input()
 longueur = int(longueur)
-i=0
+i = 0
 nameReverse = selection[0] + 'Reverse'
-cmds.shadingNode('reverse', asUtility=True, name = nameReverse)
-cmds.connectAttr(selection[0] + '.SWITCH', nameReverse + '.inputX')
+mc.shadingNode('reverse', asUtility=True, name = nameReverse)
+mc.connectAttr(selection[0] + '.SWITCH', nameReverse + '.inputX')
 
-while i < longueur :
+while i < longueur:
    j = str(i)
-   skChaine = chaine1 + j
-   skChaineDyn = chaineDyn + j
-   skChaineCTRL = chaineCTRL + j
+   skChain = chain1 + j
+   skChainDyn = chainDyn + j
+   skChainCTRL = chainCTRL + j
    ctName = "chainConstrain" + j
 
-   cmds.parentConstraint( skChaineDyn, skChaineCTRL, skChaine, name = ctName)
-   cmds.connectAttr(selection[0] + '.SWITCH', ctName + '.' + skChaineDyn + 'W0')
-   cmds.connectAttr(nameReverse + '.outputX', ctName + '.' + skChaineCTRL + 'W1')
-   i+=1
+   mc.parentConstraint( skChainDyn, skChainCTRL, skChain, name = ctName)
+   mc.connectAttr(selection[0] + '.SWITCH', ctName + '.' + skChainDyn + 'W0')
+   mc.connectAttr(nameReverse + '.outputX', ctName + '.' + skChainCTRL + 'W1')
+   i += 1
