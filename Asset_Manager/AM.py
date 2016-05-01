@@ -16,23 +16,54 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
-        # declaring projects directory path
+        # Declaring projects directory path
         self.project_path = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
-        # declaring asset/anim list
-        self.asset_anim_list = ['ASSETS', 'ANIMATION']
 
-        # populating menus
+        # Populating menus
         project_list = self.create_subdir_list(self.project_path)
         self.update_combobox(self.project_comboBox, project_list)
-        self.update_combobox(self.asset_animation_comboBox, self.asset_anim_list)
-        self.update_scene_comboBox()
+        self.update_tabs_comboBox()
 
-        # connecting buttons
-        self.open_pushButton.clicked.connect(self.open_file)
-        self.project_comboBox.currentIndexChanged.connect(self.update_scene_comboBox)
-        self.asset_animation_comboBox.currentIndexChanged.connect(self.update_scene_comboBox)
-        self.scene_comboBox.currentIndexChanged.connect(self.update_task_comboBox)
+        # Connecting ui selections
+        self.project_comboBox.currentIndexChanged.connect(self.update_tabs_comboBox)
+        self.asset_anim_tabWidget.currentChanged.connect(self.update_tabs_comboBox)
+        self.asset_type_comboBox.currentIndexChanged.connect(self.update_asset_combobox)
+        self.asset_comboBox.currentIndexChanged.connect(self.update_task_comboBox)
+        self.shot_comboBox.currentIndexChanged.connect(self.update_task_comboBox)
         self.task_comboBox.currentIndexChanged.connect(self.update_files_list)
+
+        # Connecting buttons
+        self.open_pushButton.clicked.connect(self.open_file)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def get_am_ui_datas(self):
+        """
+        Get datas from UI
+        :return: list of all the UI datas (list)
+        """
+        # Projet
+        project = self.project_comboBox.currentText()
+        # Asset/Anim
+        asset_anim_index = self.asset_anim_tabWidget.currentIndex()
+        asset_anim = self.asset_anim_tabWidget.tabText(asset_anim_index)
+        # Asset type
+        asset_type = self.asset_type_comboBox.currentText()
+        # Episode
+        episode = self.episode_comboBox.currentText()
+        # Asset
+        asset = self.asset_comboBox.currentText()
+        # Shot
+        shot = self.shot_comboBox.currentText()
+        # Task
+        task = self.task_comboBox.currentText()
+        # File
+        file_name = self.files_listWidget.selectedItems()
+        if file_name != []:
+            file_name = file_name[0].text()
+        else:
+            file_name = 'None'
+
+        return [project, asset_anim, asset_type, episode, asset, shot, task, file_name]
 
     # ------------------------------------------------------------------------------------------------------------------
     def create_subdir_list(self, path):
@@ -51,22 +82,95 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         return subdir_list
 
     # ------------------------------------------------------------------------------------------------------------------
-    def update_combobox(self, combobox, items):
+    def build_files_list(self, path):
+        # List everything in the folder
+        os.chdir(path)
+        # Filter files
+        files = filter(os.path.isfile, os.listdir(path))
+        # Filter maya files
+        maya_files = [file for file in files
+                      if '.ma' in file or '.mb' in file or '.fbx' in file]
+
+        # If no maya files
+        if maya_files == []:
+            # list is used as verbose
+            maya_files = ['No file in this directory']
+        # If there are maya files
+        else:
+            # Sort them
+            maya_files.sort(key=lambda x: os.path.getmtime(x))
+            # Get most recent in first
+            maya_files.reverse()
+
+        return maya_files
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def build_path(self, return_type=4):
+        # Get datas from ui
+        datas = self.get_am_ui_datas()
+
+        if datas[1] == 'Assets':
+            if return_type == 0:
+                return_path = '%s/%s/scenes/ASSETS/' % (self.project_path, datas[0])
+                return return_path
+            elif return_type == 1:
+                return_path = '%s/%s/scenes/ASSETS/%s' % (self.project_path, datas[0], datas[2])
+                return return_path
+            elif return_type == 2:
+                return_path = '%s/%s/scenes/ASSETS/%s/%s' % (self.project_path, datas[0], datas[2], datas[4])
+                return return_path
+            elif return_type == 3:
+                return_path = '%s/%s/scenes/ASSETS/%s/%s/%s' % (self.project_path, datas[0], datas[2], datas[4], datas[6])
+                return return_path
+            else:
+                return_path = '%s/%s/scenes/ASSETS/%s/%s/%s/%s' % (self.project_path, datas[0], datas[2], datas[4], datas[6], datas[7])
+                return return_path
+        else:
+            if return_type == 0:
+                return_path = '%s/%s/scenes/ANIMATION/' % (self.project_path, datas[0])
+                return return_path
+            elif return_type == 1:
+                return_path = '%s/%s/scenes/ANIMATION/%s' % (self.project_path, datas[0], datas[3])
+                return return_path
+            elif return_type == 2:
+                return_path = '%s/%s/scenes/ANIMATION/%s/%s' % (self.project_path, datas[0], datas[3], datas[5])
+                return return_path
+            elif return_type == 3:
+                return_path = '%s/%s/scenes/ANIMATION/%s/%s/%s' % (self.project_path, datas[0], datas[3], datas[5], datas[6])
+                return return_path
+            else:
+                return_path = '%s/%s/scenes/ANIMATION/%s/%s/%s/%s' % (self.project_path, datas[0], datas[3], datas[5], datas[6], datas[7])
+                return return_path
+
+
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+    def update_combobox(self, combobox, items, block='True'):
         """
         Update the given combobox
         :param combobox: combobox to update,  ie: self.bs_node_menu
         :param items: list of items to add to the given combobox
         """
+
+        # --- Blocking signals from ui
+        if block:
+            combobox.blockSignals(True)
+        else:
+            pass
+
         # --- Init items if empty
         if items == []:
             items = ['None']
 
         # --- Get currently selected text
         selected_text = combobox.currentText()
+
         # --- Clear combobox
         combobox.clear()
         # --- Add items
         combobox.addItems(items)
+
         # --- If current selected item in new item list, select it
         if selected_text in items:
             text_index = combobox.findText(selected_text)
@@ -77,34 +181,77 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         for i, item in enumerate(items):
             combobox.setItemData(i, item, Qt.ToolTipRole)
 
+        # --- Unblocking signals from ui
+        combobox.blockSignals(False)
+
     # ------------------------------------------------------------------------------------------------------------------
-    def update_scene_comboBox(self):
-        asset_anim = self.asset_animation_comboBox.currentText()
+    # ------------------------------------------------------------------------------------------------------------------
+    def update_tabs_comboBox(self):
+        # Get datas from ui
+        datas = self.get_am_ui_datas()
 
-        if asset_anim == 'ASSETS':
-            self.asset_shot_label.setText('Asset')
+        if datas[1] == 'Assets':
+            self.update_type_combobox()
         else:
-            self.asset_shot_label.setText('Shot')
+            self.update_episode_combobox()
 
-        asset_anim_path = '%s/%s/scenes/%s/' % (self.project_path, self.project_comboBox.currentText(), asset_anim)
+    # ------------------------------------------------------------------------------------------------------------------
+    def update_type_combobox(self):
+        type_path = self.build_path(0)
 
-        assets_shots_list = self.create_subdir_list(asset_anim_path)
+        types_list = self.create_subdir_list(type_path)
 
-        self.update_combobox(self.scene_comboBox, assets_shots_list)
+        # Update comboBox
+        self.update_combobox(self.asset_type_comboBox, types_list)
+
+        self.update_asset_combobox()
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def update_asset_combobox(self):
+        asset_path = self.build_path(1)
+
+        assets_list = self.create_subdir_list(asset_path)
+
+        # Update comboBox
+        self.update_combobox(self.asset_comboBox, assets_list)
 
         self.update_task_comboBox()
 
     # ------------------------------------------------------------------------------------------------------------------
+    def update_episode_combobox(self):
+        episode_path = self.build_path(0)
+
+        episodes_list = self.create_subdir_list(episode_path)
+
+        # Update comboBox
+        self.update_combobox(self.episode_comboBox, episodes_list)
+
+        self.update_shot_combobox()
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def update_shot_combobox(self):
+        shot_path = self.build_path(1)
+
+        # Create shots list
+        shots_list = self.create_subdir_list(shot_path)
+
+        # Update comboBox
+        self.update_combobox(self.shot_comboBox, shots_list)
+
+        # Init update task comboBox
+        self.update_task_comboBox()
+
+    # ------------------------------------------------------------------------------------------------------------------
     def update_task_comboBox(self):
-        asset_path = '%s/%s/scenes/%s/%s/' % (self.project_path,
-                                              self.project_comboBox.currentText(),
-                                              self.asset_animation_comboBox.currentText(),
-                                              self.scene_comboBox.currentText())
+        task_path = self.build_path(2)
 
-        asset_task_list = self.create_subdir_list(asset_path)
+        # Create task list
+        task_list = self.create_subdir_list(task_path)
 
-        self.update_combobox(self.task_comboBox, asset_task_list)
+        # Update comboBox
+        self.update_combobox(self.task_comboBox, task_list)
 
+        # Init update files list
         self.update_files_list()
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -113,84 +260,55 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         Update the targets qlistwidget
         :param selected_bs_targets : currently selected target in bs_node_menu combobox
         """
+        task_path = self.build_path(3)
 
-        path = '%s/%s/scenes/%s/%s/%s' % (self.project_path,
-                                          self.project_comboBox.currentText(),
-                                          self.asset_animation_comboBox.currentText(),
-                                          self.scene_comboBox.currentText(),
-                                          self.task_comboBox.currentText())
         # Get the previous selection
         selected_file = self.files_listWidget.selectedItems()
-        if len(selected_file) != 0 :
-            print selected_file[0].text()
+        if len(selected_file) != 0:
+            print 'Previous selected file is ', selected_file[0].text()
         else:
-            print "no previous selected file"
+            print "No previous selected file"
 
-        # list the files in the folder
-        os.chdir(path)
-        files = filter(os.path.isfile, os.listdir(path))
-        maya_files = [file for file in files
-                      if '.ma' in file
-                      or '.mb' in file
-                      or '.fbx' in file]
+        maya_files = self.build_files_list(task_path)
 
-        # sort them
-        maya_files.sort(key=lambda x: os.path.getmtime(x))
-        maya_files.reverse()
-
-        # clear and recreate the list
+        # Clear and recreate the list
         self.files_listWidget.clear()
         self.files_listWidget.addItems(maya_files)
 
-        # --- If currently selected text in new item list, select it
+        # If currently selected text in new item list, select it
         if len(selected_file) != 0 and selected_file[0].text() in maya_files:
+            # Get item matching the previously selected name
             item_to_select = self.files_listWidget.findItems(selected_file[0].text(), Qt.MatchExactly)[0]
+            # Get its index
             idx = self.files_listWidget.indexFromItem(item_to_select)
-            # index = self.bs_targets_list.row(item)
+            # Select it
             self.files_listWidget.item(idx.row()).setSelected(True)
         else:
+            # Else, select item at index 0
             self.files_listWidget.item(0).setSelected(True)
 
     # ------------------------------------------------------------------------------------------------------------------
     def open_file(self):
-        # Get currently selected file in file list
-        file_name = self.files_listWidget.selectedItems()
-
-        # Build file path if something is selected and then open the file, else, verbose
-        if file_name != []:
-            file_name = file_name[0].text()
-            file_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
-                                                      self.project_comboBox.currentText(),
-                                                      self.asset_animation_comboBox.currentText(),
-                                                      self.scene_comboBox.currentText(),
-                                                      self.task_comboBox.currentText(),
-                                                      file_name)
-            mc.file(file_path, o=True, f=True)
-            print file_name, ' has been open'
-        else:
-            print "no file is selected"
+        file_path = self.build_path()
+        # Open
+        mc.file(file_path, o=True, f=True)
+        # Verbose
+        print file_path.split('/')[-1], ' has been open'
 
     # ------------------------------------------------------------------------------------------------------------------
     def save_file(self):
         # Get current open file
         open_file = mc.file(q=True, exn=True)
 
-        # Get currently selected file in file list
-        file_name = self.files_listWidget.selectedItems()
+        # Build file path
+        file_path = self.build_path()
 
-        # Build file path if something is selected and then open the file, else, verbose
-        if file_name != []:
-            file_name = file_name[0].text()
-            file_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
-                                                      self.project_comboBox.currentText(),
-                                                      self.asset_animation_comboBox.currentText(),
-                                                      self.scene_comboBox.currentText(),
-                                                      self.task_comboBox.currentText(),
-                                                      file_name)
-            if open_file == file_path:
-                mc.file(file_path, s=True, f=True)
-                print file_name, ' has been saved'
-            else:
-                pass
+        # If open file match selected file
+        if open_file == file_path:
+            # Save
+            mc.file(file_path, s=True, f=True)
+            # Verbose
+            print file_path.split('/')[-1], ' has been saved'
+        # If not, pass (for now)
         else:
-            print "no file is selected"
+            pass

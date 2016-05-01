@@ -87,18 +87,25 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
         self.connections = dict()
         # ------------------ MENUS ------------------ #
         # ------------------------------------------- #
+        # --- Init bs_nodes_list
         bs_nodes_list = [node for node in self.blendshapes_datas]
         self.update_combobox(self.bs_node_menu, bs_nodes_list)
-        # --- Connect
+        # --- Connect be_nodes comboBox
         self.bs_node_menu.currentIndexChanged.connect(self.update_bs_targets_qlistwidget)
+
         # ------------------------------------------- #
+        # --- Init bs_targets_qlistwidget
         self.update_bs_targets_qlistwidget([])
+
         # ------------------------------------------- #
+        # --- Init controllers list
         controllers_list = [controller for controller in self.controllers_datas]
         self.update_combobox(self.controllers_menu, controllers_list, False)
-        # --- Connect
+        # --- Connect controllers comboBox
         self.controllers_menu.currentIndexChanged.connect(self.update_attributes_menu)
+
         # ------------------------------------------- #
+        # --- Init attributes_menu
         self.update_attributes_menu()
 
         # ----------------- BUTTONS ----------------- #
