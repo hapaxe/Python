@@ -18,9 +18,11 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
         # Declaring projects directory path
         self.project_path = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
+        self.hierarchy = self.list_hierarchy()
 
         # Populating menus
-        project_list = self.create_subdir_list(self.project_path)
+        project_list = [project for project in self.hierarchy.keys()]
+        project_list.sort()
         self.update_combobox(self.project_comboBox, project_list)
         self.update_asset_anim_comboBox()
 
@@ -37,6 +39,55 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         self.save_pushButton.clicked.connect(self.save_file)
         self.wip_pushButton.clicked.connect(self.save_wip_file)
         self.publish_pushButton.clicked.connect(self.save_publish_file)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def list_hierarchy(self):
+        hierarchy = dict()
+
+        projects = self.create_subdir_list(self.project_path)
+
+        for project in projects:
+            project_dict = dict()
+
+            project_subdir = self.create_subdir_list('%s/%s/scenes/' % (self.project_path, project))
+
+            for directory in project_subdir:
+                dir_dict = dict()
+
+                types = self.create_subdir_list('%s/%s/scenes/%s/' % (self.project_path, project, directory))
+
+                for type_dir in types:
+                    type_dict = dict()
+
+                    assets = self.create_subdir_list('%s/%s/scenes/%s/%s/' % (self.project_path, project,
+                                                                              directory, type_dir))
+
+                    for asset in assets:
+                        asset_dict = dict()
+
+                        tasks = self.create_subdir_list('%s/%s/scenes/%s/%s/%s/' % (self.project_path,
+                                                                                    project, directory,
+                                                                                    type_dir, asset))
+
+                        for task in tasks:
+                            task_dict = dict()
+                            task_dict['task'] = task
+
+                            task_files = self.build_files_list('%s/%s/scenes/%s/%s/%s/%s/' % (self.project_path,
+                                                                                              project, directory,
+                                                                                              type_dir, asset,
+                                                                                              task))
+                            asset_dict[task] = task_files
+
+                        type_dict[asset] = asset_dict
+
+                    dir_dict[type_dir] = type_dict
+
+                    project_dict[directory] = dir_dict
+
+            hierarchy[project] = project_dict
+
+        return hierarchy
 
     # ------------------------------------------------------------------------------------------------------------------
     def create_subdir_list(self, given_path):
@@ -108,30 +159,28 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
         if return_type == 'project':
             return_path = '%s/%s' % (self.project_path, datas[0])
-        elif return_type == 'asset_anim':
-            return_path = '%s/%s/scenes/' % (self.project_path, datas[0])
-        elif return_type == 'asset_type_episode':
-            return_path = '%s/%s/scenes/%s/' % (self.project_path, datas[0], datas[1])
-        elif return_type == 'asset_shot':
-            return_path = '%s/%s/scenes/%s/%s' % (self.project_path, datas[0], datas[1],  datas[2])
-        elif return_type == 'task':
-            return_path = '%s/%s/scenes/%s/%s/%s' % (self.project_path, datas[0], datas[1], datas[2], datas[3])
-        elif return_type == 'file_dir':
-            return_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
-                                                        datas[0], datas[1], datas[2], datas[3], datas[4])
         elif return_type == 'file':
             return_path = '%s/%s/scenes/%s/%s/%s/%s/%s' % (self.project_path,
                                                            datas[0], datas[1], datas[2], datas[3], datas[4], datas[5])
         elif return_type == 'wip':
-            # Split file name
-            wip_file = datas[5].split('_')
-            # Increment version number
-            wip_file[3] = self.build_increment(wip_file[3])
-            # Join publish file name
-            wip_file = ('_').join(wip_file)
+            if datas[5] == 'No file in this directory':
+                wip_file = '%s_%s_%s_00.ma' % (datas[2], datas[3], datas[4])
+            else:
+                # Split file name
+                wip_file = datas[5].split('.')[0]
+                print wip_file
+                wip_file = wip_file.split('_')
+                print wip_file
+                # Increment version number
+                wip_file[3] = self.build_increment(wip_file[3])
+                print wip_file[3]
+                # Join publish file name
+                wip_file = ('_').join(wip_file)
+                print wip_file
             # Build path
-            return_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
-                                                        datas[0], datas[1], datas[2], datas[3], wip_file)
+            return_path = '%s/%s/scenes/%s/%s/%s/%s/%s' % (self.project_path,
+                                                        datas[0], datas[1], datas[2], datas[3], datas[4], wip_file)
+            print return_path
         else:
             # Split file name
             publish_file = datas[5].split('_')
@@ -140,8 +189,10 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
             print publish_file
             # Append PUBLISH plus extension
             publish_file.append('PUBLISH.ma')
+            print publish_file
             # Join publish file name
             publish_file = ('_').join(publish_file)
+            print publish_file
             # Build path
             return_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
                                                         datas[0], datas[1], datas[2], datas[3], publish_file)
@@ -162,7 +213,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         if len(increment) < 2:
             increment.insert(0, '0')
 
-        ('').join(increment)
+        increment = ('').join(increment)
 
         return increment
 
@@ -209,13 +260,22 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
+    def update_ui(self):
+        self.hierarchy = self.list_hierarchy()
+
+        project_list = [project for project in self.hierarchy.keys()]
+        project_list.sort()
+        self.update_combobox(self.project_comboBox, project_list)
+        self.update_asset_anim_comboBox()
+
+    # ------------------------------------------------------------------------------------------------------------------
     def update_asset_anim_comboBox(self):
+        # Get datas from ui
+        datas = self.get_am_ui_datas()
         # Set project directory
         self.set_current_project_directory()
-        # Build path
-        type_path = self.build_path('asset_anim')
         # Build list
-        asset_anim_list = self.create_subdir_list(type_path)
+        asset_anim_list = [directory for directory in self.hierarchy[datas[0]]]
 
         # Update comboBox
         self.update_combobox(self.asset_anim_comboBox, asset_anim_list)
@@ -225,10 +285,18 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def update_type_episode_combobox(self):
-        # Build path
-        type_path = self.build_path('asset_type_episode')
+        # Get datas from ui
+        datas = self.get_am_ui_datas()
         # Build list
-        types_list = self.create_subdir_list(type_path)
+        types_list = [asset_type for asset_type in self.hierarchy[datas[0]][datas[1]]]
+
+        # Change labels according to selection
+        if datas[1] == 'ANIMATION':
+            self.asset_type_episode_label.setText('Episode')
+            self.asset_shot_label.setText('Shot')
+        else:
+            self.asset_type_episode_label.setText('Type')
+            self.asset_shot_label.setText('Asset')
 
         # Update comboBox
         self.update_combobox(self.asset_type_episode_comboBox, types_list)
@@ -238,10 +306,10 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def update_asset_shot_combobox(self):
-        # Build path
-        asset_path = self.build_path('asset_shot')
+        # Get datas from ui
+        datas = self.get_am_ui_datas()
         # Build list
-        assets_list = self.create_subdir_list(asset_path)
+        assets_list = [asset for asset in self.hierarchy[datas[0]][datas[1]][datas[2]]]
 
         # Update comboBox
         self.update_combobox(self.asset_shot_comboBox, assets_list)
@@ -251,10 +319,10 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def update_task_combobox(self):
-        # Build path
-        task_path = self.build_path('task')
+        # Get datas from ui
+        datas = self.get_am_ui_datas()
         # Build list
-        task_list = self.create_subdir_list(task_path)
+        task_list = [asset for asset in self.hierarchy[datas[0]][datas[1]][datas[2]][datas[3]]]
 
         # Update comboBox
         self.update_combobox(self.task_comboBox, task_list)
@@ -268,32 +336,17 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         Update the targets qlistwidget
         :param selected_bs_targets : currently selected target in bs_node_menu combobox
         """
-        task_path = self.build_path('file_dir')
+        # Get datas from ui
+        datas = self.get_am_ui_datas()
 
-        # Get the previous selection
-        selected_file = self.files_listWidget.selectedItems()
-        if len(selected_file) != 0:
-            print 'Previous selected file is ', selected_file[0].text()
-        else:
-            print "No previous selected file"
-
-        maya_files = self.build_files_list(task_path)
+        maya_files = [maya_file for maya_file in self.hierarchy[datas[0]][datas[1]][datas[2]][datas[3]][datas[4]]]
 
         # Clear and recreate the list
         self.files_listWidget.clear()
         self.files_listWidget.addItems(maya_files)
 
-        # If currently selected text in new item list, select it
-        if len(selected_file) != 0 and selected_file[0].text() in maya_files:
-            # Get item matching the previously selected name
-            item_to_select = self.files_listWidget.findItems(selected_file[0].text(), Qt.MatchExactly)[0]
-            # Get its index
-            idx = self.files_listWidget.indexFromItem(item_to_select)
-            # Select it
-            self.files_listWidget.item(idx.row()).setSelected(True)
-        else:
-            # Else, select item at index 0
-            self.files_listWidget.item(0).setSelected(True)
+        # Select item at index 0
+        self.files_listWidget.item(0).setSelected(True)
 
     # ------------------------------------------------------------------------------------------------------------------
     def set_current_project_directory(self):
@@ -350,29 +403,35 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         wip_file_path = self.build_path('wip')
 
         # Save
-        mc.file(wip_file_path, s=True, f=True)
+        mc.file(rename=wip_file_path)
+        mc.file(s=True, f=True)
         # Verbose
         print wip_file_path.split('/')[-1], ' has been saved'
+
+        self.update_ui()
 
     # ------------------------------------------------------------------------------------------------------------------
     def save_publish_file(self):
         # Get current open file
         open_file_path = mc.file(q=True, exn=True)
-        open_file_path = open_file_path.split('/')
-        print open_file_path
-        open_file_path[-1] = open_file_path[-1].split('_')[0:3]
-        open_file = ('/').join(open_file_path)
-        print open_file
+
+        open_file_path_tmp = open_file_path.split('/')
+        open_file_path_tmp[-1] = open_file_path_tmp[-1].split('_')[0:3]
+        open_file = ('_').join(open_file_path_tmp[-1])
 
 
         # Build file path
         file_path = self.build_path('publish')
         print file_path
+        publish_file = file_path.split('/')[-1]
+        print publish_file
 
         # If open file match selected file
         if open_file in file_path:
             # Save
-            #mc.file(file_path, s=True, f=True)
+            mc.file(rename=file_path)
+            mc.file(s=True, f=True)
+            mc.file(rename=open_file_path)
             # Verbose
             print file_path.split('/')[-1], ' has been published'
         # If not, pass (for now)
