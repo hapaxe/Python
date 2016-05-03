@@ -923,6 +923,7 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
         # --- Open history chunk
         mc.undoInfo(openChunk=True)
         try:
+            self.reorder_weights()
             # --- Get datas from ui
             datas = self.get_ui_datas()
             check = 'continue'
@@ -965,6 +966,8 @@ class Proc (QDialog, BSM_ui.Ui_Dialog):
                     mc.setAttr('%s.%s' % (s_range, 'oldMaxX'), datas[5])
                     mc.setAttr('%s.%s' % (s_range, extrem_x), 1)
                     mc.connectAttr('%s.%s' % (s_range, 'outValueX'), '%s.%s' % (datas[0], target), force=True)
+
+            self.reorder_weights()
         finally:
             mc.undoInfo(closeChunk=True)
 
