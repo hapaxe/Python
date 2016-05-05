@@ -1,8 +1,4 @@
-from pprint import pprint
-
-
 import os
-import glob
 import maya.cmds as mc
 from PySide.QtCore import *
 from PySide.QtGui import *
@@ -24,10 +20,10 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         project_list = [project for project in self.hierarchy.keys()]
         project_list.sort()
         self.update_combobox(self.project_comboBox, project_list)
-        self.update_asset_anim_comboBox()
+        self.update_asset_anim_combobox()
 
         # Connecting ui selections
-        self.project_comboBox.currentIndexChanged.connect(self.update_asset_anim_comboBox)
+        self.project_comboBox.currentIndexChanged.connect(self.update_asset_anim_combobox)
         self.asset_anim_comboBox.currentIndexChanged.connect(self.update_type_episode_combobox)
         self.asset_type_episode_comboBox.currentIndexChanged.connect(self.update_asset_shot_combobox)
         self.asset_shot_comboBox.currentIndexChanged.connect(self.update_task_combobox)
@@ -40,52 +36,72 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         self.wip_pushButton.clicked.connect(self.save_wip_file)
         self.publish_pushButton.clicked.connect(self.save_publish_file)
 
+        # Select currently open scene if possible
         self.select_current_open()
 
     # ------------------------------------------------------------------------------------------------------------------
     def list_hierarchy(self):
+        """
+        Create the list of the whole hierarchy.
+        :return: the hierarchy (dict)
+        """
+        # Creating empty dictionary for the hierarchy
         hierarchy = dict()
 
+        # Create projects list
         projects = self.create_subdir_list(self.project_path)
 
+        # Loop in projects
         for project in projects:
+            # For every project, create a dictionary
             project_dict = dict()
 
+            # Creates the list of sub directory in the scenes folder
             project_subdir = self.create_subdir_list('%s/%s/scenes/' % (self.project_path, project))
 
+            # Loop in every sub directory
             for directory in project_subdir:
+                # For every sub directory, create a dictionary
                 dir_dict = dict()
 
+                # Create the list of types
                 types = self.create_subdir_list('%s/%s/scenes/%s/' % (self.project_path, project, directory))
 
+                # Loop for every type
                 for type_dir in types:
+                    # For every type, create a dictionary
                     type_dict = dict()
 
+                    # Create assets/shots list
                     assets = self.create_subdir_list('%s/%s/scenes/%s/%s/' % (self.project_path, project,
                                                                               directory, type_dir))
 
+                    # Loop for every asset
                     for asset in assets:
+                        # For every asset create a dictionary
                         asset_dict = dict()
 
+                        # Create tasks list
                         tasks = self.create_subdir_list('%s/%s/scenes/%s/%s/%s/' % (self.project_path,
                                                                                     project, directory,
                                                                                     type_dir, asset))
 
+                        # Loop for every task
                         for task in tasks:
-                            task_dict = dict()
-                            task_dict['task'] = task
-
+                            # Create list of the files in every task directory
                             task_files = self.build_files_list('%s/%s/scenes/%s/%s/%s/%s/' % (self.project_path,
                                                                                               project, directory,
                                                                                               type_dir, asset,
                                                                                               task))
+
+        # Store all the collected datas into dictionaries
                             asset_dict[task] = task_files
 
                         type_dict[asset] = asset_dict
 
                     dir_dict[type_dir] = type_dict
 
-                    project_dict[directory] = dir_dict
+                project_dict[directory] = dir_dict
 
             hierarchy[project] = project_dict
 
@@ -95,7 +111,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
     def create_subdir_list(self, given_path):
         """
         create list of the subdirectories in the given directory
-        :param path: directory to list subdirectories in
+        :param given_path: directory to list subdirectories in
         :return: list of the subdirectories
         """
         # List all the directories at the given path
@@ -110,6 +126,12 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def build_files_list(self, given_path):
+        """
+        Create a list of all the files in the given directory
+        :param given_path: path to the directory you want to list the files in
+        :return: all the files in that directory (list)
+        """
+        # Set current directory to the given path
         os.chdir(given_path)
         # Filter files
         files = [dir_file for dir_file in os.listdir(given_path) if os.path.isfile(os.path.join(given_path, dir_file))]
@@ -136,7 +158,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         Get datas from UI
         :return: list of all the UI datas (list)
         """
-        # Projet
+        # Project
         project = self.project_comboBox.currentText()
         # Asset/Anim
         asset_anim = self.asset_anim_comboBox.currentText()
@@ -154,16 +176,27 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
             file_name = 'None'
 
         return [project, asset_anim, asset_type_episode, asset_shot, task, file_name]
+    
     # ------------------------------------------------------------------------------------------------------------------
     def build_path(self, return_type='project'):
+        """
+        Build path according to ui's datas
+        :param return_type: type of the path you want to build (string)
+        :return: path built from ui (string)
+        """
         # Get datas from ui
         datas = self.get_am_ui_datas()
 
+        # Build project path
         if return_type == 'project':
             return_path = '%s/%s' % (self.project_path, datas[0])
+            
+        # Build file path
         elif return_type == 'file':
             return_path = '%s/%s/scenes/%s/%s/%s/%s/%s' % (self.project_path,
                                                            datas[0], datas[1], datas[2], datas[3], datas[4], datas[5])
+            
+        # Build wip path
         elif return_type == 'wip':
             if datas[5] == 'No file in this directory':
                 wip_file = '%s_%s_%s_00.ma' % (datas[2], datas[3], datas[4])
@@ -177,12 +210,14 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
                 wip_file[3] = self.build_increment(wip_file[3])
                 print wip_file[3]
                 # Join publish file name
-                wip_file = ('_').join(wip_file)
+                wip_file = '_'.join(wip_file)
                 print wip_file
             # Build path
             return_path = '%s/%s/scenes/%s/%s/%s/%s/%s' % (self.project_path,
-                                                        datas[0], datas[1], datas[2], datas[3], datas[4], wip_file)
+                                                           datas[0], datas[1], datas[2], datas[3], datas[4], wip_file)
             print return_path
+            
+        # Build publish path
         else:
             # Split file name
             publish_file = datas[5].split('_')
@@ -193,7 +228,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
             publish_file.append('PUBLISH.ma')
             print publish_file
             # Join publish file name
-            publish_file = ('_').join(publish_file)
+            publish_file = '_'.join(publish_file)
             print publish_file
             # Build path
             return_path = '%s/%s/scenes/%s/%s/%s/%s' % (self.project_path,
@@ -204,18 +239,23 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
     # ------------------------------------------------------------------------------------------------------------------
     def build_increment(self, number):
         """
-
+        Increment the given number and return it as a 2 decimal string (ie : 01, 02, etc.)
         :param number: number you want to increment
         :return: incremented number (string)
         """
+        # Set it as an integer
         increment = int(number)
+        # Increment
         increment += 1
+        # List it
         increment = list(str(increment))
-
+        
+        # Add number to get 2 numbers
         if len(increment) < 2:
             increment.insert(0, '0')
 
-        increment = ('').join(increment)
+        # Join it as a string
+        increment = ''.join(increment)
 
         return increment
 
@@ -224,9 +264,10 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
     # ------------------------------------------------------------------------------------------------------------------
     def update_combobox(self, combobox, items, block='True'):
         """
-        Update the given combobox
-        :param combobox: combobox to update,  ie: self.bs_node_menu
-        :param items: list of items to add to the given combobox
+        Update the given comboBox
+        :param combobox: combobox to update,  ie: self.task_combobox
+        :param items: list of items to add to the given comboBox
+        :param block: specify if blockSignals method should be set as True for the given comboBox
         """
 
         # --- Blocking signals from ui
@@ -262,15 +303,21 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     def update_ui(self):
+        """
+        Update hierarchy dictionary and ui 
+        """
         self.hierarchy = self.list_hierarchy()
 
         project_list = [project for project in self.hierarchy.keys()]
         project_list.sort()
         self.update_combobox(self.project_comboBox, project_list)
-        self.update_asset_anim_comboBox()
+        self.update_asset_anim_combobox()
 
     # ------------------------------------------------------------------------------------------------------------------
-    def update_asset_anim_comboBox(self):
+    def update_asset_anim_combobox(self):
+        """
+        Update asset/anim comboBox according to the project
+        """
         # Get datas from ui
         datas = self.get_am_ui_datas()
         # Set project directory
@@ -286,6 +333,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def update_type_episode_combobox(self):
+        """
+        Update asset_type/episode comboBox according to the project, asset/anim
+        """
         # Get datas from ui
         datas = self.get_am_ui_datas()
         # Build list
@@ -307,6 +357,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def update_asset_shot_combobox(self):
+        """
+        Update asset/shot comboBox according to the project, asset/anim, asset_type/episode
+        """
         # Get datas from ui
         datas = self.get_am_ui_datas()
         # Build list
@@ -320,6 +373,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def update_task_combobox(self):
+        """
+        Update task comboBox according to the project, asset/anim, asset_type/episode, asset/shot
+        """
         # Get datas from ui
         datas = self.get_am_ui_datas()
         # Build list
@@ -334,8 +390,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
     # ------------------------------------------------------------------------------------------------------------------
     def update_files_list(self):
         """
-        Update the targets qlistwidget
-        :param selected_bs_targets : currently selected target in bs_node_menu combobox
+        Update files qListWidget according to the project, asset/anim, asset_type/episode, asset/shot, task
         """
         # Get datas from ui
         datas = self.get_am_ui_datas()
@@ -351,6 +406,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def set_current_project_directory(self):
+        """
+        Set maya project in the current selected project 
+        """
         # Build path
         project_path = self.build_path('project')
         # Set current directory
@@ -358,6 +416,11 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def select_combobox_index_from_text(self, combobox, text):
+        """
+        Select given text in the given comboBox
+        :param combobox: the comboBox you want to set selection
+        :param text: The text you want to select
+        """
         # Get index from the text
         text_index = combobox.findText(text)
         # Select text from index
@@ -365,6 +428,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def select_current_open(self):
+        """
+        Set the different comboBox according to the open file 
+        """
         # Get current open file
         open_file = mc.file(q=True, exn=True)
 
@@ -413,6 +479,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
     # ----------------------------------------------------BUTTONS-------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     def open_file(self):
+        """
+        Open selected file
+        """
         file_path = self.build_path('file')
         # Open
         mc.file(file_path, o=True, f=True)
@@ -421,6 +490,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def open_publish(self):
+        """
+        Open published version of the selected file
+        """
         # Build path
         file_path = self.build_path('publish')
         # Open
@@ -434,6 +506,9 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def save_file(self):
+        """
+        Save file if it matches the current selection, else, tells you to fuck off and save wip first
+        """
         # Get current open file
         open_file = mc.file(q=True, exn=True)
 
@@ -448,11 +523,14 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
             print file_path.split('/')[-1], ' has been saved'
         # If not, pass (for now)
         else:
-            print 'Open file does not match selection. Essaie pas de me la faire a l\'envers!' \
-                  'Petit salaud! File faire un wip avant.'
+            print 'Open file does not match selection. Don\'t try to fuck me!!' \
+                  'Little Bitch! Save wip first!!'
 
     # ------------------------------------------------------------------------------------------------------------------
     def save_wip_file(self):
+        """
+        Save wip file  
+        """
         # Build file path
         wip_file_path = self.build_path('wip')
 
@@ -466,13 +544,16 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
     # ------------------------------------------------------------------------------------------------------------------
     def save_publish_file(self):
+        """
+        Save a published version of the current file and continue on the wip version if it matches selection, else,
+        tell you to fuck off and save wip first
+        """
         # Get current open file
         open_file_path = mc.file(q=True, exn=True)
 
         open_file_path_tmp = open_file_path.split('/')
         open_file_path_tmp[-1] = open_file_path_tmp[-1].split('_')[0:3]
-        open_file = ('_').join(open_file_path_tmp[-1])
-
+        open_file = '_'.join(open_file_path_tmp[-1])
 
         # Build file path
         file_path = self.build_path('publish')
@@ -490,5 +571,5 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
             print file_path.split('/')[-1], ' has been published'
         # If not, pass (for now)
         else:
-            print 'Open file does not match selection. Essaie pas de me la faire a l\'envers!' \
-                  'Petit salaud! File faire un wip avant.'
+            print 'Open file does not match selection. Don\'t try to fuck me!!' \
+                  'Little Bitch! Save wip first!!'
