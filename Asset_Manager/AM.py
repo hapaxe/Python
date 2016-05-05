@@ -40,6 +40,8 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         self.wip_pushButton.clicked.connect(self.save_wip_file)
         self.publish_pushButton.clicked.connect(self.save_publish_file)
 
+        self.select_current_open()
+
     # ------------------------------------------------------------------------------------------------------------------
     def list_hierarchy(self):
         hierarchy = dict()
@@ -247,8 +249,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
 
         # --- If current selected item in new item list, select it
         if selected_text in items:
-            text_index = combobox.findText(selected_text)
-            combobox.setCurrentIndex(text_index)
+            self.select_combobox_index_from_text(combobox, selected_text)
         else:
             combobox.setCurrentIndex(0)
 
@@ -356,6 +357,59 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         mc.workspace(dir=project_path)
 
     # ------------------------------------------------------------------------------------------------------------------
+    def select_combobox_index_from_text(self, combobox, text):
+        # Get index from the text
+        text_index = combobox.findText(text)
+        # Select text from index
+        combobox.setCurrentIndex(text_index)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def select_current_open(self):
+        # Get current open file
+        open_file = mc.file(q=True, exn=True)
+
+        # Check if path contains '/scenes/'
+        if '/scenes/' not in open_file:
+            pass
+        # If yes, split it and defines the different part
+        else:
+            path_split = open_file.split('/scenes/')[1].split('/')
+            project = open_file.split('/scenes/')[0].split('/')[-1]
+            asset_anim = path_split[0]
+            asset_type_episode = path_split[1]
+            asset_shot = path_split[2]
+            task = path_split[3]
+            file_name = path_split[-1]
+            # Try to select project, asset/anim, and so on
+            if project in self.hierarchy:
+                self.select_combobox_index_from_text(self.project_comboBox, project)
+                if asset_anim in self.hierarchy[project]:
+                    self.select_combobox_index_from_text(self.asset_anim_comboBox, asset_anim)
+                    if asset_type_episode in self.hierarchy[project][asset_anim]:
+                        self.select_combobox_index_from_text(self.asset_type_episode_comboBox, asset_type_episode)
+                        if asset_shot in self.hierarchy[project][asset_anim][asset_type_episode]:
+                            self.select_combobox_index_from_text(self.asset_shot_comboBox, asset_shot)
+                            if task in self.hierarchy[project][asset_anim][asset_type_episode][asset_shot]:
+                                self.select_combobox_index_from_text(self.task_comboBox, task)
+                                if file_name in self.hierarchy[project][asset_anim][asset_type_episode][asset_shot][task]:
+                                    item = self.files_listWidget.findItems(file_name, Qt.MatchExactly)[0]
+                                    index = self.files_listWidget.indexFromItem(item)
+                                    self.files_listWidget.item(index.row()).setSelected(True)
+            # If can't find it, verbose
+                                else:
+                                    print file_name, 'not found'
+                            else:
+                                print task, ' not found'
+                        else:
+                            print asset_shot, ' not found'
+                    else:
+                        print asset_type_episode, ' not found'
+                else:
+                    print asset_anim, ' not found'
+            else:
+                print project, ' not found'
+
+    # ------------------------------------------------------------------------------------------------------------------
     # ----------------------------------------------------BUTTONS-------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     def open_file(self):
@@ -389,7 +443,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         # If open file match selected file
         if open_file == file_path:
             # Save
-            mc.file(file_path, s=True, f=True)
+            mc.file(s=True, f=True)
             # Verbose
             print file_path.split('/')[-1], ' has been saved'
         # If not, pass (for now)
