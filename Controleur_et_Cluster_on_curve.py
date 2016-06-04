@@ -1,6 +1,6 @@
 #----------------------Par Christelle GIBOIN ----------------------
 # automatic place 
-#_Place_le pivot au d�but des curve
+#_Place_le pivot au debut des curve
 #_mettre les Cluster et les controlers sur la curve
 
 
