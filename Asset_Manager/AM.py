@@ -125,7 +125,8 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         return subdir_list
 
     # ------------------------------------------------------------------------------------------------------------------
-    def build_files_list(self, given_path):
+    @staticmethod
+    def build_files_list(given_path):
         """
         Create a list of all the files in the given directory
         :param given_path: path to the directory you want to list the files in

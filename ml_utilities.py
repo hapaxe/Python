@@ -23,40 +23,6 @@ def color(input_list, chosen_color):
 
 
 # ----------------------------------------------------------------
-def orig(node='empty'):
-    """
-    Cree un group offset orig
-    :param node: string : name of the node to offset
-    :return: string : name of the orig
-    """
-
-    if node == 'empty':
-        node = mc.ls(sl=True)[0]
-    orig = mc.group(em=True, name=node + '_orig')
-    constraint = mc.parentConstraint(node, orig, mo=False)
-    mc.delete(constraint)
-    mc.parent(node, orig)
-    return orig
-
-
-# ----------------------------------------------------------------
-def manual_orig(input_list=['empty']):
-    """
-    Cree un group offset orig
-    :param input_list: list of the nodes to offset
-    :return:
-    """
-
-    if input_list == ['empty']:
-        input_list = mc.ls(sl=True)
-    for i in input_list:
-        orig = mc.group(em=True, name=i + '_orig')
-        constraint = mc.parentConstraint(i, orig)
-        mc.delete(constraint)
-        mc.parent(i, orig)
-
-
-# ----------------------------------------------------------------
 def constrain_even():
     selection = mc.ls(sl=True)
     for i in range(0, len(selection)):
@@ -314,6 +280,219 @@ def create_simple_orb(name='ctrl', size=1.0, normal=(1, 0, 0)):
 
     return ctrl
 
+
+def add_blendshape_target(targets, blendshape_node):
+    """
+    Add blendShape target(s) to the specified blendShape node (see ui).
+    :param targets: target(s) to add to the given blendShape node
+    :type targets: list
+
+    :param blendshape_node: blendShape node to add the target(s) to
+    :type blendshape_node: str
+    """
+    # --- Get base
+    base = get_blendshape_base(blendshape_node)
+
+    # --- Define new index ------------------------------
+    # --- Get the weight and their indices
+    target_per_index = mc.aliasAttr(blendshape_node, query=True)
+    # --- Create empty weight list
+    weight_list = list()
+    # --- Create empty indices list
+    indices_list = list()
+    # --- List the weights
+    for i in range(0, len(target_per_index)):
+        if i % 2 != 0:
+            weight_list.append(target_per_index[i])
+        # --- split all the weights to get the index
+    for index in weight_list:
+        index = int(index.split('[')[1].split(']')[0])
+        indices_list.append(index)
+
+    # --- Sort the indices by numerical order,
+    # so the last one of the list is actually the higher index
+    indices_list.sort()
+    # --- Increment 1 to create the new index
+    last_index = indices_list[-1]
+    new_index = last_index + 1
+    # --- Add all the targets to the blendShape node.
+    # Increment index by 1 for every target it adds
+    for target in targets:
+        mc.blendShape(blendshape_node, e=True,
+                      target=(base, new_index, target, 1.0))
+        new_index += 1
+
+
+def get_blendshape_base(blendshape_node):
+    """
+    Get blendShape base
+    :rtype : string
+    :return: str(base)
+    """
+    # --- Get base
+    history = mc.listHistory(blendshape_node, future=True, leaf=True)
+    shape = mc.ls(history, type=('mesh', 'nurbsSurface', 'nurbsCurve'))
+    base = mc.listRelatives(shape,
+                            fullPath=True,
+                            parent=True,
+                            type='transform')[0]
+    return base
+
+
+def create_set_range(name, old_min, old_max, mini, maxi):
+    """
+    Create a set range and set it with the given values.
+    :param name: name to give to the created set range node
+    :type name: str
+
+    :param old_min: input minimal value
+    :type old_min: float
+
+    :param old_max: input maximal value
+    :type old_max: float
+
+    :param mini: output value of the old_min
+    :type mini: float
+
+    :param maxi: output value of the old_max
+    :type maxi: float
+
+    :return: name of the created set range
+    :rtype: str
+    """
+    # --- Create set range node
+    s_range = mc.createNode('setRange', n=name)
+    # --- Set the sr node
+    mc.setAttr(s_range + '.oldMinX', old_min)
+    mc.setAttr(s_range + '.oldMaxX', old_max)
+    mc.setAttr(s_range + '.minX', mini)
+    mc.setAttr(s_range + '.maxX', maxi)
+
+    return s_range
+
+
+def create_condition(name, first_term=0.0, second_term=0.0, operation='equal',
+                     cit_r=0.0, cit_g=0.0, cit_b=0.0,
+                     cif_r=1.0, cif_g=1.0, cif_b=1.0,
+                     out_color_r='', out_color_g='', out_color_b=''):
+    """
+    create a condition node with the specified connexions
+    :rtype : object
+
+    :param name: name of the node
+    :type name: str
+
+    :param first_term: attr/value to connect/set to firstTerm (str/int/float)
+    :type first_term: str or int or float
+
+    :param second_term: attr/value to connect/set to secondTerm (str/int/float)
+    :type second_term: str or int or float
+
+    :param operation: attr/value to connect/set to operation (str/int/float)
+    :type operation: str or int or float
+
+    :param cit_r: attr/value to connect/set to colorIfTrueR (str/int/float)
+    :type cit_r: str or int or float
+
+    :param cit_g: attr/value to connect/set to colorIfTrueG (str/int/float)
+    :type cit_g: str or int or float
+
+    :param cit_b: attr/value to connect/set to colorIfTrueB (str/int/float)
+    :type cit_b: str or int or float
+
+    :param cif_r: attr/value to connect/set to colorIfFalseR (str/int/float)
+    :type cif_r: str or int or float
+
+    :param cif_g: attr/value to connect/set to colorIfFalseG (str/int/float)
+    :type cif_g: str or int or float
+
+    :param cif_b: attr/value to connect/set to colorIfFalseB (str/int/float)
+    :type cif_b: str or int or float
+
+    :param out_color_r: attr/value to connect/set outColorR to (str)
+    :type out_color_r: str
+
+    :param out_color_g: attr/value to connect/set outColorG to (str)
+    :type out_color_g: str
+
+    :param out_color_b: attr/value to connect/set outColorB to (str)
+    :type out_color_b: str
+
+    :return: name of the condition node created
+    """
+    operation_dict = {'equal': 0,
+    'not equal': 1,
+    'greater than': 2,
+    'greater or equal': 3,
+    'less than': 4,
+    'less or equal': 5}
+
+    input_connexions = {'firstTerm': first_term,
+    'secondTerm': second_term,
+    'colorIfTrueR': cit_r,
+    'colorIfTrueG': cit_g,
+    'colorIfTrueB': cit_b,
+    'colorIfFalseR': cif_r,
+    'colorIfFalseG': cif_g,
+    'colorIfFalseB': cif_b}
+    output_connexions = {'outColorR': out_color_r,
+    'outColorG': out_color_g,
+    'outColorB': out_color_b}
+
+    condition_node = mc.createNode('condition', n=name)
+
+    if operation not in operation_dict:
+        mc.connectAttr(operation, '%s.operation' % condition_node)
+    else:
+        mc.setAttr('%s.operation' % condition_node, operation_dict[operation])
+
+    for input_value in input_connexions:
+        attr_value = input_connexions[input_value]
+        if type(attr_value) is str or type(attr_value) is unicode:
+            mc.connectAttr(attr_value, '%s.%s' % (condition_node, input_value))
+        else:
+            mc.setAttr('%s.%s' % (condition_node, input_value), attr_value)
+
+    for output_value in output_connexions:
+        if output_connexions[output_value] is not '':
+            mc.connectAttr('%s.%s' % (condition_node, output_value),
+                           output_connexions[output_value], f=True)
+
+    return condition_node
+
+
+def connect_one_to_many(attr, *args):
+    """
+    Connect one node.attribute to several node.attribute
+    :param attr: node and attribute to connect from
+    :type attr: str
+
+    :param args: node(s) and attribute(s) to connect to
+    :type args: str, str, str...
+
+    :return:
+    """
+    for arg in args:
+        mc.connectAttr(attr, arg)
+
+
+def history_on_off(state=0):
+    # --- List all nodes in the scene by long path
+    all_nodes = mc.ls(l=True)
+
+    for node in all_nodes:
+        mc.setAttr(node + '.isHistoricallyInteresting', state)
+
+    print '\n## HISTORY HIDDEN ##\n',
+
+
+def set_hidden_as_intermediate(hidden_geo):
+    if not hidden_geo or type(hidden_geo) != list:
+        hidden_geo = mc.ls(sl=True)
+
+    for geo in hidden_geo:
+        shape = mc.listRelatives(geo, c=True, s=True)[0]
+    mc.setAttr(shape + '.intermediateObject', 1)
 
 # ----------------------------------------------------------------
 curve_shape = {

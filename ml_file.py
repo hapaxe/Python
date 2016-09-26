@@ -1,5 +1,3 @@
-__author__ = 'v.moriceau'
-
 import os
 import glob
 import json

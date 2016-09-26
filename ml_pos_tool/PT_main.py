@@ -3,8 +3,9 @@ from PySide.QtGui import *
 from maya import OpenMayaUI
 from shiboken import wrapInstance
 
-import CM
-reload(CM)
+import PT
+
+reload(PT)
 
 
 def main():
@@ -19,7 +20,7 @@ def main():
     ptr = OpenMayaUI.MQtUtil.mainWindow()
     main_window = wrapInstance(long(ptr), QWidget)
     # New Window
-    WIDGET_HOLDER = CM.CurveManager(parent=main_window)
+    WIDGET_HOLDER = PT.MPosToolMainWindow(parent=main_window)
     # Store to prevent garbage collection
     # Show
     WIDGET_HOLDER.show()
