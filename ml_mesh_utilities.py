@@ -3,12 +3,12 @@ import math as math
 
 import maya.cmds as mc
 
-import ml_3D_vector_utilities as vector
+from Python.mla_general_utils import ml_3D_vector_utilities as vector
 
 reload(vector)
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def get_sel_vertices():
     """
     :return selected_vertices: list of the selected vertices
@@ -16,12 +16,12 @@ def get_sel_vertices():
 
     sel_vertices = [obj for obj in mc.ls(sl=True, fl=True) if 'vtx' in obj]
 
-    sel_vertices_idx = [obj.split('[')[-1].split(']')[0] for obj in sel_vertices]
+    sel_vtcs_idx = [obj.split('[')[-1].split(']')[0] for obj in sel_vertices]
 
-    return sel_vertices_idx
+    return sel_vtcs_idx
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def get_sel_mesh():
     """
     :return:
@@ -29,20 +29,21 @@ def get_sel_mesh():
     # --- If vertices are selected, create sel_mesh list from selected vertices
     if mc.polyEvaluate(vertexComponent=True)>0:
         sel_vtx = mc.ls(sl=True, fl=True)
-        sel_mesh = list()
+        mesh = list()
         for obj in sel_vtx:
-            if obj.split('.')[0] not in sel_mesh:
-                sel_mesh.append(obj.split('.')[0])
+            if obj.split('.')[0] not in mesh:
+                mesh.append(obj.split('.')[0])
             else:
                 pass
     # --- Else, get selected transforms which have a shape
     else:
-        sel_mesh = [obj for obj in mc.ls(sl=True, et='transform') if len(mc.listRelatives(obj, c=True, s=True, typ='mesh'))>0]
+        mesh = [obj for obj in mc.ls(sl=True, et='transform')
+                if len(mc.listRelatives(obj, c=True, s=True, typ='mesh')) > 0]
 
-    return sel_mesh
+    return mesh
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def build_difference_table(tolerance=4):
     """
     Create a table of difference between old and new mesh.
@@ -53,8 +54,8 @@ def build_difference_table(tolerance=4):
     sel_mesh = get_sel_mesh()
 
     # --- Create empty lists for position number
-    old_vtx_pos = list()
-    new_vtx_pos = list()
+    old_pos = list()
+    new_pos = list()
     moved_vtx = dict()
 
     # --- Check if there is exactly 2 mesh selected
@@ -70,27 +71,30 @@ def build_difference_table(tolerance=4):
         new_face_num = mc.polyEvaluate(sel_mesh[1], face=True)
 
         # --- Check if both mesh have the same number of vertices
-        if old_vtx_num != new_vtx_num or old_edge_num != new_edge_num or old_face_num != new_face_num:
+        if old_vtx_num != new_vtx_num or old_edge_num != new_edge_num \
+                or old_face_num != new_face_num:
             print 'old and new must have the same topology.'
         else:
             # --- Build mesh tables
-            old_vtx_pos = build_mesh_table(sel_mesh[0], tolerance)
-            new_vtx_pos = build_mesh_table(sel_mesh[1], tolerance)
+            old_pos = build_mesh_table(sel_mesh[0], tolerance)
+            new_pos = build_mesh_table(sel_mesh[1], tolerance)
             for i in range(0, old_vtx_num):
                 # --- If vtx pos is different beyond tolerance, add it to list
-                i_vtx_vector = vector.vector_difference(old_vtx_pos[i], new_vtx_pos[i])
+                i_vtx_vector = vector.vector_difference(old_pos[i], new_pos[i])
                 i_vtx_vector = vector.vector_round(i_vtx_vector, tolerance)
                 i_vtx_vector_length = vector.vector_length(i_vtx_vector)
                 i_vtx_vector_length = round(i_vtx_vector_length, tolerance)
                 if i_vtx_vector_length > (1.00/(math.pow(10, tolerance))):
                     moved_vtx[i] = i_vtx_vector
 
-    difference_table = {'old_vtx_pos': old_vtx_pos, 'new_vtx_pos': new_vtx_pos, 'moved_vtx': moved_vtx}
+    difference_table = {'old_vtx_pos': old_pos,
+                        'new_vtx_pos': new_pos,
+                        'moved_vtx': moved_vtx}
 
     return difference_table
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def build_mesh_table(mesh, tolerance=4):
     """
     Build a table containing position of every vertex at its id.
@@ -111,7 +115,7 @@ def build_mesh_table(mesh, tolerance=4):
 
     return vtx_pos
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def bake_mesh_modif(difference_table, sel_vertices, tolerance=4):
     """
     Apply vertices modification from old/new mesh to selected meshes.
@@ -136,10 +140,11 @@ def bake_mesh_modif(difference_table, sel_vertices, tolerance=4):
     for mesh in mesh_list:
         for key in difference_table['moved_vtx'].keys():
             if str(key) in sel_vertices:
-                mc.xform('%s.vtx[%s]' % (mesh, key), r=True, t=difference_table['moved_vtx'][key])
+                mc.xform('%s.vtx[%s]' % (mesh, key), r=True,
+                         t=difference_table['moved_vtx'][key])
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def select_modified_vtx(difference_table):
     """
     Select moved vertices (between old and new mesh) on current selected mesh

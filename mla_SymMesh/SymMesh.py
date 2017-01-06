@@ -14,7 +14,7 @@ folder_path = '/'.join(__file__.split('/')[:-1])
 # ----------------------- BAKE FK CHAIN TO DYNAMIC ----------------------------
 # -----------------------------------------------------------------------------
 # If you put the .ui file for this example elsewhere, just change this path.
-ml_sym_mesh_form, ml_sym_mesh_base = uic.loadUiType('%s/ml_sym_mesh.ui'
+ml_sym_mesh_form, ml_sym_mesh_base = uic.loadUiType('%s/SM.ui'
                                                     % folder_path)
 
 

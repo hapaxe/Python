@@ -6,8 +6,8 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 import ml_file as ml_file
 import orig
-import CM_ui
-reload(CM_ui)
+import curveManager_ui
+reload(curveManager_ui)
 import ml_pos_tool.PT as PT
 
 folder_path = '/'.join(__file__.split('\\')[:-1])
@@ -16,7 +16,7 @@ dicts_path = folder_path + '/curve_dictionaries'
 
 
 # ----------------------------------------------------------------
-class CurveManager (QDialog, CM_ui.Ui_CMMainWindow):
+class CurveManager(QDialog, curveManager_ui.Ui_CMMainWindow):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)

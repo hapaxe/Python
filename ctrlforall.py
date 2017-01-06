@@ -1,7 +1,8 @@
 __author__ = 'm.lanton'
 import maya.cmds as mc
-import ml_utilities as mlutilities
-import orig as orig
+
+from Python.mla_general_utils import ml_utilities as mlutilities
+from Python.mla_rig_utils import orig as orig
 
 
 def ctrl_for_all(size='default', normal=(0, 1, 0)):

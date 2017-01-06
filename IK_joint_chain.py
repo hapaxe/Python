@@ -12,7 +12,7 @@ __author__ = 'm.lanton'
 #-----------------------------------
 import maya.cmds as mc
 
-import ml_utilities as mlutilities
+from Python.mla_general_utils import ml_utilities as mlutilities
 
 
 def ik_joint_chain():

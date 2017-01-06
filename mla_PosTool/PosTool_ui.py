@@ -101,7 +101,7 @@ class Ui_MPosToolMainWindow(object):
         self.move_even_pB.setMinimumSize(QtCore.QSize(0, 30))
         self.move_even_pB.setObjectName("move_even_pB")
         self.gridLayout.addWidget(self.move_even_pB, 3, 0, 1, 2)
-        MPosToolMainWindow.setCentralWidget(self.centralwidget)
+        # MPosToolMainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MPosToolMainWindow)
         QtCore.QMetaObject.connectSlotsByName(MPosToolMainWindow)

@@ -8,7 +8,8 @@
 # specify the number of bones you want.
 # -----------------------------------
 import maya.cmds as mc
-import orig as orig
+
+from Python.mla_rig_utils import orig as orig
 
 
 def manual_bend_chain(controller, curves):
