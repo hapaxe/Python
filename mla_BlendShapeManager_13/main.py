@@ -3,7 +3,7 @@ from PySide.QtGui import *
 from maya import OpenMayaUI
 from shiboken import wrapInstance
 
-import BSM_1_3.BSM_13 as bsm
+import BSM_1_3.BSM as bsm
 
 reload(bsm)
 

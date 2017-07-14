@@ -40,18 +40,8 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
          'constraint_type'}
         :rtype: dict
         """
-
-        ct_rbs = [self.point_ct_rB,
-                  self.orient_ct_rB,
-                  self.aim_ct_rB,
-                  self.scale_ct_rB,
-                  self.parent_ct_rB,
-                  self.mirror_ct_rB]
-
+        # Translate
         translate = list()
-        rotate = list()
-        scale = list()
-
         if self.tx_cB.isChecked():
             translate.append('x')
         if self.ty_cB.isChecked():
@@ -59,6 +49,8 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
         if self.tz_cB.isChecked():
             translate.append('z')
 
+        # Rotate
+        rotate = list()
         if self.rx_cB.isChecked():
             rotate.append('x')
         if self.ry_cB.isChecked():
@@ -66,6 +58,8 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
         if self.rz_cB.isChecked():
             rotate.append('z')
 
+        # Scale
+        scale = list()
         if self.sx_cB.isChecked():
             scale.append('x')
         if self.sy_cB.isChecked():
@@ -73,10 +67,16 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
         if self.sz_cB.isChecked():
             scale.append('z')
 
+        # World space / object space
         world_space = self.ws_rB.isChecked()
 
+        # Mirror
         mirror = self.mirror_cB.isChecked()
 
+        # behavior
+        behavior = self.behavior_cB.isChecked()
+
+        # Up vector / aim vector
         up_vector = (self.up_vectorX_sB.value(),
                      self.up_vectorY_sB.value(),
                      self.up_vectorZ_sB.value())
@@ -85,6 +85,7 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
                       self.aim_vectorY_sB.value(),
                       self.aim_vectorZ_sB.value())
 
+        # Mirror axis
         if self.mirror_x_rB.isChecked():
             mirror_axis = 'x'
         elif self.mirror_y_rB.isChecked():
@@ -92,11 +93,21 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
         else:
             mirror_axis = 'z'
 
+        # Maintain offset
         maintain_offset = self.maintain_offset_cB.isChecked()
 
+        # Skip axes
         skip_trans = [axis for axis in ['x', 'y', 'z'] if axis not in translate]
         skip_rot = [axis for axis in ['x', 'y', 'z'] if axis not in rotate]
         skip_scale = [axis for axis in ['x', 'y', 'z'] if axis not in scale]
+
+        # Constraint type
+        ct_rbs = [self.point_ct_rB,
+                  self.orient_ct_rB,
+                  self.aim_ct_rB,
+                  self.scale_ct_rB,
+                  self.parent_ct_rB,
+                  self.mirror_ct_rB]
         constraint_type = [str(rB.text()) for rB in ct_rbs if rB.isChecked()][0]
 
         return {'translate': translate,
@@ -111,7 +122,8 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
                 'skip_translation': skip_trans,
                 'skip_rotation': skip_rot,
                 'skip_scale': skip_scale,
-                'constraint_type': constraint_type
+                'constraint_type': constraint_type,
+                'behavior': behavior
                 }
 
     def move_from_ui(self):
@@ -119,30 +131,34 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
         Use move function using ui's data
         :return:
         """
-        data = self.get_data()
+        self.data = self.get_data()
 
         selection = mc.ls(sl=True)
 
-        self.move(selection, data['translate'], data['rotate'], data['scale'],
-                  data['world_space'], data['mirror'], data['mirror_axis'])
+        self.move(selection, self.data['translate'],
+                  self.data['rotate'], self.data['scale'],
+                  self.data['world_space'], self.data['mirror'],
+                  self.data['mirror_axis'], self.data['behavior'])
 
     def move_even_from_ui(self):
         """
-        Use move function using ui's data
+        Use move_transform function using ui's data
         :return:
         """
-        data = self.get_data()
+        self.data = self.get_data()
 
         selection = mc.ls(sl=True)
 
-        self.move_even(selection, data['translate'], data['rotate'],
-                       data['scale'], data['world_space'], data['mirror'],
-                       data['mirror_axis'])
+        self.move_even(selection, self.data['translate'], self.data['rotate'],
+                       self.data['scale'], self.data['world_space'],
+                       self.data['mirror'], self.data['mirror_axis'],
+                       self.data['behavior'])
 
     @staticmethod
     def move_even(obj_list=(), translate=('x', 'y', 'z'),
                   rotate=('x', 'y', 'z'), scale=(),
-                  world_space=True, mirror=False, mirror_axis='x'):
+                  world_space=True, mirror=False, mirror_axis='x',
+                  behavior=False):
         """
         Call the move function by even
         :param obj_list: list of objects to move by pair
@@ -166,6 +182,9 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
         :param mirror_axis: mirror axis
         :type mirror_axis: str
 
+        :param behavior: mirroring behavior/orientation
+        :type behavior: boolean
+
         :return:
         """
         # UNDO : Open history chunk
@@ -186,7 +205,8 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
                                     scale=scale,
                                     world_space=world_space,
                                     mirror=mirror,
-                                    mirror_axis=mirror_axis)
+                                    mirror_axis=mirror_axis,
+                                    behavior=behavior)
         # UNDO : Close history chunk
         finally:
             mc.undoInfo(closeChunk=True)
@@ -194,7 +214,8 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
     @staticmethod
     def move(source_target=(), translate=('x', 'y', 'z'),
              rotate=('x', 'y', 'z'), scale=(),
-             world_space=True, mirror=False, mirror_axis='x'):
+             world_space=True, mirror=False, mirror_axis='x',
+             behavior=False):
         """
         Move an object according to another object's coordinates, to snap or
         mirror position, in world or object space, using a specified mirror
@@ -220,6 +241,9 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
 
         :param mirror_axis: mirror axis
         :type mirror_axis: str
+
+        :param behavior: mirroring behavior/orientation
+        :type behavior: boolean
 
         :return:
         """
@@ -298,54 +322,100 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
                 translate_value[2] = target_translate[2]
             # ------------------------------------------------------------------
             # ROTATE
+            # X axis
             if 'x' in rotate:
                 # If mirror
                 if mirror:
-                    # If mirror X or Y
-                    if mirror_axis == 'x' or mirror_axis == 'y':
-                        rotate_value[0] = 180 - source_rotate[0]
-                    # If mirror Z
+                    # If behavior
+                    if behavior:
+                        # If mirror X or Y
+                        if mirror_axis == 'x' or mirror_axis == 'y':
+                            rotate_value[0] = source_rotate[0] + 180
+                            # If mirror Z
+                        else:
+                            rotate_value[0] = source_rotate[0]
+                    # If orientation
                     else:
-                        rotate_value[0] = -source_rotate[0]
-                # If attribute BUT NOT mirror
+                        # If mirror X or Y
+                        if mirror_axis == 'x' or mirror_axis == 'y':
+                            rotate_value[0] = 180 - source_rotate[0]
+                        # If mirror Z
+                        else:
+                            rotate_value[0] = -source_rotate[0]
+                # If rotate X in attribute BUT NOT mirror
                 else:
                     rotate_value[0] = source_rotate[0]
-            # If NOT attribute
+            # If NOT rotate X in attributes
             else:
                 rotate_value[0] = target_rotate[0]
-
+            # --------------------
+            # Y axis
             if 'y' in rotate:
                 # If mirror
                 if mirror:
-                    # If mirror X or Y
-                    if mirror_axis == 'x' or mirror_axis == 'y':
-                        rotate_value[1] = source_rotate[1]
-                    # If mirror Z
+                    # If behavior
+                    if behavior:
+                        # If mirror X or Y
+                        if mirror_axis == 'x' or mirror_axis == 'y':
+                            rotate_value[1] = - source_rotate[1]
+                        # If mirror Z
+                        else:
+                            rotate_value[1] = source_rotate[1]
+                    # If orientation
                     else:
-                        rotate_value[1] = -source_rotate[1]
-                # If attribute BUT NOT mirror
+                        # If mirror X or Y
+                        if mirror_axis == 'x' or mirror_axis == 'y':
+                            rotate_value[1] = source_rotate[1]
+                        # If mirror Z
+                        else:
+                            rotate_value[1] = -source_rotate[1]
+                # If rotate Y in attribute BUT NOT mirror
                 else:
                     rotate_value[1] = source_rotate[1]
-            # If NOT attribute
+            # If NOT rotate Y attributes
             else:
                 rotate_value[1] = target_rotate[1]
-
+            # --------------------
+            # Z axis
             if 'z' in rotate:
                 # If mirror
                 if mirror:
-                    # If mirror X
-                    if mirror_axis == 'x':
-                        rotate_value[2] = 180 - source_rotate[2]
-                    # If mirror Y
-                    elif mirror_axis == 'y':
-                        rotate_value[2] = -source_rotate[2]
-                    # If mirror Z
+                    # If behavior
+                    if behavior:
+                        # If mirror X
+                        if mirror_axis == 'x':
+                            rotate_value[2] = -source_rotate[2]
+                        # If mirror Y
+                        elif mirror_axis == 'y':
+                            # If rotate z is negative
+                            if source_rotate[2] < 0:
+                                rotate_value[2] = -180 - source_rotate[2]
+                            # If rotate z is positive
+                            else:
+                                rotate_value[2] = 180 - source_rotate[2]
+                        # If mirror Z
+                        else:
+                            # If rotate z is negative
+                            if source_rotate[2] < 0:
+                                rotate_value[2] = source_rotate[2] + 180
+                            # If rotate z is positive
+                            else:
+                                rotate_value[2] = source_rotate[2] - 180
+                    # If orientation
                     else:
-                        rotate_value[2] = source_rotate[2]
-                # If attribute BUT NOT mirror
+                        # If mirror X
+                        if mirror_axis == 'x':
+                            rotate_value[2] = 180 - source_rotate[2]
+                        # If mirror Y
+                        elif mirror_axis == 'y':
+                            rotate_value[2] = -source_rotate[2]
+                        # If mirror Z
+                        else:
+                            rotate_value[2] = source_rotate[2]
+                # If rotate Z in attribute BUT NOT mirror
                 else:
                     rotate_value[2] = source_rotate[2]
-            # If NOT attribute
+            # If NOT rotate Z in attributes
             else:
                 rotate_value[2] = target_rotate[2]
             # ------------------------------------------------------------------
@@ -387,7 +457,7 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
                 mc.xform(target, t=translate_value, os=True)
                 mc.xform(target, ro=rotate_value, os=True)
                 mc.xform(target, s=scale_value, os=True)
-        # UNDO : Close history chunk
+                # UNDO : Close history chunk
         finally:
             mc.undoInfo(closeChunk=True)
 
@@ -617,34 +687,16 @@ class MLAPosTool(QDialog, PosTool_ui.Ui_MPosToolMainWindow):
                                 maintain_offset = True
                                 break
 
-                # Get skip translate
-                for i, attr in enumerate(['x', 'y', 'z']):
-                    out_attr = '%s.%s' % (ct, out_connections[i])
-                    in_attr = '%s.%s' % (cnted, in_connections[i])
-                    if mc.objExists(out_attr):
-                        if mc.objExists(in_attr):
-                            if mc.isConnected(in_attr, out_attr):
-                                skip_trans.append(attr)
-
-                # Get skip rotate
-                for i, attr in enumerate(['x', 'y', 'z']):
-                    idx = i + 3
-                    out_attr = '%s.%s' % (ct, out_connections[idx])
-                    in_attr = '%s.%s' % (cnted, in_connections[idx])
-                    if mc.objExists(out_attr):
-                        if mc.objExists(in_attr):
-                            if mc.isConnected(in_attr, out_attr):
-                                skip_rot.append(attr)
-
-                # Get skip scale
-                for i, attr in enumerate(['x', 'y', 'z']):
-                    idx = i + 6
-                    out_attr = '%s.%s' % (ct, out_connections[idx])
-                    in_attr = '%s.%s' % (cnted, in_connections[idx])
-                    if mc.objExists(out_attr):
-                        if mc.objExists(in_attr):
-                            if mc.isConnected(in_attr, out_attr):
-                                skip_scale.append(attr)
+                # Get skip translate, rotate, scale
+                for duo in [[0, skip_trans], [3, skip_rot], [6, skip_scale]]:
+                    for i, attr in enumerate(['x', 'y', 'z']):
+                        idx = i + duo[0]
+                        out_attr = '%s.%s' % (ct, out_connections[idx])
+                        in_attr = '%s.%s' % (cnted, in_connections[idx])
+                        if mc.objExists(out_attr):
+                            if mc.objExists(in_attr):
+                                if mc.isConnected(in_attr, out_attr):
+                                    duo[1].append(attr)
 
                 # Create new name in case the constrained object is a center
                 # object (and therefore gets only new targets on the existing

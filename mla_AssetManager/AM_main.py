@@ -3,7 +3,7 @@ from PySide.QtGui import *
 from maya import OpenMayaUI
 from shiboken import wrapInstance
 
-import Asset_Manager.AM as am
+import mla_AssetManager.AM as am
 
 reload(am)
 

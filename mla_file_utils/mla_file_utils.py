@@ -6,6 +6,8 @@ import shutil
 import logging
 from collections import OrderedDict
 
+suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+
 
 class FileSystem(object):
     """
@@ -122,7 +124,8 @@ class FileSystem(object):
                 # Try
                 try:
                     # Create an empty file
-                    with open(path_destination, 'w+'):pass
+                    with open(path_destination, 'w+'):
+                        pass
                     # Return
                     return True
                 # Error
@@ -197,16 +200,56 @@ class FileSystem(object):
         :return:
         """
         # Normpath
-        filepath = FileSystem.normpath(filepath, must_exist=False, parse_env_vars=False)
+        filepath = FileSystem.normpath(filepath, must_exist=False,
+                                       parse_env_vars=False)
         # Each Env var
         for env_var_name, env_var_values in os.environ.items():
             # If Name given or no name given
             if env_var_name in var_names or var_names == []:
                 # Split and normalize
-                splitted_values = [FileSystem.normpath(env_path, must_exist=False, parse_env_vars=False) for env_path in env_var_values.split(";")]
+                splitted_values = [
+                    FileSystem.normpath(env_path, must_exist=False,
+                                        parse_env_vars=False) for env_path in
+                    env_var_values.split(";")]
                 # Only one value possible
                 if len(splitted_values) == 1:
                     # Replace in filepath
-                    filepath = filepath.replace(splitted_values[0], '$' + env_var_name)
+                    filepath = filepath.replace(splitted_values[0],
+                                                '$' + env_var_name)
         # Return
         return filepath
+
+
+def convert_to_readable_size(nbytes):
+    """
+    Convert a number of bytes into a readable number, i.e. 5 MB, 12 KB, etc.
+    :param nbytes: size number to convert
+    :type nbytes: int
+
+    :return: converted number
+    """
+    if nbytes == 0:
+        return '0 B'
+    i = 0
+    while nbytes >= 1024 and i < len(suffixes)-1:
+        nbytes /= 1024.
+        i += 1
+    f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
+    return '%s %s' % (f, suffixes[i])
+
+
+def convert_to_readable_date(date):
+    """
+    Convert a time.localtime number into a readable number,
+        i.e. 2006/05/12, 14:02:38
+    :param date: time.localtime number
+    :return:
+    """
+    new_date = '%s/%s/%s, %s:%s:%s' % ('{0:02d}'.format(date[0]),
+                                       '{0:02d}'.format(date[1]),
+                                       '{0:02d}'.format(date[2]),
+                                       '{0:02d}'.format(date[3]),
+                                       '{0:02d}'.format(date[4]),
+                                       '{0:02d}'.format(date[5]))
+
+    return new_date

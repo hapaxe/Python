@@ -39,7 +39,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         # Select currently open scene if possible
         self.select_current_open()
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------ #
     def list_hierarchy(self):
         """
         Create the list of the whole hierarchy.
@@ -436,7 +436,7 @@ class AMClass(QMainWindow, AM_ui.Ui_Asset_Manager_MainWindow):
         open_file = mc.file(q=True, exn=True)
 
         # Check if path contains '/scenes/'
-        if '/scenes/' not in open_file:
+        if '/scenes/' not in open_file or self.project_path not in open_file:
             pass
         # If yes, split it and defines the different part
         else:
