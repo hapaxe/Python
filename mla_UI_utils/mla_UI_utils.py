@@ -1,9 +1,6 @@
 from Qt import QtWidgets, QtCore, QtGui
 from Qt import __binding__
-import maya.OpenMayaUI as OMui
 import logging
-from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
-import maya.cmds as mc
 
 # try:
 #     import pyside2uic as pysideuic

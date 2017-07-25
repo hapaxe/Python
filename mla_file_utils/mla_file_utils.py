@@ -253,3 +253,19 @@ def convert_to_readable_date(date):
                                        '{0:02d}'.format(date[5]))
 
     return new_date
+
+
+def import_if_available(modulename):
+    """
+    Import the module if it is available.
+    :param modulename: name of the module to import.
+    :type modulename: str
+
+    :return: module
+    """
+    try:
+        my_module = __import__(modulename)
+    except ImportError:
+        my_module = None
+    finally:
+        return my_module

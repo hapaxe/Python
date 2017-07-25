@@ -1,9 +1,9 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 import mla_path_utils as path_utils
-from UI_utils import UI_utils
+from mla_UI_utils import mla_UI_utils
 import maya.cmds as mc
 reload(path_utils)
-reload(UI_utils)
+reload(mla_UI_utils)
 
 
 class PathConstructorUI(QtWidgets.QGroupBox):
@@ -26,7 +26,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
         self.project_list = [project for project in self.hierarchy.keys()]
         self.project_list.sort()
 
-        UI_utils.update_combobox(self.project, self.project_list)
+        mla_UI_utils.update_combobox(self.project, self.project_list)
 
         self.update_scenes_sound_combobox()
 
@@ -198,7 +198,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
                              in self.hierarchy[self.data['project']]]
 
         # Update comboBox
-        UI_utils.update_combobox(self.scenes_sound, scenes_sound_list)
+        mla_UI_utils.update_combobox(self.scenes_sound, scenes_sound_list)
 
         # Init update asset/shot combobox
         self.update_asset_anim_combobox()
@@ -218,7 +218,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
                            [self.data['scenes_sound']]]
 
         # Update comboBox
-        UI_utils.update_combobox(self.asset_anim, asset_anim_list)
+        mla_UI_utils.update_combobox(self.asset_anim, asset_anim_list)
 
         # Init update type/episode combobox
         self.update_asset_type_combobox()
@@ -245,7 +245,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
             self.asset_label.setText('Asset')
 
         # Update comboBox
-        UI_utils.update_combobox(self.asset_type, types_list)
+        mla_UI_utils.update_combobox(self.asset_type, types_list)
 
         # Init update asset/shot combobox
         self.update_asset_shot_combobox()
@@ -266,7 +266,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
                        [self.data['asset_type_episode']]]
 
         # Update comboBox
-        UI_utils.update_combobox(self.asset, assets_list)
+        mla_UI_utils.update_combobox(self.asset, assets_list)
 
         # Init update task combobox
         self.update_task_combobox()
@@ -286,7 +286,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
                      [self.data['asset_shot']]]
 
         # Update comboBox
-        UI_utils.update_combobox(self.task, task_list, block=False)
+        mla_UI_utils.update_combobox(self.task, task_list, block=False)
 
     def select_from_path(self):
         """
@@ -333,22 +333,22 @@ class PathConstructorUI(QtWidgets.QGroupBox):
 
             # Try to select project, asset/anim, and so on
             if project in self.hierarchy:
-                UI_utils.select_combobox_index_from_text(
+                mla_UI_utils.select_combobox_index_from_text(
                     self.project, project)
                 if scenes_sound in self.hierarchy[project]:
-                    UI_utils.select_combobox_index_from_text(self.scenes_sound, scenes_sound)
+                    mla_UI_utils.select_combobox_index_from_text(self.scenes_sound, scenes_sound)
 
                     if asset_anim in self.hierarchy[project][scenes_sound]:
-                        UI_utils.select_combobox_index_from_text(self.asset_anim, asset_anim)
+                        mla_UI_utils.select_combobox_index_from_text(self.asset_anim, asset_anim)
 
                         if asset_type_episode in self.hierarchy[project][scenes_sound][asset_anim]:
-                            UI_utils.select_combobox_index_from_text(self.asset_type, asset_type_episode)
+                            mla_UI_utils.select_combobox_index_from_text(self.asset_type, asset_type_episode)
 
                             if asset_shot in self.hierarchy[project][scenes_sound][asset_anim][asset_type_episode]:
-                                UI_utils.select_combobox_index_from_text(self.asset, asset_shot)
+                                mla_UI_utils.select_combobox_index_from_text(self.asset, asset_shot)
 
                                 if task in self.hierarchy[project][scenes_sound][asset_anim][asset_type_episode][asset_shot]:
-                                    UI_utils.select_combobox_index_from_text(self.task, task)
+                                    mla_UI_utils.select_combobox_index_from_text(self.task, task)
 
                                 else:
                                     print task, ' not found'

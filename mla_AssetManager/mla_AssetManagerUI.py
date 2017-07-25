@@ -3,13 +3,13 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 import mla_file_utils.mla_path_constructor_ui as pcui
 import mla_file_utils.mla_path_utils as path_utils
 import mla_file_utils.mla_file_utils as file_utils
-from UI_utils import UI_utils
+from mla_UI_utils import mla_UI_utils
 import pprint
 import maya.cmds as mc
 reload(pcui)
 reload(path_utils)
 reload(file_utils)
-reload(UI_utils)
+reload(mla_UI_utils)
 
 
 class AssetManagerUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
