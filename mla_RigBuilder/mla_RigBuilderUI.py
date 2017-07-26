@@ -19,4 +19,16 @@ elif mxs:
 
 
 
-class RigBuilderUI():
+class RigBuilderUI(dockable, QtWidgets.QDialog):
+
+    def __init__(self, parent=None):
+        super(RigBuilderUI, self).__init__(parent=parent)
+
+        self.setWindowTitle('Rig Builder UI')
+        # Path constructor
+        self.path_constructor = pcui.PathConstructorUI()
+        # UI
+        self.buildUI()
+
+    def buildUI(self):
+        pass
