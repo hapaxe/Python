@@ -1,9 +1,7 @@
-# TODO
 import os
-import maya.cmds as mc
 import mla_file_library as fl
 reload(fl)
-DEFAULT_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
+MAYA_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
 
 
 def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
@@ -40,17 +38,17 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
     """
     # Build project path
     if return_type == 'project':
-        return_path = '%s/%s' % (DEFAULT_PROJECT_PATH, project)
+        return_path = '%s/%s' % (MAYA_PROJECT_PATH, project)
 
     elif return_type == 'directory':
-        return_path = '%s/%s/%s/%s/%s/%s/%s' % (DEFAULT_PROJECT_PATH,
+        return_path = '%s/%s/%s/%s/%s/%s/%s' % (MAYA_PROJECT_PATH,
                                                 project, scenes_sound,
                                                 asset_anim, asset_type, asset,
                                                 task)
 
     # Build file path
     elif return_type == 'file':
-        return_path = '%s/%s/%s/%s/%s/%s/%s/%s' % (DEFAULT_PROJECT_PATH,
+        return_path = '%s/%s/%s/%s/%s/%s/%s/%s' % (MAYA_PROJECT_PATH,
                                                    project, scenes_sound,
                                                    asset_anim, asset_type,
                                                    asset, task, filename)
@@ -72,7 +70,7 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
             wip_file = '_'.join(wip_file)
             print wip_file
         # Build path
-        return_path = '%s/%s/%s/%s/%s/%s/%s/%s' % (DEFAULT_PROJECT_PATH,
+        return_path = '%s/%s/%s/%s/%s/%s/%s/%s' % (MAYA_PROJECT_PATH,
                                                    project, scenes_sound,
                                                    asset_anim, asset_type,
                                                    asset, task, wip_file)
@@ -91,7 +89,7 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
         publish_file = '_'.join(publish_file)
         print publish_file
         # Build path
-        return_path = '%s/%s/%s/%s/%s/%s/%s' % (DEFAULT_PROJECT_PATH,
+        return_path = '%s/%s/%s/%s/%s/%s/%s' % (MAYA_PROJECT_PATH,
                                                 project, scenes_sound,
                                                 asset_anim, asset_type, asset,
                                                 publish_file)
@@ -133,7 +131,7 @@ def list_hierarchy():
     hierarchy = dict()
 
     # Create projects list
-    projects = create_subdir_list(DEFAULT_PROJECT_PATH)
+    projects = create_subdir_list(MAYA_PROJECT_PATH)
 
     file_types = list()
 
@@ -151,7 +149,7 @@ def list_hierarchy():
 
             # Create the list of types
             asset_anim_list = create_subdir_list('%s/%s/%s/'
-                                                 % (DEFAULT_PROJECT_PATH,
+                                                 % (MAYA_PROJECT_PATH,
                                                     project, scenes_sounds))
 
             if scenes_sounds == 'scenes':
@@ -171,7 +169,7 @@ def list_hierarchy():
 
                 # Create the list of types
                 asset_types_list = create_subdir_list('%s/%s/%s/%s/'
-                                                      % (DEFAULT_PROJECT_PATH,
+                                                      % (MAYA_PROJECT_PATH,
                                                          project, scenes_sounds,
                                                          asset_anim))
 
@@ -182,7 +180,7 @@ def list_hierarchy():
 
                     # Create assets/shots list
                     assets = create_subdir_list('%s/%s/%s/%s/%s/'
-                                                % (DEFAULT_PROJECT_PATH,
+                                                % (MAYA_PROJECT_PATH,
                                                    project, scenes_sounds,
                                                    asset_anim, asset_type))
 
@@ -193,7 +191,7 @@ def list_hierarchy():
 
                         # Create tasks list
                         tasks = create_subdir_list('%s/%s/%s/%s/%s/%s/'
-                                                   % (DEFAULT_PROJECT_PATH,
+                                                   % (MAYA_PROJECT_PATH,
                                                       project, scenes_sounds,
                                                       asset_anim, asset_type,
                                                       asset))
@@ -280,11 +278,3 @@ def build_files_list(given_path):
     return maya_files
 
 
-def set_current_project_directory(project):
-    """
-    Set maya project in the current selected project 
-    """
-    # Build path
-    proj_path = build_path(project=project, return_type='project')
-    # Set current directory
-    mc.workspace(dir=proj_path)

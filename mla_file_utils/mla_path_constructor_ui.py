@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore, QtGui
 import mla_path_utils as path_utils
 from mla_UI_utils import mla_UI_utils
 import maya.cmds as mc
@@ -211,7 +211,8 @@ class PathConstructorUI(QtWidgets.QGroupBox):
         # Get datas from ui
         self.data = self.get_pc_ui_datas()
         # Set project directory
-        path_utils.set_current_project_directory(self.data['project'])
+        # path_utils.set_current_project_directory(self.data['project'])
+
         # Build list
         asset_anim_list = [directory for directory
                            in self.hierarchy[self.data['project']]
@@ -292,7 +293,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
         """
         Set the different comboBox according to the open file 
         """
-        default_project_path = '%s/' % path_utils.DEFAULT_PROJECT_PATH
+        default_project_path = '%s/' % path_utils.MAYA_PROJECT_PATH
 
         if self.path.startswith(default_project_path):
             self.path = self.path.split(default_project_path)[1]

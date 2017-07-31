@@ -1,10 +1,10 @@
+import mla_format_utils
 import mla_path_utils as pu
 import maya.cmds as mc
 import os
 import mla_rendering_utils.mla_shading_utils as su
 import mla_file_utils as file_ut
 import time as time
-import json
 from pprint import pprint
 
 
@@ -90,10 +90,10 @@ class FileLibrary(dict):
 
             # Date and formatting
             creation_date = time.localtime(os.path.getctime(path))
-            creation_date = file_ut.convert_to_readable_date(creation_date)
+            creation_date = mla_format_utils.convert_to_readable_date(creation_date)
 
             modification_date = time.localtime(os.path.getmtime(path))
-            modification_date = file_ut.convert_to_readable_date(modification_date)
+            modification_date = mla_format_utils.convert_to_readable_date(modification_date)
 
             # Create info dict
             info['name'] = name
@@ -159,10 +159,10 @@ class FileLibrary(dict):
 
         # Date and formatting
         creation_date = time.localtime(os.path.getctime(path_extended))
-        creation_date = file_ut.convert_to_readable_date(creation_date)
+        creation_date = mla_format_utils.convert_to_readable_date(creation_date)
 
         modification_date = time.localtime(os.path.getmtime(path_extended))
-        modification_date = file_ut.convert_to_readable_date(modification_date)
+        modification_date = mla_format_utils.convert_to_readable_date(modification_date)
 
         # Create info dict
         info['name'] = name

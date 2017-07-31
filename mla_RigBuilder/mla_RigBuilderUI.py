@@ -1,22 +1,16 @@
-from PySide2 import QtWidgets, QtCore, QtGui
-import mla_path_utils as path_utils
-from mla_UI_utils import mla_UI_utils
+from Qt import QtWidgets, QtCore, QtGui
+# import mla_file_utils.mla_path_utils as path_utils
+import mla_UI_utils.mla_UI_utils as ui_utils
 import mla_file_utils.mla_path_constructor_ui as pcui
 import mla_file_utils.mla_file_utils as file_utils
+import mla_file_utils.mla_import_utils as import_utils
+reload(pcui)
+reload(file_utils)
+reload(import_utils)
 
-mc = file_utils.import_if_available('maya.cmds')
-mxs = file_utils.import_if_available('pymxs')
+application, mc, api = import_utils.import_from_application()
 
-if mc:
-    application = 'Maya'
-    from maya.app.general.mayaMixin import MayaQWidgetDockableMixin as dockable
-    dockable = file_utils.import_if_available('')
-elif mxs:
-    application = 'Max'
-    from mla_UI_utils.mla_Max_UI_utils import MaxDockableWidget as dockable
-    import MaxPlus
-    dockable = file_utils.import_if_available('')
-
+dockable = import_utils.get_dockable_widget(application)
 
 
 class RigBuilderUI(dockable, QtWidgets.QDialog):

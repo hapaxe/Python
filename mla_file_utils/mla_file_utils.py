@@ -1,12 +1,14 @@
-import os
 import glob
 import json
-import stat
-import shutil
 import logging
+import os
+import shutil
+import stat
 from collections import OrderedDict
 
-suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+import mla_import_utils as import_utils
+
+application, mc, api, dockable = import_utils.import_from_application()
 
 
 class FileSystem(object):
@@ -219,53 +221,18 @@ class FileSystem(object):
         # Return
         return filepath
 
+    @staticmethod
+    def open_file(filepath):
+        pass
 
-def convert_to_readable_size(nbytes):
-    """
-    Convert a number of bytes into a readable number, i.e. 5 MB, 12 KB, etc.
-    :param nbytes: size number to convert
-    :type nbytes: int
+    @staticmethod
+    def save_file(filepath):
+        pass
 
-    :return: converted number
-    """
-    if nbytes == 0:
-        return '0 B'
-    i = 0
-    while nbytes >= 1024 and i < len(suffixes)-1:
-        nbytes /= 1024.
-        i += 1
-    f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
-    return '%s %s' % (f, suffixes[i])
+    @staticmethod
+    def reference_file(filepath):
+        pass
 
-
-def convert_to_readable_date(date):
-    """
-    Convert a time.localtime number into a readable number,
-        i.e. 2006/05/12, 14:02:38
-    :param date: time.localtime number
-    :return:
-    """
-    new_date = '%s/%s/%s, %s:%s:%s' % ('{0:02d}'.format(date[0]),
-                                       '{0:02d}'.format(date[1]),
-                                       '{0:02d}'.format(date[2]),
-                                       '{0:02d}'.format(date[3]),
-                                       '{0:02d}'.format(date[4]),
-                                       '{0:02d}'.format(date[5]))
-
-    return new_date
-
-
-def import_if_available(modulename):
-    """
-    Import the module if it is available.
-    :param modulename: name of the module to import.
-    :type modulename: str
-
-    :return: module
-    """
-    try:
-        my_module = __import__(modulename)
-    except ImportError:
-        my_module = None
-    finally:
-        return my_module
+    @staticmethod
+    def save_screenshot(filepath):
+        pass
