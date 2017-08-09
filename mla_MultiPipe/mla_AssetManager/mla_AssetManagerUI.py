@@ -1,16 +1,19 @@
+import pprint
+
 from PySide2 import QtWidgets, QtCore, QtGui
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
-import mla_file_utils.mla_path_constructor_ui as pcui
-import mla_file_utils.mla_path_utils as path_utils
-import mla_file_utils.mla_file_utils as file_utils
-import mla_format_utils
+
+import mla_file_utils as file_utils
+import mla_file_utils as format_utils
+import mla_file_utils as path_utils
+import mla_file_utils as pcui
 from mla_UI_utils import mla_UI_utils
-import pprint
-import maya.cmds as mc
+
 reload(pcui)
 reload(path_utils)
 reload(file_utils)
 reload(mla_UI_utils)
+reload(format_utils)
 
 
 class AssetManagerUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
@@ -190,7 +193,7 @@ class AssetManagerUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
 
         # name
         if 'size' in current_library[current_file]:
-            size = mla_format_utils.convert_to_readable_size(current_library[current_file][
+            size = format_utils.convert_to_readable_size(current_library[current_file][
                                           'size'])
             self.display_info.addItem('Size : %s'
                                       % size)

@@ -35,7 +35,7 @@ def import_from_application():
         import MaxPlus
         return application, mxs, MaxPlus
     else:
-        return None, None, None, None
+        return None, None, None
 
 
 def get_dockable_widget(application):
@@ -43,7 +43,7 @@ def get_dockable_widget(application):
         from maya.app.general.mayaMixin import \
             MayaQWidgetDockableMixin as dockable
     elif application == 'Max':
-        from mla_UI_utils.mla_Max_UI_utils import MaxDockableWidget as dockable
+        from mla_Max_UI_utils import MaxDockableWidget as dockable
     else:
         print 'No dockable found'
         return

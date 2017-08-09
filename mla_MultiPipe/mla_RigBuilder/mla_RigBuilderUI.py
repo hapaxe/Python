@@ -1,9 +1,9 @@
-from Qt import QtWidgets, QtCore, QtGui
+import mla_file_utils as file_utils
+import mla_file_utils as import_utils
 # import mla_file_utils.mla_path_utils as path_utils
-import mla_UI_utils.mla_UI_utils as ui_utils
-import mla_file_utils.mla_path_constructor_ui as pcui
-import mla_file_utils.mla_file_utils as file_utils
-import mla_file_utils.mla_import_utils as import_utils
+import mla_file_utils as pcui
+from Qt import QtWidgets
+
 reload(pcui)
 reload(file_utils)
 reload(import_utils)

@@ -1,7 +1,9 @@
 import os
+
 import maya.cmds as mc
 from PySide.QtCore import *
 from PySide.QtGui import *
+
 import AM_ui as AM_ui
 
 reload(AM_ui)

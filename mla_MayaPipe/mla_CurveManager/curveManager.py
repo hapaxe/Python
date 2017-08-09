@@ -4,11 +4,12 @@ import os
 import maya.cmds as mc
 from PySide.QtCore import *
 from PySide.QtGui import *
+
+import curveManager_ui
 import ml_file as ml_file
 import orig
-import curveManager_ui
+
 reload(curveManager_ui)
-import ml_pos_tool.PT as PT
 
 folder_path = '/'.join(__file__.split('\\')[:-1])
 

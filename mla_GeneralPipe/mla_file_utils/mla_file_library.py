@@ -1,11 +1,12 @@
+import os
+import time as time
+
+import maya.cmds as mc
+
+import mla_file_utils as file_ut
 import mla_format_utils
 import mla_path_utils as pu
-import maya.cmds as mc
-import os
 import mla_rendering_utils.mla_shading_utils as su
-import mla_file_utils as file_ut
-import time as time
-from pprint import pprint
 
 
 class FileLibrary(dict):
@@ -258,11 +259,10 @@ class FileLibrary(dict):
         """
         path = os.path.join(self.directory, '%s_screenshot.jpg' % name)
 
-        mc.viewFit()
         mc.setAttr('defaultRenderGlobals.imageFormat', 8)
 
         mc.playblast(completeFilename=path, forceOverwrite=True, format='image',
-                     width=256, height=256, showOrnaments=False, startTime=1,
+                     width=512, height=512, showOrnaments=False, startTime=1,
                      endTime=1, viewer=False)
 
         return path

@@ -2,9 +2,9 @@ __author__ = 'lantonm'
 import maya.cmds as mc
 from PySide.QtCore import *
 from PySide.QtGui import *
-import ml_file as ml_file
-import orig
+
 import PosTool_ui
+
 reload(PosTool_ui)
 
 

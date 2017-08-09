@@ -1,7 +1,9 @@
-from Qt import QtWidgets, QtCore, QtGui
-import mla_path_utils as path_utils
-from mla_UI_utils import mla_UI_utils
 import maya.cmds as mc
+
+import mla_path_utils as path_utils
+from Qt import QtWidgets
+from mla_UI_utils import mla_UI_utils
+
 reload(path_utils)
 reload(mla_UI_utils)
 

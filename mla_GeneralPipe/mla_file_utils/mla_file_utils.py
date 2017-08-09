@@ -8,7 +8,7 @@ from collections import OrderedDict
 
 import mla_import_utils as import_utils
 
-application, mc, api, dockable = import_utils.import_from_application()
+application, mc, api = import_utils.import_from_application()
 
 
 class FileSystem(object):
