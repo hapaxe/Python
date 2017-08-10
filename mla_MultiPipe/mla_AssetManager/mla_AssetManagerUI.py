@@ -1,22 +1,26 @@
 import pprint
 
-from PySide2 import QtWidgets, QtCore, QtGui
-from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
+from Qt import QtWidgets, QtCore, QtGui
 
-import mla_file_utils as file_utils
-import mla_file_utils as format_utils
-import mla_file_utils as path_utils
-import mla_file_utils as pcui
-from mla_UI_utils import mla_UI_utils
+import mla_GeneralPipe.mla_file_utils.mla_file_utils as file_utils
+import mla_GeneralPipe.mla_file_utils.mla_format_utils as format_utils
+import mla_GeneralPipe.mla_file_utils.mla_path_utils as path_utils
+import mla_GeneralPipe.mla_file_utils.mla_path_constructor_ui as pcui
+import mla_GeneralPipe.mla_UI_utils.mla_UI_utils as mla_UI_utils
+import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as import_utils
 
-reload(pcui)
-reload(path_utils)
 reload(file_utils)
-reload(mla_UI_utils)
 reload(format_utils)
+reload(path_utils)
+reload(pcui)
+reload(mla_UI_utils)
+reload(import_utils)
+
+application, mc, api = import_utils.import_from_application()
+dockable = import_utils.get_dockable_widget(application)
 
 
-class AssetManagerUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
+class AssetManagerUI(dockable, QtWidgets.QDialog):
 
     def __init__(self, parent=None):
         super(AssetManagerUI, self).__init__(parent=parent)
@@ -47,7 +51,7 @@ class AssetManagerUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
         self.save_publish_button.clicked.connect(self.save_publish_file)
 
         # Initialize UI
-        self.hierarchy = path_utils.list_hierarchy()
+        self.hierarchy = self.path_constructor.hierarchy
 
         self.path_constructor.select_from_path()
 

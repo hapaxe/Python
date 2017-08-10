@@ -6,7 +6,7 @@ import shutil
 import stat
 from collections import OrderedDict
 
-import mla_import_utils as import_utils
+import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as import_utils
 
 application, mc, api = import_utils.import_from_application()
 
@@ -220,19 +220,3 @@ class FileSystem(object):
                                                 '$' + env_var_name)
         # Return
         return filepath
-
-    @staticmethod
-    def open_file(filepath):
-        pass
-
-    @staticmethod
-    def save_file(filepath):
-        pass
-
-    @staticmethod
-    def reference_file(filepath):
-        pass
-
-    @staticmethod
-    def save_screenshot(filepath):
-        pass

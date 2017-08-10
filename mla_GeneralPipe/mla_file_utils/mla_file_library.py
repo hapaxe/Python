@@ -1,12 +1,17 @@
 import os
-import time as time
+import time
 
-import maya.cmds as mc
-
-import mla_file_utils as file_ut
-import mla_format_utils
+import mla_GeneralPipe.mla_file_utils.mla_file_utils as file_ut
+import mla_GeneralPipe.mla_file_utils.mla_format_utils as format_utils
 import mla_path_utils as pu
-import mla_rendering_utils.mla_shading_utils as su
+import mla_MultiPipe.mla_file_utils.mla_Multi_file_utils as Multi_file_ut
+import mla_MultiPipe.mla_file_utils.mla_Multi_path_utils as Multi_path_ut
+
+reload(file_ut)
+reload(format_utils)
+reload(pu)
+reload(Multi_file_ut)
+reload(Multi_path_ut)
 
 
 class FileLibrary(dict):
@@ -56,7 +61,7 @@ class FileLibrary(dict):
 
     def find(self):
         """
-
+        List all the files in the given directory
         :return:
         """
         # print self.file_types
@@ -91,10 +96,10 @@ class FileLibrary(dict):
 
             # Date and formatting
             creation_date = time.localtime(os.path.getctime(path))
-            creation_date = mla_format_utils.convert_to_readable_date(creation_date)
+            creation_date = format_utils.convert_to_readable_date(creation_date)
 
             modification_date = time.localtime(os.path.getmtime(path))
-            modification_date = mla_format_utils.convert_to_readable_date(modification_date)
+            modification_date = format_utils.convert_to_readable_date(modification_date)
 
             # Create info dict
             info['name'] = name
@@ -121,7 +126,7 @@ class FileLibrary(dict):
         :return:
         """
 
-        path = '%s' % mc.file(q=True, exn=True)
+        path = Multi_path_ut.get_current_scene_path()
         print 'path of open file is : %s' % path
         name = path.split('/')[-1].split('.')[0]
 
@@ -131,24 +136,17 @@ class FileLibrary(dict):
                                  self.asset_anim, self.asset_type, self.asset,
                                  self.task, '%s.ma' % name, 'wip')
             name = path.split('/')[-1].split('.')[0]
-            mc.file(rename=path)
-
-            # Save WIP
-            mc.file(s=True, type='mayaAscii', f=True)
+            Multi_file_ut.save_file(path)
 
         if publish:
             path = pu.build_path(self.project, self.scenes_sound,
                                  self.asset_anim, self.asset_type, self.asset,
                                  self.task, '%s.ma' % name, 'publish')
             name = path.split('/')[-1].split('.')[0]
-            mc.file(rename=path)
-
-            # Save PUBLISH
-            mc.file(s=True, type='mayaAscii', f=True)
+            Multi_file_ut.save_file(path)
 
         if not wip and not publish:
-            # Save
-            mc.file(s=True, type='mayaAscii', f=True)
+            Multi_file_ut.save_file(path)
 
         print 'path is : ', path
 
@@ -156,14 +154,14 @@ class FileLibrary(dict):
         if screenshot:
             screenshot_path = self.save_screenshot(name)
 
-        path_extended = mc.file(q=True, exn=True)
+        path_extended = Multi_path_ut.get_current_scene_path()
 
         # Date and formatting
         creation_date = time.localtime(os.path.getctime(path_extended))
-        creation_date = mla_format_utils.convert_to_readable_date(creation_date)
+        creation_date = format_utils.convert_to_readable_date(creation_date)
 
         modification_date = time.localtime(os.path.getmtime(path_extended))
-        modification_date = mla_format_utils.convert_to_readable_date(modification_date)
+        modification_date = format_utils.convert_to_readable_date(modification_date)
 
         # Create info dict
         info['name'] = name
@@ -199,7 +197,7 @@ class FileLibrary(dict):
         extension = '.%s' % path.split('.')[-1]
 
         if extension in openable:
-            mc.file(path, o=True, usingNamespaces=False, f=True)
+            Multi_file_ut.open_file(path)
         else:
             print '%s is not openable' % path
             return
@@ -217,36 +215,26 @@ class FileLibrary(dict):
         extension = '.%s' % path.split('.')[-1]
 
         if extension in importable:
-            mc.file(path, i=True, usingNamespaces=False, f=True)
+            Multi_file_ut.import_scene_file(path)
             return
         elif extension in texture_types:
-            file_node = su.create_file_node_setup()
-
-            mc.setAttr('%s.fileTextureName' % file_node, path)
+            file_node = Multi_file_ut.import_image_file(path)
             return file_node
         elif extension in sound_types:
-            if not mc.objExists('%s_sound' % name):
-                current_time = mc.currentTime(q=True)
-
-                mc.sound(n='%s_sound' % name, f=path, o=current_time)
-                return '%s_sound' % name
-            else:
-                print "This audio file is already in the scene."
-                return
+            Multi_file_ut.import_sound_file(path, name)
         else:
             print '%s is not importable' % path
             return
 
-
     def reference_file(self, name):
         path = self[name]['path']
 
-        referencable = ['.ma', '.mb']
+        referenceable = ['.ma', '.mb']
 
         extension = '.%s' % path.split('.')[-1]
 
-        if extension in referencable:
-            mc.file(path, r=True, usingNamespaces=False, f=True)
+        if extension in referenceable:
+            Multi_file_ut.reference_file(path)
         else:
             print '%s is not referenceable' % path
             return
@@ -259,10 +247,6 @@ class FileLibrary(dict):
         """
         path = os.path.join(self.directory, '%s_screenshot.jpg' % name)
 
-        mc.setAttr('defaultRenderGlobals.imageFormat', 8)
-
-        mc.playblast(completeFilename=path, forceOverwrite=True, format='image',
-                     width=512, height=512, showOrnaments=False, startTime=1,
-                     endTime=1, viewer=False)
+        Multi_file_ut.save_screenshot(path)
 
         return path

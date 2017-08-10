@@ -1,10 +1,12 @@
-import maya.cmds as mc
-
+import mla_MultiPipe.mla_file_utils.mla_Multi_path_utils as Multi_path_utils
 import mla_path_utils as path_utils
-from Qt import QtWidgets
-from mla_UI_utils import mla_UI_utils
+import mla_hierarchy_utils as hierarchy_utils
+from Qt import QtWidgets, QtCore, QtGui
+from mla_GeneralPipe.mla_UI_utils import mla_UI_utils
 
+reload(Multi_path_utils)
 reload(path_utils)
+reload(hierarchy_utils)
 reload(mla_UI_utils)
 
 
@@ -14,7 +16,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
         super(PathConstructorUI, self).__init__()
 
         # Get current open file
-        self.path = mc.file(q=True, exn=True)
+        self.path = Multi_path_utils.get_current_scene_path()
 
         self.setWindowTitle('Path Constructor UI')
         self.setMinimumSize(800, 165)
@@ -22,7 +24,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
 
         self.data = dict()
 
-        self.hierarchy = path_utils.list_hierarchy()
+        self.hierarchy = hierarchy_utils.list_hierarchy()
 
         # Populating menus
         self.project_list = [project for project in self.hierarchy.keys()]

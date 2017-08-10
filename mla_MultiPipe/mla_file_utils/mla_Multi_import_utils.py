@@ -1,6 +1,6 @@
 
 
-def import_if_available(modulename):
+def import_if_available(package, module=None):
     """
     Import the module if it is available.
     :param modulename: name of the module to import.
@@ -11,9 +11,9 @@ def import_if_available(modulename):
 
     my_module = None
 
-    if modulename:
+    if package:
         try:
-            my_module = __import__(modulename)
+            my_module = __import__(package, globals(), locals(), [module], 0)
         except ImportError:
             my_module = None
         finally:
@@ -23,8 +23,8 @@ def import_if_available(modulename):
 
 
 def import_from_application():
-    mc = import_if_available('maya.cmds')
-    mxs = import_if_available('pymxs')
+    mc = import_if_available(package='maya.cmds', module='cmds')
+    mxs = import_if_available(package='pymxs')
 
     if mc:
         application = 'Maya'
@@ -40,10 +40,9 @@ def import_from_application():
 
 def get_dockable_widget(application):
     if application == 'Maya':
-        from maya.app.general.mayaMixin import \
-            MayaQWidgetDockableMixin as dockable
+        from maya.app.general.mayaMixin import MayaQWidgetDockableMixin as dockable
     elif application == 'Max':
-        from mla_Max_UI_utils import MaxDockableWidget as dockable
+        from mla_MaxPipe.mla_UI_utils.mla_Max_UI_utils import MaxDockableWidget as dockable
     else:
         print 'No dockable found'
         return
