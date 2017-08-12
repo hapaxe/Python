@@ -1,3 +1,4 @@
+from Qt import QtWidgets, QtCore, QtGui
 
 
 def import_if_available(package, module=None):
@@ -53,9 +54,9 @@ def get_dockable_widget(application):
     if application == 'Maya':
         from maya.app.general.mayaMixin import MayaQWidgetDockableMixin as dockable
     elif application == 'Max':
-        from mla_MaxPipe.mla_UI_utils.mla_Max_UI_utils import MaxDockableWidget as dockable
+        dockable = QtWidgets.QWidget
     else:
         print 'No dockable found'
-        return
+        dockable = QtWidgets.QWidget
 
     return dockable
