@@ -22,16 +22,27 @@ def import_if_available(package, module=None):
         return None
 
 
-def import_from_application():
+def get_application():
     mc = import_if_available(package='maya.cmds', module='cmds')
     mxs = import_if_available(package='pymxs')
 
     if mc:
-        application = 'Maya'
+        return 'Maya'
+    elif mxs:
+        return 'Max'
+    else:
+        return None
+
+
+def import_from_application():
+    application = get_application()
+
+    if application == 'Maya':
+        import maya.cmds as mc
         import maya.api.OpenMaya as om2
         return application, mc, om2
-    elif mxs:
-        application = 'Max'
+    elif application == 'Max':
+        import pymxs as mxs
         import MaxPlus
         return application, mxs, MaxPlus
     else:

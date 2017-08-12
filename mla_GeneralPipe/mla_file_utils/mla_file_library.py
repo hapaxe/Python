@@ -6,12 +6,16 @@ import mla_GeneralPipe.mla_file_utils.mla_format_utils as format_utils
 import mla_path_utils as pu
 import mla_MultiPipe.mla_file_utils.mla_Multi_file_utils as Multi_file_ut
 import mla_MultiPipe.mla_file_utils.mla_Multi_path_utils as Multi_path_ut
+import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as Multi_import_ut
 
 reload(file_ut)
 reload(format_utils)
 reload(pu)
 reload(Multi_file_ut)
 reload(Multi_path_ut)
+reload(Multi_import_ut)
+
+application = Multi_import_ut.get_application()
 
 
 class FileLibrary(dict):
@@ -192,7 +196,12 @@ class FileLibrary(dict):
         """
         path = self[name]['path']
 
-        openable = ['.ma', '.mb', '.fbx', '.obj']
+        if application == 'Maya':
+            openable = ['.ma', '.mb', '.fbx', '.obj']
+        elif application == 'Max':
+            openable = ['.max', '.fbx', '.obj']
+        else:
+            openable = []
 
         extension = '.%s' % path.split('.')[-1]
 
@@ -205,7 +214,13 @@ class FileLibrary(dict):
     def import_file(self, name):
         path = self[name]['path']
 
-        importable = ['.ma', '.mb', '.fbx', '.obj']
+        if application == 'Maya':
+            importable = ['.ma', '.mb', '.fbx', '.obj']
+        elif application == 'Max':
+            importable = ['.max', '.fbx', '.obj']
+        else:
+            importable = []
+
         texture_types = ['.jpg', '.jpeg', '.jpe', '.psd', '.psb', '.tif',
                          '.tiff', '.png', '.pns', '.bmp', '.rle', '.dib',
                          '.raw', '.pxr', '.pbm', '.pgm', '.ppm', '.pnm', '.pfm',
@@ -229,7 +244,12 @@ class FileLibrary(dict):
     def reference_file(self, name):
         path = self[name]['path']
 
-        referenceable = ['.ma', '.mb']
+        if application == 'Maya':
+            referenceable = ['.ma', '.mb']
+        elif application == 'Max':
+            referenceable = ['.max']
+        else:
+            referenceable = []
 
         extension = '.%s' % path.split('.')[-1]
 

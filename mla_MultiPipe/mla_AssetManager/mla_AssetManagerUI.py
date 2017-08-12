@@ -16,7 +16,7 @@ reload(pcui)
 reload(mla_UI_utils)
 reload(import_utils)
 
-application, mc, api = import_utils.import_from_application()
+application = import_utils.get_application()
 dockable = import_utils.get_dockable_widget(application)
 
 

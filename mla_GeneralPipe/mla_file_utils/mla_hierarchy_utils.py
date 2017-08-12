@@ -1,22 +1,41 @@
 import mla_GeneralPipe.mla_file_utils.mla_path_utils as pu
 import mla_GeneralPipe.mla_file_utils.mla_file_library as fl
+import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as import_utils
 
 reload(pu)
 reload(fl)
+reload(import_utils)
 MAYA_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
 MAX_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/3DSMAX PROJECTS'
+application = import_utils.get_application()
+
+if application == 'Maya':
+    PROJECT_PATH = MAYA_PROJECT_PATH
+    types = ['.ma', '.mb', '.fbx', '.obj']
+elif application == 'Max':
+    PROJECT_PATH = MAX_PROJECT_PATH
+    types = ['.max', '.fbx', '.obj']
+else:
+    PROJECT_PATH = None
+    types = []
+
 
 def list_hierarchy():
     """
     Create the list of the whole hierarchy.
     :return: the hierarchy (dict)
     """
+
+    if not PROJECT_PATH:
+        print 'No project path found'
+        return
+
     # Creating empty dictionary for the hierarchy
     print 'Listing hierarchy'
     hierarchy = dict()
 
     # Create projects list
-    projects = pu.create_subdir_list(MAYA_PROJECT_PATH)
+    projects = pu.create_subdir_list(PROJECT_PATH)
 
     file_types = list()
 
@@ -34,7 +53,7 @@ def list_hierarchy():
 
             # Create the list of types
             asset_anim_list = pu.create_subdir_list('%s/%s/%s/'
-                                                    % (MAYA_PROJECT_PATH,
+                                                    % (PROJECT_PATH,
                                                        project, scenes_sounds))
 
             if scenes_sounds == 'scenes':
@@ -54,7 +73,7 @@ def list_hierarchy():
 
                 # Create the list of types
                 asset_types_list = pu.create_subdir_list('%s/%s/%s/%s/'
-                                                         % (MAYA_PROJECT_PATH,
+                                                         % (PROJECT_PATH,
                                                             project,
                                                             scenes_sounds,
                                                             asset_anim))
@@ -66,7 +85,7 @@ def list_hierarchy():
 
                     # Create assets/shots list
                     assets = pu.create_subdir_list('%s/%s/%s/%s/%s/'
-                                                   % (MAYA_PROJECT_PATH,
+                                                   % (PROJECT_PATH,
                                                       project, scenes_sounds,
                                                       asset_anim, asset_type))
 
@@ -77,7 +96,7 @@ def list_hierarchy():
 
                         # Create tasks list
                         tasks = pu.create_subdir_list('%s/%s/%s/%s/%s/%s/'
-                                                      % (MAYA_PROJECT_PATH,
+                                                      % (PROJECT_PATH,
                                                          project, scenes_sounds,
                                                          asset_anim, asset_type,
                                                          asset))
