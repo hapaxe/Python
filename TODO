@@ -1,0 +1,29 @@
+# Create .json file storing the MAYA_PROJECT_PATH and MAX_PROJECT_PATH as well as the depth and folder hierarchy for both MAYA and MAX :
+
+MAYA_depth = 6
+MAYA_hierarchy = {'depth1': ['PROJECT1', 'PROJECT2', 'PROJECT3'],
+                  'depth2': ['scenes', 'sounds', 'sourceimage'],
+                  'depth3': ['ASSETS', 'ANIMATION'],
+                  'depth4': {'ASSETS': ['CH', 'PR', 'VEH'],
+                             'ANIMATION': [episodes]},
+                  'depth5': {'ASSETS': {assets},
+                             'ANIMATION': {shots}},
+                  'depth6': {'ASSETS': ['MODEL', 'RIG', 'TEXTURE'],
+                             'ANIMATION': ['LAYOUT', 'ANIM']}}
+
+# 4 ways to create folders : fixed, variable, variable by folder, fixed by
+# folder
+# 
+
+# Create .json file storing project relative folders :
+
+
+episodes = ['episode1', 'episode2', 'episode3']
+assets = {'CH': ['Anna', 'Ziggs'],
+          'PR': ['Chair', 'Table', 'Bowl', 'Spoon'],
+          'VEH': ['Bike', 'Car']}
+shots = {'episode1': ['shot1', 'shot2'],
+         'episode2': ['shot1', 'shot2', 'shot3'],
+         'episode3': ['shot1']}
+         
+# Create .json file storing user preferences : number of last paths stored as well as last paths stored
