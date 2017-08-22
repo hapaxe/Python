@@ -1,8 +1,9 @@
 import mla_MultiPipe.mla_file_utils.mla_Multi_path_utils as Multi_path_utils
 import mla_path_utils as path_utils
 import mla_hierarchy_utils as hierarchy_utils
-from Qt import QtWidgets, QtCore, QtGui
 from mla_GeneralPipe.mla_UI_utils import mla_UI_utils
+from Qt import QtWidgets, QtCore, QtGui
+import logging
 
 reload(Multi_path_utils)
 reload(path_utils)
@@ -56,7 +57,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
         # Select currently open scene if possible
         # self.select_from_path()
 
-        # print '===== END OF INIT ====='
+        logging.debug('===== END OF INIT =====')
 
     def buildUI(self):
         # print 'Building UI'
@@ -160,7 +161,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
 
         self.set_path_field = QtWidgets.QPushButton('Set')
         path_button_layout.addWidget(self.set_path_field)
-        # print '===== END OF BUILD UI ====='
+        logging.debug('===== END OF BUILD UI =====')
 
     def get_pc_ui_datas(self):
         """
@@ -182,7 +183,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
         # Task
         task = self.task.currentText()
 
-        # print '===== END OF GET DATA ====='
+        logging.debug('===== END OF GET DATA =====')
 
         return {'project': project,
                 'scenes_sound': scenes_sound,
@@ -206,7 +207,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
 
         # Init update asset/shot combobox
         self.update_asset_anim_combobox()
-        # print '===== END OF scenes_sound comboBox UPDATE ====='
+        logging.debug('===== END OF scenes_sound comboBox UPDATE =====')
 
     def update_asset_anim_combobox(self):
         """
@@ -227,7 +228,7 @@ class PathConstructorUI(QtWidgets.QGroupBox):
 
         # Init update type/episode combobox
         self.update_asset_type_combobox()
-        # print '===== END OF asset_anim comboBox UPDATE ====='
+        logging.debug('===== END OF asset_anim comboBox UPDATE =====')
 
     def update_asset_type_combobox(self):
         """
@@ -356,17 +357,17 @@ class PathConstructorUI(QtWidgets.QGroupBox):
                                     mla_UI_utils.select_combobox_index_from_text(self.task, task)
 
                                 else:
-                                    print task, ' not found'
+                                    logging.warning('%s not found' % task)
                             else:
-                                print asset_shot, ' not found'
+                                logging.warning('%s not found' % asset_shot)
                         else:
-                            print asset_type_episode, ' not found'
+                            logging.warning('%s not found' % asset_type_episode)
                     else:
-                        print asset_anim, ' not found'
+                        logging.warning('%s not found' % asset_anim)
                 else:
-                    print scenes_sound, ' not found'
+                    logging.warning('%s not found' % scenes_sound)
             else:
-                print project, ' not found'
+                logging.warning('%s not found' % project)
 
     def update_path(self):
         self.path = self.path_field.text().replace('\\', '/')

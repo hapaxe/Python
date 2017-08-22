@@ -18,7 +18,11 @@ def open_file(filepath):
 def save_file(filepath):
     if application == 'Maya':
         mc.file(rename=filepath)
-        mc.file(s=True, type='mayaAscii', f=True)
+        if filepath.split('.')[-1] == 'mb':
+            filetype = 'mayaBinary'
+        else:
+            filetype = 'mayaAscii'
+        mc.file(s=True, type=filetype, f=True)
     elif application == 'Max':
         pass
     else:

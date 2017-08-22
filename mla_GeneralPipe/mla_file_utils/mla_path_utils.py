@@ -1,4 +1,6 @@
 import os
+import logging
+
 MAYA_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
 MAX_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/3DSMAX PROJECTS'
 
@@ -35,6 +37,8 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
     :return: path to selected task/file
     :rtype: str
     """
+
+    logging.info(filename)
     # Build project path
     if return_type == 'project':
         return_path = '%s/%s' % (MAYA_PROJECT_PATH, project)
@@ -54,20 +58,23 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
 
     # Build wip path
     elif return_type == 'wip':
-        if filename == 'No file in this directory' or filename == '':
+        if filename == 'No file in this directory' \
+                or filename == '' \
+                or len(filename.split('_')) != 4 \
+                or build_increment(filename.split('_')[3]):
             wip_file = '%s_%s_%s_00.ma' % (asset_type, asset, task)
         else:
             # Split file name
             wip_file = filename.split('.')[0]
-            print wip_file
+            logging.debug(wip_file)
             wip_file = wip_file.split('_')
-            print wip_file
+            logging.debug(wip_file)
             # Increment version number
             wip_file[3] = build_increment(wip_file[3])
-            print wip_file[3]
+            logging.debug(wip_file[3])
             # Join publish file name
             wip_file = '_'.join(wip_file)
-            print wip_file
+            logging.debug(wip_file)
         # Build path
         return_path = '%s/%s/%s/%s/%s/%s/%s/%s' % (MAYA_PROJECT_PATH,
                                                    project, scenes_sound,
@@ -80,13 +87,13 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
         publish_file = filename.split('_')
         # Remove increment and extension
         publish_file = publish_file[:3]
-        print publish_file
+        logging.debug(publish_file)
         # Append PUBLISH plus extension
         publish_file.append('PUBLISH.ma')
-        print publish_file
+        logging.debug(publish_file)
         # Join publish file name
         publish_file = '_'.join(publish_file)
-        print publish_file
+        logging.debug(publish_file)
         # Build path
         return_path = '%s/%s/%s/%s/%s/%s/%s' % (MAYA_PROJECT_PATH,
                                                 project, scenes_sound,
@@ -103,19 +110,23 @@ def build_increment(number):
     :param number: number you want to increment
     :return: incremented number (string)
     """
-    # Set it as an integer
-    increment = int(number)
-    # Increment
-    increment += 1
-    # List it
-    increment = list(str(increment))
+    try:
+        # Set it as an integer
+        increment = int(number)
+        # Increment
+        increment += 1
+        # List it
+        increment = list(str(increment))
 
-    # Add number to get 2 numbers
-    if len(increment) < 2:
-        increment.insert(0, '0')
+        # Add number to get 2 numbers
+        if len(increment) < 2:
+            increment.insert(0, '0')
 
-    # Join it as a string
-    increment = ''.join(increment)
+        # Join it as a string
+        increment = ''.join(increment)
+    except ValueError:
+        increment = None
+        logging.error('"%s" is not a number' % number)
 
     return increment
 

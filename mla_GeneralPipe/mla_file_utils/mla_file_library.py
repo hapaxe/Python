@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 
 import mla_GeneralPipe.mla_file_utils.mla_file_utils as file_ut
 import mla_GeneralPipe.mla_file_utils.mla_format_utils as format_utils
@@ -27,7 +28,8 @@ class FileLibrary(dict):
         :param project: project to look in
         :type project: str
 
-        :param scenes_sound: scenes_sound to look in, e.g. scenes, sound, sourceimages
+        :param scenes_sound: scenes_sound to look in
+        e.g. scenes, sound, sourceimages
         :type scenes_sound: str
 
         :param asset_anim: asset_anim to look in, e.g. ASSETS, ANIMATION
@@ -42,7 +44,8 @@ class FileLibrary(dict):
         :param task: task to look in, e.g. SHADING, MODELLING, ANIMATION, LAYOUT
         :type task: str
 
-        :param file_types: file extensions to look for, e.g. .jpg, .png, .ma, .mp4
+        :param file_types: file extensions to look for
+        e.g. .jpg, .png, .ma, .mp4
         :type file_types: list
 
         """
@@ -68,11 +71,11 @@ class FileLibrary(dict):
         List all the files in the given directory
         :return:
         """
-        # print self.file_types
+        logging.debug(self.file_types)
 
         # If the path does not exists
         if not os.path.exists(self.directory):
-            print 'Directory does not exist'
+            logging.warning('Directory does not exist')
             return
 
         files = os.listdir(self.directory)
@@ -131,28 +134,29 @@ class FileLibrary(dict):
         """
 
         path = Multi_path_ut.get_current_scene_path()
-        print 'path of open file is : %s' % path
+        logging.info('path of open file is : %s' % path)
         name = path.split('/')[-1].split('.')[0]
+        ext = path.split('.')[-1]
 
         # Create path
         if wip:
             path = pu.build_path(self.project, self.scenes_sound,
                                  self.asset_anim, self.asset_type, self.asset,
-                                 self.task, '%s.ma' % name, 'wip')
+                                 self.task, '%s.%s' % (name, ext), 'wip')
             name = path.split('/')[-1].split('.')[0]
             Multi_file_ut.save_file(path)
 
         if publish:
             path = pu.build_path(self.project, self.scenes_sound,
                                  self.asset_anim, self.asset_type, self.asset,
-                                 self.task, '%s.ma' % name, 'publish')
+                                 self.task, '%s.%s' % (name, ext), 'publish')
             name = path.split('/')[-1].split('.')[0]
             Multi_file_ut.save_file(path)
 
         if not wip and not publish:
             Multi_file_ut.save_file(path)
 
-        print 'path is : ', path
+        logging.info('path is : ', path)
 
         # Create screenshot
         if screenshot:
@@ -181,7 +185,7 @@ class FileLibrary(dict):
         # Save info dict
         info_path = path_extended.replace(info['file type'], '.json')
 
-        print info_path
+        logging.debug(info_path)
 
         file_ut.FileSystem.save_to_json(info, info_path)
 
@@ -208,7 +212,7 @@ class FileLibrary(dict):
         if extension in openable:
             Multi_file_ut.open_file(path)
         else:
-            print '%s is not openable' % path
+            logging.warning('%s is not openable' % path)
             return
 
     def import_file(self, name):
@@ -238,7 +242,7 @@ class FileLibrary(dict):
         elif extension in sound_types:
             Multi_file_ut.import_sound_file(path, name)
         else:
-            print '%s is not importable' % path
+            logging.warning('%s is not importable' % path)
             return
 
     def reference_file(self, name):
@@ -256,7 +260,7 @@ class FileLibrary(dict):
         if extension in referenceable:
             Multi_file_ut.reference_file(path)
         else:
-            print '%s is not referenceable' % path
+            logging.warning('%s is not referenceable' % path)
             return
 
     def save_screenshot(self, name):

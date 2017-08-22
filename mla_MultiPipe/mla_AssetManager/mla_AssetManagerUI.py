@@ -1,4 +1,5 @@
 import pprint
+import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -15,6 +16,8 @@ reload(path_utils)
 reload(pcui)
 reload(mla_UI_utils)
 reload(import_utils)
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 application = import_utils.get_application()
 dockable = import_utils.get_dockable_widget(application)
@@ -59,7 +62,7 @@ class AssetManagerUI(dockable, QtWidgets.QDialog):
         self.data = self.path_constructor.get_pc_ui_datas()
 
     def buildUI(self):
-        print 'Building UI'
+        logging.info('Building UI')
         layout = QtWidgets.QVBoxLayout(self)
 
         # Path constructor main widget
@@ -132,10 +135,11 @@ class AssetManagerUI(dockable, QtWidgets.QDialog):
         self.save_publish_button = QtWidgets.QPushButton('Save publish')
         button_layout.addWidget(self.save_publish_button)
 
-        print '===== END OF BUILD UI ====='
+        logging.info('===== END OF BUILD UI =====')
 
     def update_files_list(self):
-        # print "Updating list"
+        logging.info('Updating list')
+
         self.files_list_widget.clear()
 
         # Get path constructor data
@@ -166,7 +170,7 @@ class AssetManagerUI(dockable, QtWidgets.QDialog):
                 self.files_list_widget.addItem(item)
 
                 screenshot = info.get('screenshot')
-                print 'screenshot is :', screenshot
+                logging.info('screenshot is : %s' % screenshot)
                 if screenshot:
                     icon = QtGui.QIcon(screenshot)
                     item.setIcon(icon)
