@@ -1,22 +1,13 @@
  # Create .json file storing the MAYA_PROJECT_PATH and MAX_PROJECT_PATH as well as the depth and folder hierarchy for both MAYA and MAX :
-# Save number of digits for increments and file name template in the file too 
+# Save number of digits for increments and file name template in the file too
 
-PROJECT_PATH_1 = 'D:\Project\NeoPlum\Art\Characters'
-PROJECT_PATH_2 = 'D:\Project\NeoPlum\Art\Levels\Hotel\Art'
-
-increment_digits = 4
-
-# Either standard template file name, or folder dependent
-MAYA_standard_template_file_name = '[depth4]_[depth5]_[depth6]_v[increment_digits].ext'
-MAYA_folder_dependent_template_file_name = {'ASSETS': '[depth4]_[depth5]_[depth6]_v[increment_digits].ext',
-                                            'ANIMATION': '[depth5]_[depth6]_v[increment_digits].ext'}
-MAYA_publish_depth_save = 4
-MAYA_standard_publish_template_file_name = '[depth4]_[depth5]_[depth6]_PUBLISH.ext'
-MAYA_folder_dependent_publish_template_file_name = {'ASSETS': '[depth4]_[depth5].ext',
-                                                    'ANIMATION': '[depth5]_[depth6].ext'}
-
-hierarchy_template_1_depth = 6
-hierarchy_template_1 = {'depth0': [PROJECT_PATH_1, PROJECT_PATH_2],
+hierarchy_template_1 = {'DEPTH': 6,
+                        'increment_depth_save': 6,
+                        'increment digits': 4,
+                        'increment_template_file_name': '[depth4]_[depth5]_[depth6]_v[increment_digits].ext',
+                        'publish_depth_save': 4,
+                        'publish_template_file_name': '[depth4]_[depth5]_[depth6]_PUBLISH.ext',
+                        'depth0': [PROJECT_PATH_1, PROJECT_PATH_2],
                         'depth1': [**PROJECTS],
                         'depth2': ['scenes', 'sounds', 'sourceimage'],
                         'depth3': ['ASSETS', 'ANIMATION'],
@@ -27,8 +18,13 @@ hierarchy_template_1 = {'depth0': [PROJECT_PATH_1, PROJECT_PATH_2],
                         'depth6': {'ASSETS': ['MODEL', 'RIG', 'TEXTURE'],
                                    'ANIMATION': ['LAYOUT', 'ANIM']}}
 
-hierarchy_template_2_depth = 2
-hierarchy_template_2 = {'depth0': PROJECT_PATH_2,
+hierarchy_template_2 = {'DEPTH': 2,
+                        'increment_depth_save': 2,
+                        'increment digits': 3,
+                        'increment_template_file_name': '[depth1]_[depth2]_v[increment_digits].ext',
+                        'publish_depth_save': 2,
+                        'publish_template_file_name': '[depth1]_[depth2].ext',
+                        'depth0': PROJECT_PATH_1,
                         'depth1': [**ASSETS],
                         'depth2': ['Animation', 'Rig', 'Model']}
 
