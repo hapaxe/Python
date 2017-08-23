@@ -123,3 +123,53 @@ def list_hierarchy():
         hierarchy[project] = project_dict
 
     return hierarchy
+
+
+# TODO
+def set_folder_structure(create_default=False,
+                         MAYA_PROJECT_PATH=None,
+                         MAX_PROJECT_PATH=None,
+                         MAYA_depth=None,
+                         MAX_depth=None,
+                         increment_digits=3,
+                         MAYA_standard_template_file_name=None,
+                         MAYA_folder_dependent_template_file_name=None,
+                         MAX_standard_template_file_name=None,
+                         MAX_folder_dependent_template_file_name=None,
+                         MAYA_publish_depth_save=None,
+                         MAX_publish_depth_save=None,
+                         MAYA_standard_publish_template_file_name=None,
+                         MAYA_folder_dependent_publish_template_file_name=None,
+                         MAX_standard_publish_template_file_name=None,
+                         MAX_folder_dependent_publish_template_file_name=None):
+    pass
+
+
+def customize_folder_structure(depth=None, create=None, folder_name=None,
+                               dependent_folder=None, application=None):
+    if create == 'fixed':
+        if application == 'MAYA':
+            pass
+        elif application == 'MAX':
+            pass
+
+    elif create == 'variable':
+        if application == 'MAYA':
+            pass
+        elif application == 'MAX':
+            pass
+
+    elif create == 'fixed by folder':
+        if application == 'MAYA':
+            pass
+        elif application == 'MAX':
+            pass
+
+    elif create == 'variable by folder':
+        if application == 'MAYA':
+            pass
+        elif application == 'MAX':
+            pass
+
+    else:
+        pass

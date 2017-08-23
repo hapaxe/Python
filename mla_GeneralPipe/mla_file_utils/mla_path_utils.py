@@ -104,11 +104,17 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
     return return_path
 
 
-def build_increment(number):
+def build_increment(number, digits=3):
     """
     Increment the given number and return it as a 2 decimal string (ie : 01, 02, etc.)
     :param number: number you want to increment
-    :return: incremented number (string)
+    :type number: str
+
+    :param digits: number of digits the string should contain in total
+    :type digits: int
+
+    :return: incremented number
+    :rtype: str
     """
     try:
         # Set it as an integer
@@ -116,14 +122,8 @@ def build_increment(number):
         # Increment
         increment += 1
         # List it
-        increment = list(str(increment))
+        increment = str(increment).zfill(digits)
 
-        # Add number to get 2 numbers
-        if len(increment) < 2:
-            increment.insert(0, '0')
-
-        # Join it as a string
-        increment = ''.join(increment)
     except ValueError:
         increment = None
         logging.error('"%s" is not a number' % number)

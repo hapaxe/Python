@@ -1,4 +1,4 @@
-# Create .json file storing the MAYA_PROJECT_PATH and MAX_PROJECT_PATH as well as the depth and folder hierarchy for both MAYA and MAX :
+ # Create .json file storing the MAYA_PROJECT_PATH and MAX_PROJECT_PATH as well as the depth and folder hierarchy for both MAYA and MAX :
 # Save number of digits for increments and file name template in the file too 
 
 MAYA_PROJECT_PATH = 'D:\Project\NeoPlum\Art\Characters'
@@ -12,8 +12,8 @@ MAYA_folder_dependent_template_file_name = {'ASSETS': '[depth4]_[depth5]_[depth6
                                             'ANIMATION': '[depth5]_[depth6]_v[increment_digits].ext'}
 MAYA_publish_depth_save = 4
 MAYA_standard_publish_template_file_name = '[depth4]_[depth5]_[depth6]_PUBLISH.ext'
-MAYA_folder_dependent_template_file_name = {'ASSETS': '[depth4]_[depth5].ext',
-                                            'ANIMATION': '[depth5]_[depth6].ext'}
+MAYA_folder_dependent_publish_template_file_name = {'ASSETS': '[depth4]_[depth5].ext',
+                                                    'ANIMATION': '[depth5]_[depth6].ext'}
 
 MAYA_depth = 6
 MAYA_hierarchy = {'depth0': [MAYA_PROJECT_PATH, MAX_PROJECT_PATH]
