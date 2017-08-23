@@ -14,8 +14,12 @@
                          'depth3': ['ASSETS', 'ANIMATION'],
                          'depth4': {'ASSETS': ['CH', 'PR', 'VEH'],
                                     'ANIMATION': {**episodes}},
-                         'depth5': {'ASSETS': {**assets},
-                                    'ANIMATION': {**shots}},
+                         'depth5': {'ASSETS': {'CH': [**assets], 
+                                               'PR': [**assets],
+                                               'VEH': [**assets]},
+                                    'ANIMATION': {'episode1': [**shots],
+                                                  'episode2': [**shots],
+                                                  'episode3': [**shots]}},
                          'depth6': {'ASSETS': ['MODEL', 'RIG', 'TEXTURE'],
                                     'ANIMATION': ['LAYOUT', 'ANIM']}},
  hierarchy_template_2 = {'DEPTH': 2,
@@ -39,26 +43,6 @@
 #                                                        'PR': ['Chair', 'Table', 'Bowl', 'Spoon'],
 #                                                        'VEH': ['Bike', 'Car']}
 
+# variable based depth level are going to be based on folder exploration?
 
-# Create .json file storing project relative folders :
-
-# EXAMPLE HIERARCHY TEMPLATE 1 --------------------
-# Stored at depth1
-PROJECTS = ['project1', 'project2', 'project3', 'project4']
-
-# Stored at depth4
-episodes = ['episode1', 'episode2', 'episode3']
-
-# Stored at depth 5
-assets = {'CH': ['Anna', 'Ziggs'],
-          'PR': ['Chair', 'Table', 'Bowl', 'Spoon'],
-          'VEH': ['Bike', 'Car']}
-shots = {'episode1': ['shot1', 'shot2'],
-         'episode2': ['shot1', 'shot2', 'shot3'],
-         'episode3': ['shot1']}
-
-# EXAMPLE HIERARCHY TEMPLATE 2 --------------------
-# Stored at depth1
-ASSETS = ['Asset1', 'Asset2', 'Asset3']
-         
 # Create .json file storing user preferences : number of last paths stored as well as last paths stored
