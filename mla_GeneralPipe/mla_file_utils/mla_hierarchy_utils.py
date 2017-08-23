@@ -127,10 +127,7 @@ def list_hierarchy():
 
 # TODO
 def set_folder_structure(create_default=False,
-                         MAYA_PROJECT_PATH=None,
-                         MAX_PROJECT_PATH=None,
-                         MAYA_depth=None,
-                         MAX_depth=None,
+                         depth=None,
                          increment_digits=3,
                          MAYA_standard_template_file_name=None,
                          MAYA_folder_dependent_template_file_name=None,
