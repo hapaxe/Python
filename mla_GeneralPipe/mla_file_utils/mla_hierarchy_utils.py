@@ -1,10 +1,14 @@
 import mla_GeneralPipe.mla_file_utils.mla_path_utils as pu
 import mla_GeneralPipe.mla_file_utils.mla_file_library as fl
+import mla_GeneralPipe.mla_file_utils.mla_file_utils as fu
 import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as import_utils
 import logging
+import os
+from collections import OrderedDict
 
 reload(pu)
 reload(fl)
+reload(fu)
 reload(import_utils)
 MAYA_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
 MAX_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/3DSMAX PROJECTS'
@@ -126,47 +130,122 @@ def list_hierarchy():
 
 
 # TODO
-def set_folder_structure(create_default=False,
-                         depth=None,
-                         increment_digits=3,
-                         MAYA_standard_template_file_name=None,
-                         MAYA_folder_dependent_template_file_name=None,
-                         MAX_standard_template_file_name=None,
-                         MAX_folder_dependent_template_file_name=None,
-                         MAYA_publish_depth_save=None,
-                         MAX_publish_depth_save=None,
-                         MAYA_standard_publish_template_file_name=None,
-                         MAYA_folder_dependent_publish_template_file_name=None,
-                         MAX_standard_publish_template_file_name=None,
-                         MAX_folder_dependent_publish_template_file_name=None):
-    pass
+def create_hierarchy_template(depth=6,
+                              increment_depth_save=6,
+                              increment_digits=3,
+                              increment_template_file_name='[depth4]_[depth5]_[depth6]_[increment].ext',
+                              publish_depth_save=6,
+                              publish_template_file_name='[depth4]_[depth5]_[depth6]_PUBLISH.ext'):
+    """
+    Create hierarchy template and store it into json file.
+    :param depth: number of levels in the hierarchy
+    :type depth: int
+
+    :param increment_depth_save: depth level to which save the incremented files
+    :type increment_depth_save: int
+
+    :param increment_digits: number of digits in the increment number
+    :type increment_digits: int
+
+    :param increment_template_file_name: define template name for incremented
+    files
+    :type increment_template_file_name: str
+
+    :param publish_depth_save: depth level to which save the published files
+    :type publish_depth_save: int
+
+    :param publish_template_file_name: define template name for published files
+    :type publish_template_file_name: str
+    """
+    location = '\\'.join(__file__.split('\\')[0:-1])
+    template_hierarchy_path = os.path.join(location, 'template_hierarchy.json')
+
+    hierarchy_templates, number = get_template_file()
+
+    # Creating template hierarchy dict
+    hierarchy = dict()
+    hierarchy['depth'] = depth
+    hierarchy['increment_depth_save'] = increment_depth_save
+    hierarchy['increment_digits'] = increment_digits
+    hierarchy['increment_template_file_name'] = increment_template_file_name
+    hierarchy['publish_depth_save'] = publish_depth_save
+    hierarchy['publish_template_file_name'] = publish_template_file_name
+    for i in range(depth + 1):
+        hierarchy['depth%s' % i] = list()
+
+    # Add template hierarchy to template hierarchy file
+    hierarchy_templates['template_hierarchy_%s' % number] = hierarchy
+    print hierarchy_templates
+    fu.FileSystem.save_to_json(hierarchy_templates, template_hierarchy_path)
 
 
-def customize_folder_structure(depth=None, create=None, folder_name=None,
-                               dependent_folder=None, application=None):
-    if create == 'fixed':
-        if application == 'MAYA':
-            pass
-        elif application == 'MAX':
-            pass
+def get_template_file():
+    """
+    Get template file from provided path.
 
-    elif create == 'variable':
-        if application == 'MAYA':
-            pass
-        elif application == 'MAX':
-            pass
+    :return: template hierarchy dict
+    :rtype: OrderedDict
+    """
+    location = '\\'.join(__file__.split('\\')[0:-1])
 
-    elif create == 'fixed by folder':
-        if application == 'MAYA':
-            pass
-        elif application == 'MAX':
-            pass
+    template_hierarchy_path = os.path.join(location, 'template_hierarchy.json')
 
-    elif create == 'variable by folder':
-        if application == 'MAYA':
-            pass
-        elif application == 'MAX':
-            pass
+    # Get template hierarchies if the file already exists
+    if os.path.isfile(template_hierarchy_path):
+        logging.info('template hierarchy file exists')
+        hierarchy_templates = fu.FileSystem.load_from_json(template_hierarchy_path)
+        hierarchy_number = 0
+        for hierarchy in hierarchy_templates:
+            hierarchy_number += 1
+    else:
+        hierarchy_templates = OrderedDict()
+        hierarchy_number = 1
+        logging.info('template hierarchy file does not exist')
+
+    return hierarchy_templates, hierarchy_number
+
+
+def customize_hierarchy_template(depth=None, depth_template_type=None,
+                                 folder_name=None, master_folder=None,
+                                 hierarchy_template=None):
+    """
+    Customize
+    :param depth: depth level to add the
+    :type depth: int
+
+    :param depth_template_type: type to give to the depth level, accepted types
+    are : fixed, variable, fixed by folder, variable by folder
+    :type depth_template_type: str
+
+    :param folder_name: name to give to the folder if 'fixed'
+    or 'fixed by folder'
+    :type folder_name: str
+
+    :param master_folder: folder from which the new level set up will be
+    dependent (must be one level higher in hierarchy)
+    :type master_folder: str
+
+    :param hierarchy_template: hierarchy template to edit
+    :type hierarchy_template: str
+
+    :return:
+    """
+    # Get hierarchy templates from file
+    hierarchy_templates = get_template_file()
+
+    template = hierarchy_templates[hierarchy_template]
+
+    if type == 'fixed':
+        depth_template = list()
+
+    elif type == 'variable':
+        depth_template = list()
+
+    elif type == 'fixed by folder':
+        depth_template = dict()
+
+    elif type == 'variable by folder':
+        depth_template = dict()
 
     else:
         pass

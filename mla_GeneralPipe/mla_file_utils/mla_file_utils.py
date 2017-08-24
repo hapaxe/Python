@@ -44,7 +44,7 @@ class FileSystem(object):
         :type filename: str
 
         :return: content of the file
-        :rtype: object
+        :rtype: OrderedDict
         """
         # Parse
         filename = FileSystem.normpath(filename)

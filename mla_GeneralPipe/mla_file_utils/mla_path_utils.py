@@ -189,4 +189,3 @@ def build_files_list(given_path):
 
     return maya_files
 
-
