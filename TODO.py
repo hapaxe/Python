@@ -1,4 +1,8 @@
- # Create .json file storing the MAYA_PROJECT_PATH and MAX_PROJECT_PATH as well as the depth and folder hierarchy for both MAYA and MAX :
+# CORRECT THE RIVET FUNCTION WHEN WORKING ON 2 EDGES
+# MOVE THE mla_GeneralPipe/mla_general_utils/ml_utilities.py TO mla_MayaPipe/mla_rig_utils/
+
+
+# Create .json file storing the MAYA_PROJECT_PATH and MAX_PROJECT_PATH as well as the depth and folder hierarchy for both MAYA and MAX :
 # Save number of digits for increments and file name template in the file too
 
 
