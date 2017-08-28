@@ -2,7 +2,8 @@
 # Save number of digits for increments and file name template in the file too
 
 
-tests = {'hierarchy_template_1': {'DEPTH': 6,
+tests = {'hierarchy_template_1': {'path': '*path*',
+                                  'DEPTH': 6,
                                   'increment_depth_save': 6,
                                   'increment digits': 4,
                                   'increment_template_file_name': '[depth4]_[depth5]_[depth6]_v[increment_digits].ext',
