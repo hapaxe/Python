@@ -135,15 +135,16 @@ def list_hierarchy():
 
 
 # TODO
-def create_hierarchy_template(hierarchy_template_name='',
-                              depth=6,
-                              increment_depth_save=6,
-                              increment_digits=3,
-                              increment_template_file_name=
-                              '[depth4]_[depth5]_[depth6]_[increment].ext',
-                              publish_depth_save=6,
-                              publish_template_file_name=
-                              '[depth4]_[depth5]_[depth6]_PUBLISH.ext'):
+def set_hierarchy_template(hierarchy_template_name='',
+                           depth=6,
+                           increment_depth_save=6,
+                           increment_digits=3,
+                           increment_template_file_name=
+                           '[depth4]_[depth5]_[depth6]_[increment].ext',
+                           publish_depth_save=6,
+                           publish_template_file_name=
+                           '[depth4]_[depth5]_[depth6]_PUBLISH.ext',
+                           edit=False):
     """
     Create hierarchy template and store it into json file.
     :param hierarchy_template_name: name to give to the current hierarchy
@@ -168,21 +169,48 @@ def create_hierarchy_template(hierarchy_template_name='',
 
     :param publish_template_file_name: define template name for published files
     :type publish_template_file_name: str
+    
+    :param edit: define if the file must be edited (True) or created (False)
+    :type edit: bool
     """
+    # Check if a hierarchy template name is specified, if not, return
+    If not hierarchy_template_name:
+        logging.error('No hierarchy template name specified')
+        return
+        
     # Get hierarchy templates
     hierarchy_templates = get_template_file()
 
-    # Creating template hierarchy dict
-    hierarchy = dict()
-    hierarchy['hierarchy_template_name'] = hierarchy_template_name
-    hierarchy['depth'] = depth
-    hierarchy['increment_depth_save'] = increment_depth_save
-    hierarchy['increment_digits'] = increment_digits
-    hierarchy['increment_template_file_name'] = increment_template_file_name
-    hierarchy['publish_depth_save'] = publish_depth_save
-    hierarchy['publish_template_file_name'] = publish_template_file_name
-    for i in range(depth + 1):
-        hierarchy['depth%s' % i] = list()
+    # Get specified hierarchy template if in edit mode and if it exists
+    if edit:
+        if hierarchy_templates[hierarchy_template_name]:
+            hierarchy = hierarchy_templates[hierarchy_template_name]
+        else:
+            logging.warning('Specified hierarchy template does not exist and therefore cannot be edited. It will be created instead')
+            hierarchy = dict()
+    else:
+        # Creating template hierarchy dict
+        hierarchy = dict()
+    
+    # Set or modify hierarchy information (depending on the mode)
+    if hierarchy_template_name:
+        hierarchy['hierarchy_template_name'] = hierarchy_template_name
+    if depth:
+        hierarchy['depth'] = depth
+    if increment_depth_save:
+        hierarchy['increment_depth_save'] = increment_depth_save
+    if increment_digits:
+        hierarchy['increment_digits'] = increment_digits
+    if increment_template_file_name:
+        hierarchy['increment_template_file_name'] = increment_template_file_name
+    if publish_depth_save:
+        hierarchy['publish_depth_save'] = publish_depth_save
+    if publish_template_file_name:
+        hierarchy['publish_template_file_name'] = publish_template_file_name
+    
+    if create or depth:
+        for i in range(depth + 1):
+            hierarchy['depth%s' % i] = list()
 
     # Add template hierarchy to template hierarchy file
     hierarchy_templates[hierarchy_template_name] = hierarchy
