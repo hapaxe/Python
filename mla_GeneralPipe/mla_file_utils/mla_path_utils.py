@@ -104,6 +104,18 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
     return return_path
 
 
+def build_hierarchy_path(folder_hierarchy=[], hierarchy_template_name='',
+                         filename=''):
+    """
+
+    :param folder_hierarchy:
+    :param hierarchy_template:
+    :param filename:
+    :return:
+    """
+    pass
+
+
 def build_increment(number, digits=3):
     """
     Increment the given number and return it as a 2 decimal string (ie : 01, 02, etc.)

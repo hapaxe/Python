@@ -161,7 +161,10 @@ def set_hierarchy_template(hierarchy_template_name='',
     :type increment_digits: int
 
     :param increment_template_file_name: define template name for incremented
-    files
+    files. Accepted string parts are [*depth_level*], [increment] and words.
+    Each part must be separated by an underscore.
+    Example :'[depth4]_[depth5]_[depth6]_[increment].ext',
+    '[depth4]_[depth5]_[depth6]_PUBLISH.ext'
     :type increment_template_file_name: str
 
     :param publish_depth_save: depth level to which save the published files
@@ -174,7 +177,7 @@ def set_hierarchy_template(hierarchy_template_name='',
     :type edit: bool
     """
     # Check if a hierarchy template name is specified, if not, return
-    If not hierarchy_template_name:
+    if not hierarchy_template_name:
         logging.error('No hierarchy template name specified')
         return
         
@@ -186,7 +189,9 @@ def set_hierarchy_template(hierarchy_template_name='',
         if hierarchy_templates[hierarchy_template_name]:
             hierarchy = hierarchy_templates[hierarchy_template_name]
         else:
-            logging.warning('Specified hierarchy template does not exist and therefore cannot be edited. It will be created instead')
+            logging.warning('Specified hierarchy template does not exist and'
+                            'therefore cannot be edited. It will be created'
+                            'instead')
             hierarchy = dict()
     else:
         # Creating template hierarchy dict
@@ -208,7 +213,7 @@ def set_hierarchy_template(hierarchy_template_name='',
     if publish_template_file_name:
         hierarchy['publish_template_file_name'] = publish_template_file_name
     
-    if create or depth:
+    if depth or not edit:
         for i in range(depth + 1):
             hierarchy['depth%s' % i] = list()
 
