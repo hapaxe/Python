@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 MAYA_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
 MAX_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/3DSMAX PROJECTS'
@@ -102,18 +102,6 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
 
     # print return_path
     return return_path
-
-
-def build_hierarchy_path(folder_hierarchy=[], hierarchy_template_name='',
-                         filename=''):
-    """
-
-    :param folder_hierarchy:
-    :param hierarchy_template:
-    :param filename:
-    :return:
-    """
-    pass
 
 
 def build_increment(number, digits=3):

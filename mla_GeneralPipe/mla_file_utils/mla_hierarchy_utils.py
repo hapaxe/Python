@@ -136,6 +136,7 @@ def list_hierarchy():
 
 # TODO
 def set_hierarchy_template(hierarchy_template_name='',
+                           hierarchy_path='',
                            depth=6,
                            increment_depth_save=6,
                            increment_digits=3,
@@ -150,6 +151,9 @@ def set_hierarchy_template(hierarchy_template_name='',
     :param hierarchy_template_name: name to give to the current hierarchy
     template
     :type hierarchy_template_name: str
+
+    :param hierarchy_path: path to the top folder of the hierarchy
+    :type hierarchy_path: str
 
     :param depth: number of levels in the hierarchy
     :type depth: int
@@ -200,6 +204,8 @@ def set_hierarchy_template(hierarchy_template_name='',
     # Set or modify hierarchy information (depending on the mode)
     if hierarchy_template_name:
         hierarchy['hierarchy_template_name'] = hierarchy_template_name
+    if hierarchy_path:
+        hierarchy['hierarchy_path'] = hierarchy_path
     if depth:
         hierarchy['depth'] = depth
     if increment_depth_save:
@@ -318,3 +324,28 @@ def customize_hierarchy_template(depth=None, depth_template_type=None,
 
     # Save
     fu.FileSystem.save_to_json(hierarchy_templates, hierarchy_template_path)
+
+
+def build_file_path(folder_hierarchy=[], hierarchy_template_name='',
+                    folder_list=[], filename=''):
+    """
+
+    :param folder_hierarchy:
+    :param hierarchy_template_name:
+    :param folder_list:
+    :param filename:
+    :return:
+    """
+    # Get hierarchy templates from file
+    hierarchy_templates = get_template_file()
+    hierarchy_template = hierarchy_templates[hierarchy_template_name]
+    hierarchy_path = hierarchy_template['hierarchy_path']
+
+    folder_path = hierarchy_path
+
+    for folder in folder_list:
+        folder_path = os.path.join(folder_path, folder)
+
+    file_path = os.path.join(folder_path, filename)
+
+    return file_path
