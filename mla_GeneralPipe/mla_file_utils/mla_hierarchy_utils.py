@@ -141,7 +141,7 @@ def set_hierarchy_template(hierarchy_template_name='',
                            increment_depth_save=6,
                            increment_digits=3,
                            increment_template_file_name=
-                           '[depth4]_[depth5]_[depth6]_[increment].ext',
+                           '[depth4]_[depth5]_[depth6]_v[increment].ext',
                            publish_depth_save=6,
                            publish_template_file_name=
                            '[depth4]_[depth5]_[depth6]_PUBLISH.ext',
@@ -326,14 +326,19 @@ def customize_hierarchy_template(depth=None, depth_template_type=None,
     fu.FileSystem.save_to_json(hierarchy_templates, hierarchy_template_path)
 
 
-def build_file_path(folder_hierarchy=[], hierarchy_template_name='',
-                    folder_list=[], filename=''):
+def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
+                         filename=''):
     """
+    Build a path from given hierarchy and folder list.
+    :param hierarchy_template_name: name of the hierarchy template to browse in
+    :type hierarchy_template_name: str
 
-    :param folder_hierarchy:
-    :param hierarchy_template_name:
-    :param folder_list:
-    :param filename:
+    :param folder_list: list of folders to build the current path
+    :type folder_list: list
+
+    :param filename: name of the file to add at the end of the path
+    :type filename: str
+
     :return:
     """
     # Get hierarchy templates from file
@@ -341,11 +346,23 @@ def build_file_path(folder_hierarchy=[], hierarchy_template_name='',
     hierarchy_template = hierarchy_templates[hierarchy_template_name]
     hierarchy_path = hierarchy_template['hierarchy_path']
 
-    folder_path = hierarchy_path
-
+    # Build path from root path and specified folders
+    return_path = hierarchy_path
     for folder in folder_list:
-        folder_path = os.path.join(folder_path, folder)
+        return_path = os.path.join(return_path, folder)
+    if filename:
+        return_path = os.path.join(return_path, filename)
 
-    file_path = os.path.join(folder_path, filename)
+    return return_path
 
-    return file_path
+
+def list_hierarchy_from_template(hierarchy_template_name=''):
+    """
+    List all the content of the selected hierarchy.
+    :param hierarchy_template_name: name of the hierarchy to list
+    :type hierarchy_template_name: str
+
+    :return: folders and files contained in the selected hierarchy
+    :rtype: dict
+    """
+    pass
