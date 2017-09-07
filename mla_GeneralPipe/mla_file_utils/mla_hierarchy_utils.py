@@ -141,10 +141,10 @@ def set_hierarchy_template(hierarchy_template_name='',
                            increment_depth_save=6,
                            increment_digits=3,
                            increment_template_file_name=
-                           '[depth4]_[depth5]_[depth6]_v[increment].ext',
+                           '{depth4}_{depth5}_{depth6}_v{increment}.ext',
                            publish_depth_save=6,
                            publish_template_file_name=
-                           '[depth4]_[depth5]_[depth6]_PUBLISH.ext',
+                           '{depth4}_{depth5}_{depth6}_PUBLISH.ext',
                            edit=False):
     """
     Create hierarchy template and store it into json file.
@@ -165,10 +165,11 @@ def set_hierarchy_template(hierarchy_template_name='',
     :type increment_digits: int
 
     :param increment_template_file_name: define template name for incremented
-    files. Accepted string parts are [*depth_level*], [increment] and words.
-    Each part must be separated by an underscore.
-    Example :'[depth4]_[depth5]_[depth6]_[increment].ext',
-    '[depth4]_[depth5]_[depth6]_PUBLISH.ext'
+    files. Accepted string parts are {*depth_level*}, {increment} and words.
+    Each part must be separated by an underscore. You can specify a range of
+    character inside of a depth level.
+    Example :'{depth4}_{depth5}_{depth6}_{increment}.ext',
+    '{depth4[0:2]}_{depth5}_{depth6}_PUBLISH.ext'
     :type increment_template_file_name: str
 
     :param publish_depth_save: depth level to which save the published files
@@ -222,6 +223,8 @@ def set_hierarchy_template(hierarchy_template_name='',
     if depth or not edit:
         for i in range(depth + 1):
             hierarchy['depth%s' % i] = list()
+    if not edit:
+        hierarchy['hierarchy_file_types'] = list()
 
     # Add template hierarchy to template hierarchy file
     hierarchy_templates[hierarchy_template_name] = hierarchy
@@ -250,17 +253,17 @@ def get_template_file():
     return hierarchy_templates
 
 
-def customize_hierarchy_template(depth=None, depth_template_type=None,
+def customize_hierarchy_template(depth=None, template_type=None,
                                  folder_name=None, master_folder=None,
-                                 hierarchy_template=None):
+                                 hierarchy_template=None, file_type=None):
     """
     Customize
     :param depth: depth level to add the
     :type depth: int
 
-    :param depth_template_type: type to give to the depth level, accepted types
+    :param template_type: type to give to the depth level, accepted types
     are : fixed, dynamic, fixed by folder, dynamic by folder
-    :type depth_template_type: str
+    :type template_type: str
 
     :param folder_name: name to give to the folder if 'fixed'
     or 'fixed by folder'
@@ -272,8 +275,9 @@ def customize_hierarchy_template(depth=None, depth_template_type=None,
 
     :param hierarchy_template: hierarchy template to edit
     :type hierarchy_template: str
-
-    :return:
+    
+    :param file_type: type of file to add to the 'hierarchy_file_types' entry
+    :type file_type: str
     """
     # Get hierarchy templates from file
     hierarchy_templates = get_template_file()
@@ -281,53 +285,88 @@ def customize_hierarchy_template(depth=None, depth_template_type=None,
     # Get hierarchy template to update
     current_template = hierarchy_templates[hierarchy_template]
 
-    # Set up current hierarchy depth level depending on specified depth type
-    # If type is fixed, add the folder name
-    if depth_template_type == 'fixed':
-        current_template['depth%s' % depth].append(folder_name)
+    if not file_type:
+        # Set up current hierarchy depth level depending on specified depth type
+        # If type is fixed, add the folder name
+        if template_type == 'fixed':
+            current_template['depth%s' % depth].append(folder_name)
 
-    # If type is dynamic, set the depth as list of one str
-    elif depth_template_type == 'dynamic':
-        current_template['depth%s' % depth] = ['**dynamic']
+        # If type is dynamic, set the depth as list of one str
+        elif template_type == 'dynamic':
+            current_template['depth%s' % depth] = ['**dynamic']
 
-    # If type is fixed by folder
-    elif depth_template_type == 'fixed by folder':
-        # If there is already a dict stored for this depth level, add the folder
-        # name to the list
-        if type(current_template['depth%s' % depth]) == dict:
-            depth_template = current_template['depth%s' % depth]
-            if len(depth_template[master_folder]) > 0:
-                depth_template[master_folder].append(folder_name)
-        # If there is no dict stored for this depth level, create a dict with a
-        # list containing the folder name at the right index
+        # If type is fixed by folder
+        elif template_type == 'fixed by folder':
+            # If there is already a dict stored for this depth level, add the
+            # folder name to the list
+            if type(current_template['depth%s' % depth]) == dict:
+                depth_template = current_template['depth%s' % depth]
+                if len(depth_template[master_folder]) > 0:
+                    depth_template[master_folder].append(folder_name)
+            # If there is no dict stored for this depth level, create a dict
+            # with a list containing the folder name at the right index
+            else:
+                depth_template = dict()
+                depth_template[master_folder] = [folder_name]
+            # Replace old level value by the newly edited dict
+            current_template['depth%s' % depth] = depth_template
+
+        # If the type is dynamic by folder, set the depth for the master folder
+        # as a list of one str
+        elif template_type == 'dynamic by folder':
+            if type(current_template['depth%s' % depth]) == dict:
+                depth_template = current_template['depth%s' % depth]
+                depth_template[master_folder] = ['**dynamic']
+            else:
+                depth_template = dict()
+                depth_template[master_folder] = ['**dynamic']
+            # Replace old level value by the newly edited dict
+            current_template['depth%s' % depth] = depth_template
+
+        # Else, pass
         else:
-            depth_template = dict()
-            depth_template[master_folder] = [folder_name]
-        # Replace old level value by the newly edited dict
-        current_template['depth%s' % depth] = depth_template
-
-    # If the type is dynamic by folder, set the depth for the master folder as a
-    # list of one str
-    elif depth_template_type == 'dynamic by folder':
-        if type(current_template['depth%s' % depth]) == dict:
-            depth_template = current_template['depth%s' % depth]
-            depth_template[master_folder] = ['**dynamic']
-        else:
-            depth_template = dict()
-            depth_template[master_folder] = ['**dynamic']
-        # Replace old level value by the newly edited dict
-        current_template['depth%s' % depth] = depth_template
-
-    # Else, pass
+            pass
     else:
-        pass
+        # Set up current hierarchy file types depending on specified file types
+        # If type is fixed, add the folder name
+        if template_type == 'fixed':
+            current_template['hierarchy_file_types'].append(folder_name)
+
+        # If type is dynamic, set the depth as list of one str
+        elif template_type == 'dynamic':
+            logging.warning('hierarchy_file_types cannot be dynamic')
+
+        # If type is fixed by folder
+        elif template_type == 'fixed by folder':
+            # If there is already a dict stored for this depth level, add the
+            # file type to the list
+            if type(current_template['hierarchy_file_types']) == dict:
+                types_template = current_template['hierarchy_file_types']
+                if len(types_template[master_folder]) > 0:
+                    types_template[master_folder].append(file_type)
+            # If there is no dict stored for this depth level, create a dict
+            # with a list containing the folder name at the right index
+            else:
+                types_template = dict()
+                types_template[master_folder] = [folder_name]
+            # Replace old level value by the newly edited dict
+            current_template['hierarchy_file_types'] = types_template
+
+        # If the type is dynamic by folder, set the depth for the master folder
+        # as a list of one str
+        elif template_type == 'dynamic by folder':
+            logging.warning('hierarchy_file_types cannot be dynamic')
+
+        # Else, pass
+        else:
+            pass
 
     # Save
     fu.FileSystem.save_to_json(hierarchy_templates, hierarchy_template_path)
 
 
 def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
-                         filename=''):
+                         add_filename=False):
     """
     Build a path from given hierarchy and folder list.
     :param hierarchy_template_name: name of the hierarchy template to browse in
@@ -336,8 +375,8 @@ def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
     :param folder_list: list of folders to build the current path
     :type folder_list: list
 
-    :param filename: name of the file to add at the end of the path
-    :type filename: str
+    :param add_filename: name of the file to add at the end of the path
+    :type add_filename: str
 
     :return:
     """
@@ -350,19 +389,125 @@ def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
     return_path = hierarchy_path
     for folder in folder_list:
         return_path = os.path.join(return_path, folder)
-    if filename:
+    if add_filename:
+        filename = build_file_name(hierarchy_template_name=
+                                   hierarchy_template_name,
+                                   folder_path=return_path)
         return_path = os.path.join(return_path, filename)
 
     return return_path
 
 
+# TODO
 def list_hierarchy_from_template(hierarchy_template_name=''):
     """
     List all the content of the selected hierarchy.
-    :param hierarchy_template_name: name of the hierarchy to list
+    :param hierarchy_template_name: name of the hierarchy template to browse in
     :type hierarchy_template_name: str
 
     :return: folders and files contained in the selected hierarchy
     :rtype: dict
     """
-    pass
+    hierarchy_templates = get_template_file()
+    hierarchy_template = hierarchy_templates[hierarchy_template_name]
+    folder_path = hierarchy_template['hierarchy_path']
+    depth = 1
+
+    hierarchy_content = list_hierarchy_content(folder_path, hierarchy_template,
+                                               depth)
+
+    return hierarchy_content
+
+
+# TODO
+def list_hierarchy_content(folder_path='', hierarchy_template=dict,
+                           current_depth=int):
+    """
+    Recursively list the content of a folder.
+    :param folder_path: path to the folder whom you want to list the content
+    :type folder_path: str
+
+    :param hierarchy_template: hierarchy template of the hierarchy to explore
+    :type hierarchy_template: dict
+
+    :param current_depth: depth level to list
+    :type current_depth: int
+
+
+    :return: content of the folder
+    :type
+    """
+
+    file_types = hierarchy_template['file_types']
+
+    if current_depth == hierarchy_template['depth']:
+        if type(file_types) == list:
+            hierarchy_content = fl.FileLibrary(folder_path, file_types=file_types)
+        elif type(file_types) == dict:
+            hierarchy_content = None
+            for folder in file_types.keys():
+                if folder in folder_path:
+                    hierarchy_content = fl.FileLibrary(folder_path,
+                                                       file_types=file_types[folder])
+        else:
+            hierarchy_content = None
+    else:
+        hierarchy_content = dict()
+        depth_content = pu.create_subdir_list(folder_path)
+        for folder in depth_content:
+            current_depth += 1
+            next_path = os.path.join(folder_path, folder)
+            folder_content = list_hierarchy_content(next_path,
+                                                    hierarchy_template,
+                                                    current_depth)
+            hierarchy_content[folder] = folder_content
+
+    return hierarchy_content
+
+
+def build_file_name(hierarchy_template_name='', folder_path='', filetype=''):
+    """
+    Build file name from specified hierarchy template and folder path.
+    :param hierarchy_template_name: name of the hierarchy template to browse in
+    :type hierarchy_template_name: str
+
+    :param folder_path: path to the folder where the file is going to be saved
+    :type folder_path: str
+
+    :param filetype: type of the file whom you want to create the name.
+    type accepted are: increment, publish, image_increment, image_publish
+    :type filetype: str
+
+    :return:
+    """
+    hierarchy_templates = get_template_file()
+    hierarchy_template = hierarchy_templates[hierarchy_template_name]
+
+    # Define extension types depending on the application running
+    if application == 'Maya':
+        scene_ext = '.ma'
+    elif application == 'Max':
+        scene_ext = '.max'
+    else:
+        scene_ext = None
+    image_ext = 'jpg'
+
+    # Define file_template_name and file extension
+    if filetype == 'increment':
+        file_ext = scene_ext
+        file_template_name = hierarchy_template['increment_template_file_name']
+    elif filetype == 'publish':
+        file_ext = scene_ext
+        file_template_name = hierarchy_template['publish_template_file_name']
+    elif filetype == 'image_increment':
+        file_ext = image_ext
+        file_template_name = hierarchy_template['increment_template_file_name']
+    elif filetype == 'image_publish':
+        file_ext = image_ext
+        file_template_name = hierarchy_template['publish_template_file_name']
+
+    # Get the different parts of the name
+
+    filename = ''
+
+    return filename
