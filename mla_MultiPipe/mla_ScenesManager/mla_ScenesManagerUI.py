@@ -140,6 +140,11 @@ class AssetManagerUI(dockable, QtWidgets.QDialog):
     def update_files_list(self):
         logging.info('Updating list')
 
+        if self.files_list_widget.currentItem():
+            current_file = self.files_list_widget.currentItem().text()
+        else:
+            current_file = None
+
         self.files_list_widget.clear()
 
         # Get path constructor data
@@ -176,6 +181,15 @@ class AssetManagerUI(dockable, QtWidgets.QDialog):
                     item.setIcon(icon)
 
                 item.setToolTip(pprint.pformat(info))
+        else:
+            files_list = None
+
+        if current_file:
+            if files_list:
+                if current_file in files_list:
+                    item = self.files_list_widget.findItems(current_file,
+                                                            QtCore.Qt.MatchExactly)[0]
+                    self.files_list_widget.setCurrentItem(item)
 
     def update_file_info(self):
         self.display_info.clear()

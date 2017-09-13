@@ -16,17 +16,21 @@ def open_file(filepath):
 
 
 def save_file(filepath):
-    if application == 'Maya':
-        mc.file(rename=filepath)
-        if filepath.split('.')[-1] == 'mb':
-            filetype = 'mayaBinary'
-        else:
-            filetype = 'mayaAscii'
-        mc.file(s=True, type=filetype, f=True)
-    elif application == 'Max':
-        pass
+    if 'untitled' in filepath:
+        print 'Cannot save an untitled scene.'
+        return
     else:
-        pass
+        if application == 'Maya':
+            mc.file(rename=filepath)
+            if filepath.split('.')[-1] == 'mb':
+                filetype = 'mayaBinary'
+            else:
+                filetype = 'mayaAscii'
+            mc.file(s=True, type=filetype, f=True)
+        elif application == 'Max':
+            pass
+        else:
+            pass
 
 
 def reference_file(filepath):

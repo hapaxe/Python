@@ -48,6 +48,7 @@ class FileSystem(object):
         """
         # Parse
         filename = FileSystem.normpath(filename)
+        print filename
         # If Exists
         if filename:
             # Verbose

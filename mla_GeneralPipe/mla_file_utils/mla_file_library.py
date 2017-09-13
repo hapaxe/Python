@@ -71,7 +71,7 @@ class FileLibrary(dict):
         List all the files in the given directory
         :return:
         """
-        logging.debug(self.file_types)
+        # logging.debug(self.file_types)
 
         # If the path does not exists
         if not os.path.exists(self.directory):
@@ -79,6 +79,7 @@ class FileLibrary(dict):
             return
 
         files = os.listdir(self.directory)
+        print files
 
         specific_files = list()
 
@@ -90,31 +91,34 @@ class FileLibrary(dict):
             path = os.path.join(self.directory, f)
 
             # Get information if exists
-            info_file = '%s' % path.replace('.%s' % ext, '.json')
+            info_file = '%s.json' % name
             if info_file in files:
+                info_file = os.path.join(self.directory, info_file)
                 info = file_ut.FileSystem.load_from_json(info_file)
             # Else, create it
             else:
                 info = dict()
 
-            screenshot = '%s_screenshot.jpg' % name
-            if screenshot in files:
-                info['screenshot'] = os.path.join(self.directory, '%s_screenshot.jpg' % name)
+                screenshot = '%s_screenshot.jpg' % name
+                if screenshot in files:
+                    info['screenshot'] = os.path.join(self.directory,
+                                                      '%s_screenshot.jpg'
+                                                      % name)
 
-            # Date and formatting
-            creation_date = time.localtime(os.path.getctime(path))
-            creation_date = format_utils.convert_to_readable_date(creation_date)
+                # Date and formatting
+                creation_date = time.localtime(os.path.getctime(path))
+                creation_date = format_utils.convert_to_readable_date(creation_date)
 
-            modification_date = time.localtime(os.path.getmtime(path))
-            modification_date = format_utils.convert_to_readable_date(modification_date)
+                modification_date = time.localtime(os.path.getmtime(path))
+                modification_date = format_utils.convert_to_readable_date(modification_date)
 
-            # Create info dict
-            info['name'] = name
-            info['path'] = path
-            info['file type'] = '.%s' % path.split('.')[-1]
-            info['creation'] = creation_date
-            info['modification'] = modification_date
-            info['size'] = os.path.getsize(path)
+                # Create info dict
+                info['name'] = name
+                info['path'] = path
+                info['file type'] = '.%s' % path.split('.')[-1]
+                info['creation'] = creation_date
+                info['modification'] = modification_date
+                info['size'] = os.path.getsize(path)
 
             self[name] = info
 
@@ -156,7 +160,8 @@ class FileLibrary(dict):
         if not wip and not publish:
             Multi_file_ut.save_file(path)
 
-        logging.info('path is : ', path)
+        print path
+        # logging.info('path is : ', path)
 
         # Create screenshot
         if screenshot:

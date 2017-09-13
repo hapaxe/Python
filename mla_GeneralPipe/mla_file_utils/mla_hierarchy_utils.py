@@ -390,10 +390,10 @@ def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
     for folder in folder_list:
         return_path = os.path.join(return_path, folder)
     if add_filename:
-        filename = build_file_name(hierarchy_template_name=
-                                   hierarchy_template_name,
-                                   folder_path=return_path)
-        return_path = os.path.join(return_path, filename)
+        return_path = build_file_name(hierarchy_template_name=
+                                      hierarchy_template_name,
+                                      folder_path=return_path,
+                                      return_path=True)
 
     return return_path
 
@@ -465,7 +465,8 @@ def list_hierarchy_content(folder_path='', hierarchy_template=dict,
     return hierarchy_content
 
 
-def build_file_name(hierarchy_template_name='', folder_path='', filetype=''):
+def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
+                    return_path=False):
     """
     Build file name from specified hierarchy template and folder path.
     :param hierarchy_template_name: name of the hierarchy template to browse in
@@ -477,6 +478,10 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype=''):
     :param filetype: type of the file whom you want to create the name.
     type accepted are: increment, publish, image_increment, image_publish
     :type filetype: str
+
+    :param return_path: specify if we want to include the path in the return
+    value
+    :type return_path: bool
 
     :return:
     """
@@ -509,5 +514,9 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype=''):
     # Get the different parts of the name
 
     filename = ''
+    # (\{[A-Za-z0-9]*\})
+
+    if return_path:
+        filename = os.path.join(folder_path, filename)
 
     return filename
