@@ -1,18 +1,21 @@
 import mla_GeneralPipe.mla_file_utils.mla_path_utils as pu
 import mla_GeneralPipe.mla_file_utils.mla_file_library as fl
 import mla_GeneralPipe.mla_file_utils.mla_file_utils as fu
-import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as import_utils
+import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as Miu
+import mla_MultiPipe.mla_file_utils.mla_Multi_path_utils as Mpu
 import logging
 import os
 from collections import OrderedDict
+import re
 
 reload(pu)
 reload(fl)
 reload(fu)
-reload(import_utils)
+reload(Miu)
+reload(Mpu)
 MAYA_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
 MAX_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/3DSMAX PROJECTS'
-application = import_utils.get_application()
+application = Miu.get_application()
 
 # Set project path and file types depending on application
 if application == 'Maya':
@@ -134,7 +137,6 @@ def list_hierarchy():
     return hierarchy
 
 
-# TODO
 def set_hierarchy_template(hierarchy_template_name='',
                            hierarchy_path='',
                            depth=6,
@@ -214,10 +216,21 @@ def set_hierarchy_template(hierarchy_template_name='',
     if increment_digits:
         hierarchy['increment_digits'] = increment_digits
     if increment_template_file_name:
-        hierarchy['increment_template_file_name'] = increment_template_file_name
+        inc_grp = [grp for grp
+                   in re.findall('(\{increment\})',
+                                 increment_template_file_name) if grp != '']
+        if len(inc_grp) > 1:
+            raise ValueError('You cannot specify two increments.')
+        else:
+            hierarchy['increment_template_file_name'] = increment_template_file_name
     if publish_depth_save:
         hierarchy['publish_depth_save'] = publish_depth_save
     if publish_template_file_name:
+        inc_grp = [grp for grp
+                   in re.findall('(\{increment\})',
+                                 publish_template_file_name) if grp != '']
+        if len(inc_grp) > 0:
+            raise ValueError('You cannot specify increments for publish files.')
         hierarchy['publish_template_file_name'] = publish_template_file_name
     
     if depth or not edit:
@@ -398,7 +411,6 @@ def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
     return return_path
 
 
-# TODO
 def list_hierarchy_from_template(hierarchy_template_name=''):
     """
     List all the content of the selected hierarchy.
@@ -419,7 +431,6 @@ def list_hierarchy_from_template(hierarchy_template_name=''):
     return hierarchy_content
 
 
-# TODO
 def list_hierarchy_content(folder_path='', hierarchy_template=dict,
                            current_depth=int):
     """
@@ -500,23 +511,103 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
     # Define file_template_name and file extension
     if filetype == 'increment':
         file_ext = scene_ext
-        file_template_name = hierarchy_template['increment_template_file_name']
+        grab_file_template_name = 'increment_template_file_name'
     elif filetype == 'publish':
         file_ext = scene_ext
-        file_template_name = hierarchy_template['publish_template_file_name']
+        grab_file_template_name = 'publish_template_file_name'
     elif filetype == 'image_increment':
         file_ext = image_ext
-        file_template_name = hierarchy_template['increment_template_file_name']
+        grab_file_template_name = 'increment_template_file_name'
     elif filetype == 'image_publish':
         file_ext = image_ext
-        file_template_name = hierarchy_template['publish_template_file_name']
+        grab_file_template_name = 'publish_template_file_name'
+    else:
+        raise ValueError('Invalid file type. Valid file types are : increment, '
+                         'publish, image_increment, image_publish')
+
+    file_template_name = hierarchy_template[grab_file_template_name]
+    hierarchy_path = hierarchy_template['hierarchy_path']
+
+    # Define filename before replace its group parts
+    filename = file_template_name
+
+    # Get depth levels
+    depth_levels = list()
+    splitted_path = [folder_path, '']
+    while splitted_path[0] != hierarchy_path:
+        splitted_path = os.path.split(splitted_path[0])
+        depth_levels.insert(0, splitted_path[1])
 
     # Get the different parts of the name
+    str_grps = [grp for grp
+                in re.findall('(\{[a-zA-Z0-9\[\]]*\})*', file_template_name)
+                if grp != '']
 
-    filename = ''
-    # (\{[A-Za-z0-9]*\})
+    if str_grps:
+        for str_grp in str_grps:
+            str_grp = str_grp.replace('{', '').replace('}', '')
+
+            # Take care of the depth groups
+            if 'depth' in str_grp:
+                # Check if there is a range factor
+                depth_str_range = [grp for grp
+                                   in re.findall('(\[.*\])', str_grp)
+                                   if grp != '']
+                # Remove range factor and get range values
+                if depth_str_range:
+                    str_grp = str_grp.replace(depth_str_range[0], '')
+                    range_val = depth_str_range[0].split(':')
+                    
+                # Get depth number
+                if str_grp in hierarchy_template.keys():
+                    depth_number = int(str_grp.replace('depth', ''))
+                else:
+                    raise ValueError('One or more of the depth(s) level(s)'
+                                     ' specified in %s are invalid.'
+                                     % grab_file_template_name)
+
+                # Replace group in filename
+                if range_val:
+                    if len(range_val) == 1:
+                        filename.replace(str_grp, depth_levels[depth_number]
+                                         [int(range_val[0])])
+                    else:
+                        filename.replace(str_grp, depth_levels[depth_number]
+                                         [int(range_val[0]):int(range_val[1])])
+                else:
+                    filename.replace(str_grp, depth_levels[depth_number])
+
+            # Take care of the increment group
+            elif 'increment' in str_grp:
+                inc = get_increment_number(hierarchy_template_name,
+                                           Mpu.get_current_scene_path())
+                inc = pu.build_increment(inc,
+                                         hierarchy_template['increment_digits'])
+
+                filename.replace(str_grp, inc)
+
+            # Raise error in case of invalid group part(s)
+            else:
+                raise ValueError('Invalid group parts in %s'
+                                 % grab_file_template_name)
 
     if return_path:
         filename = os.path.join(folder_path, filename)
 
     return filename
+
+
+# TODO
+def get_increment_number(hierarchy_template_name, current_file_name):
+    """
+    :param hierarchy_template_name: name of the hierarchy template to browse in
+    :type hierarchy_template_name: str
+
+    :param current_file_name: name of the currently opened file
+    :type current_file_name: str
+    
+    :return: increment number of the current file
+    :rtype: str
+    """
+    current_number = 0
+    return current_number
