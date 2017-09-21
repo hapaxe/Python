@@ -477,9 +477,12 @@ def list_hierarchy_content(folder_path='', hierarchy_template=dict,
 
 
 def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
-                    return_path=False):
+                    selected_file_name='', return_path=False,
+                    return_current_increment=False):
     """
     Build file name from specified hierarchy template and folder path.
+    Can also be used to query the increment of the current or selected file.
+
     :param hierarchy_template_name: name of the hierarchy template to browse in
     :type hierarchy_template_name: str
 
@@ -494,32 +497,25 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
     value
     :type return_path: bool
 
-    :return:
+    :param return_current_increment: specifies if the function must return only
+    the increment of the current file
+    :type return_current_increment: bool
+
+    :return: name of the new file (incremented or published), or increment of
+    the current file
+    :rtype : str
     """
     hierarchy_templates = get_template_file()
     hierarchy_template = hierarchy_templates[hierarchy_template_name]
 
-    # Define extension types depending on the application running
-    if application == 'Maya':
-        scene_ext = '.ma'
-    elif application == 'Max':
-        scene_ext = '.max'
-    else:
-        scene_ext = None
-    image_ext = 'jpg'
-
     # Define file_template_name and file extension
     if filetype == 'increment':
-        file_ext = scene_ext
         grab_file_template_name = 'increment_template_file_name'
     elif filetype == 'publish':
-        file_ext = scene_ext
         grab_file_template_name = 'publish_template_file_name'
     elif filetype == 'image_increment':
-        file_ext = image_ext
         grab_file_template_name = 'increment_template_file_name'
     elif filetype == 'image_publish':
-        file_ext = image_ext
         grab_file_template_name = 'publish_template_file_name'
     else:
         raise ValueError('Invalid file type. Valid file types are : increment, '
@@ -528,8 +524,10 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
     file_template_name = hierarchy_template[grab_file_template_name]
     hierarchy_path = hierarchy_template['hierarchy_path']
 
+    file_extension = file_template_name.split('.')[-1]
+
     # Define filename before replace its group parts
-    filename = file_template_name
+    filename = file_template_name.split('.')[0]
 
     # Get depth levels
     depth_levels = list()
@@ -557,6 +555,8 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
                 if depth_str_range:
                     str_grp = str_grp.replace(depth_str_range[0], '')
                     range_val = depth_str_range[0].split(':')
+                else:
+                    range_val = None
                     
                 # Get depth number
                 if str_grp in hierarchy_template.keys():
@@ -579,35 +579,37 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
 
             # Take care of the increment group
             elif 'increment' in str_grp:
-                inc = get_increment_number(hierarchy_template_name,
-                                           Mpu.get_current_scene_path())
-                inc = pu.build_increment(inc,
-                                         hierarchy_template['increment_digits'])
+                # When wwe want the actual filename
+                if not return_current_increment:
+                    inc = build_file_name(hierarchy_template_name, folder_path,
+                                          filetype, return_path=False,
+                                          return_current_increment=True)
+                    inc = pu.build_increment(inc,
+                                             hierarchy_template['increment_digits'])
 
-                filename.replace(str_grp, inc)
+                    filename.replace(str_grp, inc)
+                # When we want the increment number
+                else:
+                    # Get proper file name
+                    if selected_file_name == '':
+                        current_file_name = os.path.split(Mpu.get_current_scene_path(False))[1]
+                    else:
+                        current_file_name = selected_file_name
+
+                    increment = current_file_name.\
+                        replace(filename.split('{')[0], '').\
+                        replace(filename.split('}')[1], '')
+
+                    return increment
 
             # Raise error in case of invalid group part(s)
             else:
                 raise ValueError('Invalid group parts in %s'
                                  % grab_file_template_name)
 
+    filename = '.'.join(filename, file_extension)
+
     if return_path:
         filename = os.path.join(folder_path, filename)
 
     return filename
-
-
-# TODO
-def get_increment_number(hierarchy_template_name, current_file_name):
-    """
-    :param hierarchy_template_name: name of the hierarchy template to browse in
-    :type hierarchy_template_name: str
-
-    :param current_file_name: name of the currently opened file
-    :type current_file_name: str
-    
-    :return: increment number of the current file
-    :rtype: str
-    """
-    current_number = 0
-    return current_number
