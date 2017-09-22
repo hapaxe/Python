@@ -150,6 +150,7 @@ def set_hierarchy_template(hierarchy_template_name='',
                            edit=False):
     """
     Create hierarchy template and store it into json file.
+
     :param hierarchy_template_name: name to give to the current hierarchy
     template
     :type hierarchy_template_name: str
@@ -270,7 +271,8 @@ def customize_hierarchy_template(depth=None, template_type=None,
                                  folder_name=None, master_folder=None,
                                  hierarchy_template=None, file_type=None):
     """
-    Customize
+    Customize hierarchy template to add folders
+
     :param depth: depth level to add the
     :type depth: int
 
@@ -289,13 +291,15 @@ def customize_hierarchy_template(depth=None, template_type=None,
     :param hierarchy_template: hierarchy template to edit
     :type hierarchy_template: str
     
-    :param file_type: type of file to add to the 'hierarchy_file_types' entry
+    :param file_type: file extension to add to the 'hierarchy_file_types' entry,
+    used to look for specific file extensions when listing hierarchy
+    through FileLibrary
     :type file_type: str
     """
-    # Get hierarchy templates from file
+    # Load templates file and grab hierarchies
     hierarchy_templates = get_template_file()
 
-    # Get hierarchy template to update
+    # Get specified hierarchy template to update from hierarchy dict
     current_template = hierarchy_templates[hierarchy_template]
 
     if not file_type:
@@ -382,6 +386,7 @@ def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
                          add_filename=False):
     """
     Build a path from given hierarchy and folder list.
+
     :param hierarchy_template_name: name of the hierarchy template to browse in
     :type hierarchy_template_name: str
 
@@ -414,6 +419,7 @@ def build_hierarchy_path(hierarchy_template_name='', folder_list=[],
 def list_hierarchy_from_template(hierarchy_template_name=''):
     """
     List all the content of the selected hierarchy.
+
     :param hierarchy_template_name: name of the hierarchy template to browse in
     :type hierarchy_template_name: str
 
@@ -435,6 +441,7 @@ def list_hierarchy_content(folder_path='', hierarchy_template=dict,
                            current_depth=int):
     """
     Recursively list the content of a folder.
+
     :param folder_path: path to the folder whom you want to list the content
     :type folder_path: str
 
@@ -444,9 +451,8 @@ def list_hierarchy_content(folder_path='', hierarchy_template=dict,
     :param current_depth: depth level to list
     :type current_depth: int
 
-
     :return: content of the folder
-    :type
+    :rtype: dict
     """
 
     file_types = hierarchy_template['file_types']
@@ -492,6 +498,10 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
     :param filetype: type of the file whom you want to create the name.
     type accepted are: increment, publish, image_increment, image_publish
     :type filetype: str
+
+    :param selected_file_name: name of the file we want to increment, in
+    increment mode
+    :type selected_file_name: str
 
     :param return_path: specify if we want to include the path in the return
     value
@@ -543,7 +553,7 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
 
     if str_grps:
         for str_grp in str_grps:
-            str_grp = str_grp.replace('{', '').replace('}', '')
+            str_grp = str_grp[1:-1]
 
             # Take care of the depth groups
             if 'depth' in str_grp:
@@ -577,7 +587,7 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
                 else:
                     filename.replace(str_grp, depth_levels[depth_number])
 
-            # Take care of the increment group
+            # Take care of the increment group (for incremented files only)
             elif 'increment' in str_grp:
                 # When wwe want the actual filename
                 if not return_current_increment:
@@ -596,10 +606,14 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
                     else:
                         current_file_name = selected_file_name
 
-                    increment = current_file_name.\
-                        replace(filename.split('{')[0], '').\
-                        replace(filename.split('}')[1], '')
-
+                    # Create increment and return it
+                    if not current_file_name or current_file_name == 'untitled':
+                        increment = str(-1).zfill(
+                            hierarchy_template['increment_digits'])
+                    else:
+                        increment = current_file_name.\
+                            replace(filename.split('{')[0], '').\
+                            replace(filename.split('}')[1], '')
                     return increment
 
             # Raise error in case of invalid group part(s)
@@ -607,7 +621,7 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
                 raise ValueError('Invalid group parts in %s'
                                  % grab_file_template_name)
 
-    filename = '.'.join(filename, file_extension)
+    filename = '.'.join([filename, file_extension])
 
     if return_path:
         filename = os.path.join(folder_path, filename)
