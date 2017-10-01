@@ -104,6 +104,7 @@ def build_path(project, scenes_sound='', asset_anim='', asset_type='', asset='',
     return return_path
 
 
+# TODO : remove this
 def build_increment(number, digits=3):
     """
     Increment the given number and return it as a 2 decimal string (ie : 01, 02, etc.)

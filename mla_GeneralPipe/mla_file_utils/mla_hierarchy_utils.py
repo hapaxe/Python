@@ -3,6 +3,7 @@ import mla_GeneralPipe.mla_file_utils.mla_file_library as fl
 import mla_GeneralPipe.mla_file_utils.mla_file_utils as fu
 import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as Miu
 import mla_MultiPipe.mla_file_utils.mla_Multi_path_utils as Mpu
+import mla_GeneralPipe.mla_general_utils.mla_name_utils as nu
 import logging
 import os
 from collections import OrderedDict
@@ -13,6 +14,7 @@ reload(fl)
 reload(fu)
 reload(Miu)
 reload(Mpu)
+reload(nu)
 MAYA_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/MAYA PROJECTS'
 MAX_PROJECT_PATH = 'D:/BOULOT/TRAVAUX_PERSO/3DSMAX PROJECTS'
 application = Miu.get_application()
@@ -594,7 +596,7 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
                     inc = build_file_name(hierarchy_template_name, folder_path,
                                           filetype, return_path=False,
                                           return_current_increment=True)
-                    inc = pu.build_increment(inc,
+                    inc = nu.create_increment(inc,
                                              hierarchy_template['increment_digits'])
 
                     filename.replace(str_grp, inc)
@@ -608,8 +610,8 @@ def build_file_name(hierarchy_template_name='', folder_path='', filetype='',
 
                     # Create increment and return it
                     if not current_file_name or current_file_name == 'untitled':
-                        increment = str(-1).zfill(
-                            hierarchy_template['increment_digits'])
+                        increment = nu.create_increment(str(-1),
+                                                        hierarchy_template['increment_digits'])
                     else:
                         increment = current_file_name.\
                             replace(filename.split('{')[0], '').\

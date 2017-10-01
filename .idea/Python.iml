@@ -28,6 +28,10 @@
       <sourceFolder url="file://$MODULE_DIR$/mla_MultiPipe/mla_file_utils" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/mla_MaxPipe/mla_rig_modules" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/mla_MayaPipe/mla_rig_modules" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/mla_MayaPipe/mla_archive" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/mla_MultiPipe/mla_PosTool" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/mla_MayaPipe/old" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/mla_MaxPipe/mla_rig_utils" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 2.7.11 (C:\Program Files\Autodesk\Maya2017\bin\mayapy.exe)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

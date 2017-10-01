@@ -153,7 +153,7 @@
        <attribute name="title">
         <string>Position</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3">
+       <layout class="QGridLayout" name="gridLayout_8">
         <item row="0" column="0">
          <widget class="QGroupBox" name="groupBox_3">
           <property name="minimumSize">
@@ -255,7 +255,52 @@
           </layout>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
+        <item row="2" column="0">
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="minimumSize">
+           <size>
+            <width>115</width>
+            <height>70</height>
+           </size>
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QRadioButton" name="mirror_behavior_rB">
+               <property name="toolTip">
+                <string>Perform transformation in local space</string>
+               </property>
+               <property name="text">
+                <string>Behavior</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="mirror_scale_rB">
+               <property name="toolTip">
+                <string>Perform transformation in world space</string>
+               </property>
+               <property name="text">
+                <string>Scale</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="3" column="0">
          <widget class="QPushButton" name="move_pB">
           <property name="minimumSize">
            <size>
@@ -271,7 +316,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="4" column="0">
          <widget class="QPushButton" name="move_even_pB">
           <property name="minimumSize">
            <size>
@@ -298,6 +343,9 @@
          <widget class="QCheckBox" name="maintain_offset_cB">
           <property name="text">
            <string>Maintain offset</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
