@@ -181,6 +181,7 @@ class AssetManagerUI(dockable, QtWidgets.QDialog):
                     item.setIcon(icon)
 
                 item.setToolTip(pprint.pformat(info))
+                print pprint.pformat(info)
         else:
             files_list = None
 

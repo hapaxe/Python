@@ -1,6 +1,5 @@
 import pprint
 import logging
-
 from Qt import QtWidgets, QtCore, QtGui
 
 import mla_MultiPipe.mla_file_utils.mla_Multi_import_utils as import_utils
@@ -26,16 +25,15 @@ class PosToolUI(dockable, QtWidgets.QDialog):
         super(PosToolUI, self).__init__(parent=parent)
 
         self.setWindowTitle('Position Tool')
-        # self.setMinimumSize(825, 550)
 
         # UI
         self.buildUI()
 
         # Connexions
-        # self.move_pB.clicked.connect(self.move_obj)
-        # self.move_even_pB.clicked.connect(self.move_even_obj)
-        # self.constrain_pB.clicked.connect(self.constrain)
-        # self.constrain_even_pB.clicked.connect(self.constrain_even)
+        self.move_pB.clicked.connect(self.move_obj)
+        self.move_even_pB.clicked.connect(self.move_even_obj)
+        self.constrain_pB.clicked.connect(self.constrain)
+        self.constrain_even_pB.clicked.connect(self.constrain_even)
 
         self.translate_cB.stateChanged.connect(self.check_translate)
         self.rotate_cB.stateChanged.connect(self.check_rotate)
@@ -146,7 +144,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
 
         # World/Object space
         self.space_groupBox = QtWidgets.QGroupBox(self.tab)
-        self.space_groupBox.setMinimumSize(QtCore.QSize(115, 70))
         self.space_groupBox.setTitle("")
         self.space_groupBox.setObjectName("space_groupBox")
         self.position_layout.addWidget(self.space_groupBox)
@@ -208,7 +205,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
 
         # Mirroring behaviour
         self.behaviour_groupBox = QtWidgets.QGroupBox(self.tab)
-        self.behaviour_groupBox.setMinimumSize(QtCore.QSize(115, 70))
         self.behaviour_groupBox.setTitle("")
         self.behaviour_groupBox.setObjectName("behaviour_groupBox")
         self.position_layout.addWidget(self.behaviour_groupBox)
@@ -379,7 +375,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
         self.constrain_even_pB.setText("Constrain by pair")
         self.constrain_layout.addWidget(self.constrain_even_pB)
 
-        # QtCore.QMetaObject.connectSlotsByName(self)
         # self.setTabOrder(self.tabWidget, self.ws_rB)
         # self.setTabOrder(self.ws_rB, self.os_rB)
         # self.setTabOrder(self.os_rB, self.mirror_cB)
@@ -446,12 +441,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
             self.rx_cB.setChecked(False)
             self.ry_cB.setChecked(False)
             self.rz_cB.setChecked(False)
-        # QtCore.QObject.connect(self.rotate_cB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.rx_cB.setChecked)
-        # QtCore.QObject.connect(self.rotate_cB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.rz_cB.setChecked)
-        # QtCore.QObject.connect(self.rotate_cB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.ry_cB.setChecked)
 
     def check_scale(self):
         """Connect translate checking"""
@@ -463,12 +452,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
             self.rx_cB.setChecked(False)
             self.ry_cB.setChecked(False)
             self.rz_cB.setChecked(False)
-        # QtCore.QObject.connect(self.scale_cB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.sx_cB.setChecked)
-        # QtCore.QObject.connect(self.scale_cB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.sy_cB.setChecked)
-        # QtCore.QObject.connect(self.scale_cB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.sz_cB.setChecked)
 
     def check_from_pointct(self):
         """Check translate by default when selecting point constraint"""
@@ -476,8 +459,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
             self.translate_cB.setChecked(True)
         else:
             self.translate_cB.setChecked(False)
-        # QtCore.QObject.connect(self.point_ct_rB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.translate_cB.setChecked)
 
     def check_from_orientct(self):
         """Check rotate by default when selecting orient constraint"""
@@ -485,9 +466,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
             self.rotate_cB.setChecked(True)
         else:
             self.rotate_cB.setChecked(False)
-        # QtCore.QObject.connect(self.orient_ct_rB,
-        #                        QtCore.SIGNAL("toggled(bool)"),
-        #                        self.rotate_cB.setChecked)
 
     def check_from_aimct(self):
         """Enable aim and up groupBoxes when checking aimConstraint rB"""
@@ -500,24 +478,12 @@ class PosToolUI(dockable, QtWidgets.QDialog):
             self.up_groupBox.setDisabled(True)
             self.rotate_cB.setChecked(False)
 
-        # QtCore.QObject.connect(self.aim_ct_rB,
-        #                        QtCore.SIGNAL("toggled(bool)"),
-        #                        self.rotate_cB.setChecked)
-        # QtCore.QObject.connect(self.aim_ct_rB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.aim_groupBox.setEnabled)
-        # QtCore.QObject.connect(self.aim_ct_rB, QtCore.SIGNAL("toggled(bool)"),
-        #                        self.up_groupBox.setEnabled)
-        # Check translate by default when selecting point constraint
-
     def check_from_scalect(self):
         """Check scale by default when selecting scale constraint"""
         if self.scale_ct_rB.isChecked():
             self.scale_cB.setChecked(True)
         else:
             self.scale_cB.setChecked(False)
-        # QtCore.QObject.connect(self.scale_ct_rB,
-        #                        QtCore.SIGNAL("toggled(bool)"),
-        #                        self.scale_cB.setChecked)
 
     def check_from_parentct(self):
         """Check translate/rotate by default when selecting parent constraint"""
@@ -527,12 +493,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
         else:
             self.translate_cB.setChecked(False)
             self.rotate_cB.setChecked(False)
-        # QtCore.QObject.connect(self.parent_ct_rB,
-        #                        QtCore.SIGNAL("toggled(bool)"),
-        #                        self.translate_cB.setChecked)
-        # QtCore.QObject.connect(self.parent_ct_rB,
-        #                        QtCore.SIGNAL("toggled(bool)"),
-        #                        self.rotate_cB.setChecked)
 
     def check_from_mirrorct(self):
         """Disable constrain by pair push button"""
@@ -540,9 +500,6 @@ class PosToolUI(dockable, QtWidgets.QDialog):
             self.constrain_even_pB.setDisabled()
         else:
             self.constrain_even_pB.setDisabled()
-        # QtCore.QObject.connect(self.mirror_ct_rB,
-        #                        QtCore.SIGNAL("toggled(bool)"),
-        #                        self.constrain_even_pB.setDisabled)
 
     def get_data(self):
         """
@@ -596,7 +553,7 @@ class PosToolUI(dockable, QtWidgets.QDialog):
         mirror = self.mirror_cB.isChecked()
 
         # behavior
-        behavior = self.behavior_cB.isChecked()
+        behavior = self.mirror_behavior_rB.isChecked()
 
         # Up vector / aim vector
         up_vector = (self.up_vectorX_sB.value(),
@@ -645,8 +602,7 @@ class PosToolUI(dockable, QtWidgets.QDialog):
                 'skip_rotation': skip_rot,
                 'skip_scale': skip_scale,
                 'constraint_type': constraint_type,
-                'behavior': behavior
-                }
+                'behavior': behavior}
 
     def move_obj(self):
         data = self.get_data()
